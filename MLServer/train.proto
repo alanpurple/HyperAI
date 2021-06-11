@@ -1,0 +1,14 @@
+package Train;
+
+service Trainer {
+	rpc StartTrain (Model) returns (TrainReply) {}
+	rpc StopTrain (Model) returns (TrainReply) {}
+}
+
+message Model {
+	int32 id = 1;
+}
+
+message TrainReply {
+	string message = 1;
+}
