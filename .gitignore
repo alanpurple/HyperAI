@@ -1,15 +1,15 @@
 # compiled output
-/dist
-/tmp
-/out-tsc
+dist/
+tmp/
+out-tsc/
 # Only exists if Bazel was run
-/bazel-out
+bazel-out/
 
 # profiling files
 chrome-profiler-events*.json
 
 # IDEs and editors
-/.idea
+.idea/
 .project
 .classpath
 .c9/
@@ -26,13 +26,13 @@ chrome-profiler-events*.json
 .history/*
 
 # misc
-/connect.lock
-/coverage
-/libpeerconnection.log
+connect.lock/
+coverage/
+libpeerconnection.log
 npm-debug.log
 yarn-error.log
 testem.log
-/typings
+typings/
 
 # System Files
 .DS_Store
