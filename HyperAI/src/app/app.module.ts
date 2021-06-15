@@ -19,6 +19,7 @@ import { AdminComponent } from './admin.component';
 import { InfoComponent } from './info.component';
 import { DescComponent } from './desc.component';
 import { TrainComponent } from './train.component';
+import { DataComponent } from './data.component';
 
 @NgModule({
   declarations: [
@@ -29,7 +30,8 @@ import { TrainComponent } from './train.component';
     AdminComponent,
     InfoComponent,
     DescComponent,
-    TrainComponent
+    TrainComponent,
+    DataComponent
   ],
   imports: [
     BrowserModule,

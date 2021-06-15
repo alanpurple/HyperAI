@@ -21,6 +21,9 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="connectdb.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="run_server.py" />
   </ItemGroup>
   <ItemGroup>

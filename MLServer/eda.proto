@@ -1,5 +1,14 @@
 package Eda;
 
 service Preprocess {
+	rpc cleanse (dataloc) returns (Reply) {}
+}
 
+message dataloc {
+	int32 type = 1;
+	string location = 2;
+}
+
+message Reply {
+	repeated string msg = 1;
 }
