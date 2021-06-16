@@ -20,6 +20,8 @@ import { InfoComponent } from './info.component';
 import { DescComponent } from './desc.component';
 import { TrainComponent } from './train.component';
 import { DataComponent } from './data.component';
+import { ModelComponent } from './model.component';
+import { EdaComponent } from './eda.component';
 
 @NgModule({
   declarations: [
@@ -31,7 +33,9 @@ import { DataComponent } from './data.component';
     InfoComponent,
     DescComponent,
     TrainComponent,
-    DataComponent
+    DataComponent,
+    ModelComponent,
+    EdaComponent
   ],
   imports: [
     BrowserModule,

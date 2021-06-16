@@ -35,6 +35,12 @@
     <Content Include="eda.proto">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="eda_image.proto">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="eda_vision.proto">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="train.proto">
       <SubType>Code</SubType>
     </Content>

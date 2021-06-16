@@ -9,6 +9,9 @@ import { HomeComponent } from './home.component';
 import { InfoComponent } from './info.component';
 import { LoginComponent } from './login.component';
 import { SignupComponent } from './signup.component';
+import { ModelComponent } from './model.component';
+import { TrainComponent } from './train.component';
+import { EdaComponent } from './eda.component';
 
 const routes: Routes = [
   {
@@ -28,6 +31,10 @@ const routes: Routes = [
     canActivate: [NotLoggedIn]
   },
   {
+    path: 'admin', component: AdminComponent,
+    canActivate: [IsAdmin]
+  },
+  {
     path: 'info', component: InfoComponent
   },
   {
@@ -36,6 +43,15 @@ const routes: Routes = [
   },
   {
     path: 'data-manager', component: DataComponent,
+    canActivate: [LoggedIn]
+  }, {
+    path: 'model-suggestion', component: ModelComponent,
+    canActivate: [LoggedIn]
+  }, {
+    path: 'train-manager', component: TrainComponent,
+    canActivate: [LoggedIn]
+  }, {
+    path: 'eda-manager', component: EdaComponent,
     canActivate: [LoggedIn]
   }
 ];
