@@ -1,21 +1,14 @@
 import * as express from 'express';
 import { AddressInfo } from "net";
 import * as path from 'path';
-
-import routes from './routes/index';
-import users from './routes/user';
+import { connectDdb } from './connect-ddb';
 
 const debug = require('debug')('my express app');
 const app = express();
 
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'pug');
-
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', routes);
-app.use('/users', users);
+connectDdb().then(() => console.log('document db connected')).catch(err => console.error(err));
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
