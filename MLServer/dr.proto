@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package Dr;
+
+service Pca {
+	rpc Pca (DrRequest) returns (DrResponse) {}
+	rpc PcaRsvd (DrRequest) returns (DrResponse) {}
+}
+
+service Lda {
+	rpc LdaSvd (DrRequest) returns (DrResponse) {}
+	rpc LdaEigen (DrRequest) returns (DrResponse) {}
+}
+
+
+
+message DrRequest {
+	string tableName = 1;
+	string labelColumn = 2;
+	uint32 nComponents = 3;
+}
+
+message DrResponse {
+	// -1 for no error, 0 for bad request, 1 for process error
+	int32 error = 1;
+	// optional
+	repeated float variance = 2;
+	repeated float varianceRatio = 3;
+	string newTableName = 4;
+}

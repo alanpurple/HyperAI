@@ -398,3 +398,6 @@ MigrationBackup/
 FodyWeavers.xsd
 
 package-lock.json
+
+# grpc generated
+*pb2*.py

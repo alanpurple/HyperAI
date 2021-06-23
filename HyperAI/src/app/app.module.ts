@@ -23,19 +23,22 @@ import { DataComponent } from './data.component';
 import { ModelComponent } from './model.component';
 import { EdaComponent } from './eda.component';
 
+import { DataService } from './data.service';
+import { EdaService } from './eda.service';
+import { ReportService } from './report.service';
+import { TrainService } from './train.service';
+
+import { LoggedIn, NotLoggedIn, HasNick, IsAdmin } from './check.login';
+import { ErrorAlert, ErrorDialog } from './error.alert';
+import { ConfirmDialog, ConfirmDialogTemplate } from './confirm.dialog';
+import { MAT_DIALOG_DEFAULT_OPTIONS } from '@angular/material/dialog';
+
 @NgModule({
   declarations: [
-    AppComponent,
-    SignupComponent,
-    LoginComponent,
-    HomeComponent,
-    AdminComponent,
-    InfoComponent,
-    DescComponent,
-    TrainComponent,
-    DataComponent,
-    ModelComponent,
-    EdaComponent
+    AppComponent, SignupComponent, LoginComponent, HomeComponent,
+    AdminComponent,InfoComponent,DescComponent,TrainComponent,
+    DataComponent, ModelComponent, EdaComponent,
+    ErrorDialog, ConfirmDialogTemplate
   ],
   imports: [
     BrowserModule,
@@ -46,7 +49,8 @@ import { EdaComponent } from './eda.component';
     PlotlyModule,
     MatModule
   ],
-  providers: [],
+  providers: [ConfirmDialog, LoggedIn, NotLoggedIn, IsAdmin, ErrorAlert, HasNick,
+    { provide: MAT_DIALOG_DEFAULT_OPTIONS, useValue: { hasBackdrop: false } }],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

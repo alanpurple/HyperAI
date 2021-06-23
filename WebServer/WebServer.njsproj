@@ -46,6 +46,9 @@
     <TypeScriptCompile Include="connect-rdb.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>
+    <TypeScriptCompile Include="models\data.info.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
     <TypeScriptCompile Include="models\user.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>
