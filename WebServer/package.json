@@ -15,7 +15,7 @@
   "dependencies": {
     "debug": "^4.3.2",
     "express": "^5.0.0-alpha.8",
-    "@grpc/proto-loader": "^0.6.2",
+    "@grpc/proto-loader": "^0.6.3",
     "@grpc/grpc-js": "^1.3.3",
     "@mysql/xdevapi": "^8.0.25",
     "google-protobuf": "^4.0.0-rc.2",

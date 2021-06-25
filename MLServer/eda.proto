@@ -17,8 +17,9 @@ message ResultMsg {
 }
 
 message CleanseReply {
-	repeated string msg = 1;
-	string loc = 2;
+	int32 error = 1;
+	repeated string msg = 2;
+	string loc = 3;
 }
 
 message SummaryReply {
