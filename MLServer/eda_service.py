@@ -18,11 +18,19 @@ class EdaService(eda_pb2_grpc.PreprocessServicer):
         df=pd.read_sql(q.statement,conn)
         for label,content in df.items():
             if pd.api.types.is_strng_dtype(content):
-                hasemptystr=(content.str.len<1).all()
-                if content[content.str.len>0].str.isnumeric.all():
+                hasnoemptystr=(content.str.len()<1).all()
+                if content[content.str.len()>0].str.isnumeric.all() and content.unique().size>content.size*0.01:
                     new_content=pd.to_numeric(content)
+                    if not hasnoemptystr:
+                        new_content.fillna(inplace=True)
+                else:
+                    if not hasnoemptystr:
+                        if content[content.str.len()<1].size>0.001*content.size:
+                            content.replace('','unknown')
+                        else:
+                            content.replace('',content.mode()[0])
             else:
-
+                content.fillna(inplace=True)
 
 
     def Describe(self, request, context):
