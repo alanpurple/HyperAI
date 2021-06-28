@@ -58,6 +58,12 @@
     <TypeScriptCompile Include="routes\data.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>
+    <TypeScriptCompile Include="routes\eda-text.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="routes\eda-vision.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
     <TypeScriptCompile Include="routes\eda.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>

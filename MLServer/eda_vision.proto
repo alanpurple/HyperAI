@@ -1,3 +1,7 @@
 syntax = "proto3";
 
 package EdaVision;
+
+service Preprocess {
+	rpc Resize (dataloc) returns (ResizeReply) {}
+}

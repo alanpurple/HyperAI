@@ -16,21 +16,41 @@ class EdaService(eda_pb2_grpc.PreprocessServicer):
         q=session.query(data)
         session.close()
         df=pd.read_sql(q.statement,conn)
+        is_cleansed=False
         for label,content in df.items():
-            if pd.api.types.is_strng_dtype(content):
-                hasnoemptystr=(content.str.len()<1).all()
+            if pd.api.types.is_string_dtype(content):
+                hasnoemptystr=(content.str.len()>0).all()
+                # convert to numeric
                 if content[content.str.len()>0].str.isnumeric.all() and content.unique().size>content.size*0.01:
                     new_content=pd.to_numeric(content)
                     if not hasnoemptystr:
-                        new_content.fillna(inplace=True)
-                else:
-                    if not hasnoemptystr:
-                        if content[content.str.len()<1].size>0.001*content.size:
-                            content.replace('','unknown')
-                        else:
-                            content.replace('',content.mode()[0])
+                        new_content.fillna(new_content.mean(),inplace=True)
+                    content=new_content
+                    is_cleansed=True
+                # categorical+string, empty strings
+                elif not hasnoemptystr:
+                    # too many empty strings
+                    if content[content.str.len()<1].size>0.001*content.size:
+                        content.replace('','unknown')
+                    else:
+                        content.replace('',content.mode()[0])
+                    is_cleansed=True
+            # numerical
             else:
-                content.fillna(inplace=True)
+                hasnona=content.notna().all()
+                if content.unique().size<content.size*0.01:
+                    if not hasnona:
+                        content.fillna(content.mode()[0],inplace=True)
+                    #convert to string
+                    content.apply(str)
+                    is_cleansed=True
+                elif not hasnona:
+                    content.fillna(content.mean(),inplace=True)
+                    is_cleansed=True
+
+        if is_cleansed:
+            new_tablename=request.location+'_clsd'
+            df.to_sql(new_tablename,conn)
 
 
     def Describe(self, request, context):

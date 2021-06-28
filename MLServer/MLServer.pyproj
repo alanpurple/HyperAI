@@ -22,6 +22,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="connectdb.py" />
+    <Compile Include="dbmodel\Embedding.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="eda_pb2.py" />
     <Compile Include="eda_pb2_grpc.py" />
     <Compile Include="run_server.py" />
@@ -30,6 +33,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="dbmodel\" />
     <Folder Include="pytorch\" />
     <Folder Include="tensorflow\" />
     <Folder Include="preprocessing\" />
@@ -41,10 +45,10 @@
     <Content Include="eda.proto">
       <SubType>Code</SubType>
     </Content>
-    <Content Include="eda_image.proto">
+    <Content Include="eda_vision.proto">
       <SubType>Code</SubType>
     </Content>
-    <Content Include="eda_vision.proto">
+    <Content Include="eda_text.proto">
       <SubType>Code</SubType>
     </Content>
     <Content Include="train.proto">

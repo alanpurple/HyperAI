@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package EdaText;
+
+service Preprocess {
+	//rpc MakeDict  - this job would rather be done by webserver, because it is simple
+	rpc MakeEmbedding (EmbeddingRequest)  returns (EmbeddingReply)
+}
+
+message EmbeddingRequest {
+	// db table name, for now
+	string location = 1;
+	// 0 for doc2vec, 1 for sentenceBERT
+	int32 modelType = 2;
+	// 0 for all, 1 for specific columns
+	int32 dataType = 3;
+	// must be empty for type 0, need validation on actual implementation
+	repeated string columns = 4;
+}
+
+message EmbeddingReply {
+	int32 error = 1;
+	// new table name, document db location for data - value(array) mapping
+	string loc = 2;
