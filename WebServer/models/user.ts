@@ -1,10 +1,14 @@
 import { Schema, model } from 'mongoose';
 import { hash, compare } from 'bcrypt';
+import { DataTypes } from 'sequelize';
+
+const NUM_ROUNDS = 10;
 
 interface User {
     id: number,
     name: string;
     nickName: string;
+    accountType: 'admin' | 'user';
     email: string;
     data: string[];
     cleanData: string[];
@@ -20,6 +24,7 @@ const schema = new Schema<User>({
     id: { type: Number, required: true },
     name: { type: String, required: true },
     nickName: { type: String },
+    accountType: { type: DataTypes.ENUM,values:['admin','user'] },
     email: { type: String, required: true },
     data: { type: [String], default: [] },
     cleanData: { type: [String], default: [] },
@@ -39,6 +44,25 @@ const schema = new Schema<User>({
                 callback(null, user);
         });
     }
+});
+
+schema.post('save', doc =>
+    hash(doc.password, NUM_ROUNDS, (err, hashed) => {
+        if (err)
+            throw err;
+        else
+            doc.update({ password: hashed });
+    })
+);
+
+schema.post('update', doc => {
+    if (doc.changed('password'))
+        hash(doc.password, NUM_ROUNDS, (err, hashed) => {
+            if (err)
+                throw err;
+            else
+                doc.password = hashed;
+        });
 });
 
 export const UserModel = model<User>('User', schema);
