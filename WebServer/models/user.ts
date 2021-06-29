@@ -7,6 +7,12 @@ interface User {
     nickName: string;
     email: string;
     data: string[];
+    cleanData: string[];
+    // cleansed data tables have suffix '_clsd'
+    cleansedData: string[];
+    // clean data and cleansed data can be preprocessed
+    // preprocessedData has suffix '_prpr'
+    preprocessedData: string[];
     comparePassword(password: string, callback: any);
 }
 
@@ -16,6 +22,9 @@ const schema = new Schema<User>({
     nickName: { type: String },
     email: { type: String, required: true },
     data: { type: [String], default: [] },
+    cleanData: { type: [String], default: [] },
+    cleasedData: { type: [String], default: [] },
+    preprocessedData: { type: [String], default: [] },
 
     comparePassword(password: string, callback: any) {
         const user = this;

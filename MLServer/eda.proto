@@ -3,7 +3,9 @@ syntax = "proto3";
 package Eda;
 
 service Preprocess {
-	rpc Cleanse (dataloc) returns (CleanseReply) {}
+	rpc Cleanse (dataloc) returns (ProcessedReply) {}
+	// normalize and log, only from clean data
+	rpc NormLog (dataloc) returns (ProcessedReply) {}
 	rpc Describe (dataloc) returns (SummaryReply) {}
 }
 
@@ -16,7 +18,7 @@ message ResultMsg {
 	string msg = 1;
 }
 
-message CleanseReply {
+message ProcessedReply {
 	int32 error = 1;
 	repeated string msg = 2;
 	string loc = 3;
