@@ -1,4 +1,6 @@
-package Train;
+syntax = "proto3";
+
+package train;
 
 service Trainer {
 	rpc StartTrain (Model) returns (TrainReply) {}
@@ -10,5 +12,5 @@ message Model {
 }
 
 message TrainReply {
-	string message = 1;
+	repeated string message = 1;
 }

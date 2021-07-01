@@ -1,6 +1,18 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { QueryTypes } from 'sequelize';
-import { sequelize,sequelizeOpen } from 'connect-rdb';
+import { sequelize, sequelizeOpen } from 'connect-rdb';
+
+const PROTO_PATH = __dirname + '/../../MLServer/eda.proto';
+import { loadPackageDefinition, credentials } from '@grpc/grpc-js';
+import { loadSync } from '@grpc/proto-loader';
+
+const pkgdef = loadSync(PROTO_PATH, {
+    keepCase: true, longs: String, enums: String, defaults: true, oneofs: true
+});
+
+const Preprocess = loadPackageDefinition(pkgdef).eda['Preprocess'];
+
+const client = new Preprocess('localhost:50051', credentials.createInsecure());
 
 const router = Router();
 
@@ -64,9 +76,26 @@ router.get('/relation/:open/:name/:source/:target/:type', (req, res) => {
                     res.status(400).send('invalid type');
             }
         }).catch(err => {
-            throw err;
             res.sendStatus(500);
         });
+});
+
+router.get('/cleanse/:name', async (req: Request, res: Response) => {
+    try {
+        const response = await client.cleanse({ location: req.params.name });
+        if (response.error == 0)
+            res.sendStatus(400);
+        else if (response.error == 1)
+            res.sendStatus(500);
+        else
+            res.send({
+                msg: response.msg,
+                table: response.loc
+            });
+    }
+    catch (err) {
+        res.status(500).send(err);
+    }
 });
 
 function ensureAuthenticated(req: Request, res: Response, next: NextFunction) {

@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package Dr;
+package dr;
 
 service Pca {
 	rpc Pca (DrRequest) returns (DrResponse) {}

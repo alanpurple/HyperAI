@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package Eda;
+package eda;
 
 service Preprocess {
 	rpc Cleanse (dataloc) returns (ProcessedReply) {}

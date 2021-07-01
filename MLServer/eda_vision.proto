@@ -1,7 +1,18 @@
 syntax = "proto3";
 
-package EdaVision;
+package edavision;
 
 service Preprocess {
-	rpc Resize (dataloc) returns (ResizeReply) {}
+	rpc Resize (dataloc) returns (PreprocessReply) {}
+	rpc Normalize (dataloc) returns (PreprocessReply) {}
+}
+
+message dataloc {
+	string loc = 1;
+}
+
+message PreprocessReply {
+	int32 error = 1;
+	string resultLoc = 2;
+	repeated string msgs =3;
 }

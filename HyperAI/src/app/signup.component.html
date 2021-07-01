@@ -1,1 +1,36 @@
-<p>signup works!</p>
+<div fxLayout="row">
+  <mat-icon svgIcon="google"></mat-icon>
+  <a mat-button target="_self" href="/auth/google">구글 계정으로 생성</a>
+</div>
+<div fxLayout="row">
+  <mat-icon svgIcon="facebook"></mat-icon>
+  <a mat-button target="_self" href="/auth/facebook">페이스북 계정으로 생성</a>
+</div>
+<mat-card>
+  <mat-toolbar color="primary">로컬 계정으로 생성</mat-toolbar>
+  <mat-card-content>
+    <form action="/account/signup" method="post" ngNoForm fxLayout="column">
+      <mat-form-field>
+        <input matInput type="email" name="username" placeholder="이메일 주소" [(ngModel)]="email"
+               required (keyup.enter)="checkEmail()">
+      </mat-form-field>
+      <button mat-raised-button type="button" color="warn" (click)="checkEmail()" [fxHide]="emailChecked">
+        계정 존재여부 확인
+      </button>
+      <div [fxHide]="!emailChecked" fxLayout="column">
+        <button mat-raised-button type="button" (click)="resetEmail()" color="accent">
+          계정 다시 입력
+        </button>
+        <mat-form-field>
+          <input matInput placeholder="패쓰워드" name="password"
+                 [(ngModel)]="password" type="password" required [autofocus]="emailChecked">
+        </mat-form-field>
+        <mat-form-field *ngIf="password">
+          <input matInput placeholder="패쓰워드확인"
+                 [(ngModel)]="passwordConfirm" type="password" required>
+        </mat-form-field>
+        <button mat-raised-button type="submit" color="warn">계정 생성</button>
+      </div>
+    </form>
+  </mat-card-content>
+</mat-card>

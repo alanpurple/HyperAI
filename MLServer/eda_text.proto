@@ -1,10 +1,10 @@
 syntax = "proto3";
 
-package EdaText;
+package edatext;
 
 service Preprocess {
 	//rpc MakeDict  - this job would rather be done by webserver, because it is simple
-	rpc MakeEmbedding (EmbeddingRequest)  returns (EmbeddingReply)
+	rpc MakeEmbedding (EmbeddingRequest)  returns (EmbeddingReply) {}
 }
 
 message EmbeddingRequest {
@@ -22,3 +22,4 @@ message EmbeddingReply {
 	int32 error = 1;
 	// new table name, document db location for data - value(array) mapping
 	string loc = 2;
+}
