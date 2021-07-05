@@ -98,6 +98,19 @@ router.get('/cleanse/:name', async (req: Request, res: Response) => {
     }
 });
 
+router.get('/normlog/:name', async (req: Request, res: Response) => {
+    try {
+
+    }
+    catch (err) {
+        res.status(500).send(err);
+    }
+})
+
+router.get('/describe/:name', async (req: Request, res: Response) => {
+
+})
+
 function ensureAuthenticated(req: Request, res: Response, next: NextFunction) {
     if (req.isAuthenticated())
         res.status(401).send('unauthorized');
