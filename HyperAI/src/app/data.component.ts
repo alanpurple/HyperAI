@@ -47,10 +47,25 @@ export class DataComponent implements OnInit, AfterViewInit {
   openData: DataInfo[] = [];
   myData: DataInfo[] = [];
 
+  files: FileList|null = null;
+
   isLoadingMy = true;
   isLoadingPublic = true;
 
   addData() {
 
   }
+
+  /*onFileSelected(event: InputEvent) {
+    const files = event.target.files;
+    if (!files)
+      return;
+    const file: File = files[0];
+    
+  }*/
 }
+
+/*interface InputEvent extends Event {
+  target: HTMLInputElement & EventTarget;
+}
+*/

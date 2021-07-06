@@ -43,7 +43,29 @@ router.get('/:tablename', async (req: Request, res: Response) => {
 });
 
 router.post('/', async (req: Request, res: Response) => {
+    try {
+        if (!('file' in req.body)) {
+            res.status(400).send('no file');
+            return;
+        }
+        const file = req.body.file;
+    }
+    catch (err) {
+        res.status(500).send(err);
+    }
+})
 
+router.post('/public', async (req: Request, res: Response) => {
+    try {
+        if (!('file' in req.body)) {
+            res.status(400).send('no file');
+            return;
+        }
+        const file = req.body.file;
+    }
+    catch (err) {
+        res.status(500).send(err);
+    }
 })
 
 function ensureAuthenticated(req: Request, res: Response, next: NextFunction) {

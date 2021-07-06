@@ -9,7 +9,26 @@ import { DataInfo } from './data.info';
 })
 export class DataService {
 
-  constructor() { }
+  constructor(
+    private _httpClient: HttpClient
+  ) { }
+
+  getDataPublic(): Observable<DataInfo[]> {
+    return this._httpClient.get<DataInfo[]>('/data/public');
+  }
+
+  getDataMy(): Observable<DataInfo[]> {
+    return this._httpClient.get<DataInfo[]>('/data');
+  }
+
+  // upload pulic data, for admin only
+  uploadDataPublic(data: File): Observable<string> {
+    return this._httpClient.post('/data/public', { file: data }, { responseType: 'text' });
+  }
+
+  uploadData(data: File): Observable<string> {
+    return this._httpClient.post('/data', { file: data }, { responseType: 'text' });
+  }
 }
 
 export class DataDatabase {
