@@ -2,8 +2,15 @@ import { Router, Request, Response, NextFunction } from 'express';
 import { UserModel } from '../models/user';
 import { DataInfoModel } from '../models/data.info';
 import { sequelize, sequelizeOpen } from 'connect-rdb';
+import { extname } from 'path';
+import * as parse from 'csv-parse';
+import * as XLSX from 'xlsx';
+import multer = require('multer');
+const multerRead = multer({ storage: multer.memoryStorage() });
 
 const router = Router();
+
+const csvParser = parse({ delimiter: ',' });
 
 router.all('*', ensureAuthenticated);
 
@@ -16,6 +23,7 @@ router.get('/open', async (req: Request, res: Response) => {
 router.get('/', async (req: Request, res: Response) => {
     try {
         const UserData = await UserModel.findById(req.user['email']);
+        res.send(UserData);
     }
     catch (err) {
         res.status(500).send(err);
@@ -42,26 +50,46 @@ router.get('/:tablename', async (req: Request, res: Response) => {
     }
 });
 
-router.post('/', async (req: Request, res: Response) => {
+router.post('/', multerRead.single('data'), async (req: Request, res: Response) => {
     try {
-        if (!('file' in req.body)) {
-            res.status(400).send('no file');
-            return;
+        const file = req.file;
+        const ext = extname(file.filename);
+        let parser;
+        let data;
+        switch (ext) {
+            case 'csv':
+                parser = csvParser;
+
+                break;
+
+            case 'xlsx':
+                data = XLSX.read(file)
+
+                break;
         }
-        const file = req.body.file;
     }
     catch (err) {
         res.status(500).send(err);
     }
 })
 
-router.post('/public', async (req: Request, res: Response) => {
+router.post('/public', multerRead.single('data'), async (req: Request, res: Response) => {
     try {
-        if (!('file' in req.body)) {
-            res.status(400).send('no file');
-            return;
+        const file = req.file;
+        const ext = extname(file.filename);
+        let parser;
+        let data;
+        switch (ext) {
+            case 'csv':
+                parser = csvParser;
+
+                break;
+
+            case 'xlsx':
+                data = XLSX.read(file);
+
+                break;
         }
-        const file = req.body.file;
     }
     catch (err) {
         res.status(500).send(err);

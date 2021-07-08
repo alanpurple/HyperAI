@@ -1,11 +1,9 @@
 import { HttpClient } from '@angular/common/http';
-import { ViewChild } from '@angular/core';
 import { AfterViewInit, Component, OnInit } from '@angular/core';
-import { MatPaginator } from '@angular/material/paginator';
-import { MatSort } from '@angular/material/sort';
 
 import { DataInfo } from './data.info';
-import { DataDatabase } from './data.service';
+import { DataDatabase, DataService } from './data.service';
+import { ConfirmDialog } from './confirm.dialog';
 import { ErrorAlert } from './error.alert';
 
 @Component({
@@ -17,19 +15,19 @@ export class DataComponent implements OnInit, AfterViewInit {
 
   constructor(
     private _httpClient: HttpClient,
+    private dataService: DataService,
+    private confirmDialog: ConfirmDialog,
     private errorAlert: ErrorAlert
-  ) { }
+  ) {
+  }
 
   ngOnInit(): void {
+
   }
 
   ngAfterViewInit() {
-    this.dataDB = new DataDatabase(this._httpClient);
-    this.isLoadingMy = true;
-    this.dataDB.getDataMy().subscribe(data => {
-      this.isLoadingMy = false;
-      this.myData = data;
-    }, err => this.errorAlert.open(err));
+
+    this.loadMyData();
 
     this.isLoadingPublic = true;
     this.dataDB.getDataPublic().subscribe(data => {
@@ -39,11 +37,15 @@ export class DataComponent implements OnInit, AfterViewInit {
 
   }
 
-  @ViewChild(MatSort) sortMy!: MatSort;
+  loadMyData() {
+    this.isLoadingMy = true;
+    this.dataDB.getDataMy().subscribe(data => {
+      this.isLoadingMy = false;
+      this.openData = data;
+    }, err => this.errorAlert.open(err));
+  }
 
-  @ViewChild(MatSort) sortPublic!: MatSort;
-
-  dataDB: DataDatabase | null = null;
+  dataDB: DataDatabase = new DataDatabase(this._httpClient);
   openData: DataInfo[] = [];
   myData: DataInfo[] = [];
 
@@ -53,7 +55,12 @@ export class DataComponent implements OnInit, AfterViewInit {
   isLoadingPublic = true;
 
   addData() {
-
+    if (!this.files?.length)
+      return;
+    this.dataService.uploadData(this.files[0]).subscribe(msg => {
+      this.confirmDialog.open(msg);
+      this.loadMyData();
+    }, err => this.errorAlert.open(err));
   }
 
   /*onFileSelected(event: InputEvent) {
