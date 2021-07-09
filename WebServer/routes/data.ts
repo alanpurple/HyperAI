@@ -3,7 +3,7 @@ import { UserModel } from '../models/user';
 import { DataInfoModel } from '../models/data.info';
 import { sequelize, sequelizeOpen } from 'connect-rdb';
 import { extname } from 'path';
-import * as parse from 'csv-parse';
+import * as csvParse from 'csv-parse';
 import * as XLSX from 'xlsx';
 import multer = require('multer');
 const multerRead = multer({ storage: multer.memoryStorage() });
@@ -58,7 +58,13 @@ router.post('/', multerRead.single('data'), async (req: Request, res: Response) 
         let data;
         switch (ext) {
             case 'csv':
-                parser = csvParser;
+                csvParse(file.buffer, { columns: true }, (err, output) => {
+                    if (err) {
+                        res.status(500).send(err);
+                        return;
+                    }
+
+                })
 
                 break;
 
@@ -81,7 +87,6 @@ router.post('/public', multerRead.single('data'), async (req: Request, res: Resp
         let data;
         switch (ext) {
             case 'csv':
-                parser = csvParser;
 
                 break;
 
