@@ -1,0 +1,12 @@
+syntax="proto3";
+
+package dataservice;
+
+service DataService {
+	rpc upload (string) returns (DataReponse){}
+}
+
+message DataReponse {
+	string error = 1;
+	string loc = 2;
+}

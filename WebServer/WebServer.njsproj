@@ -37,6 +37,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="models\" />
+    <Folder Include="upload-temp\" />
     <Folder Include="routes\" />
   </ItemGroup>
   <ItemGroup>

@@ -6,11 +6,9 @@ import { extname } from 'path';
 import * as csvParse from 'csv-parse';
 import * as XLSX from 'xlsx';
 import multer = require('multer');
-const multerRead = multer({ storage: multer.memoryStorage() });
+const multerRead = multer({ dest:'../upload-temp' });
 
 const router = Router();
-
-const csvParser = parse({ delimiter: ',' });
 
 router.all('*', ensureAuthenticated);
 
