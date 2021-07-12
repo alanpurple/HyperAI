@@ -2,11 +2,14 @@ syntax="proto3";
 
 package dataservice;
 
-service DataService {
-	rpc upload (string) returns (DataReponse){}
+service Data {
+	rpc Upload (UploadRequest) returns (UploadResponse){}
 }
 
-message DataReponse {
-	string error = 1;
-	string loc = 2;
+message UploadRequest{
+	string name = 1;
+}
+
+message UploadResponse{
+	int32 error = 1;
 }

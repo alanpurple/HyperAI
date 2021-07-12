@@ -2,7 +2,7 @@
   "compileOnSave": true,
   "compilerOptions": {
     "baseUrl": "./",
-    "outDir": "./dist",
+    "outDir": "./",
     "module": "commonjs",
     "moduleResolution": "node",
     "target": "es2020",
