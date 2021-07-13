@@ -401,3 +401,7 @@ package-lock.json
 
 # grpc generated
 *pb2*.py
+
+# WedServer output
+WebServer/**/*.js
+WebServer/**/*.map

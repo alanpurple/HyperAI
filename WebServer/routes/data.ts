@@ -3,10 +3,26 @@ import { UserModel } from '../models/user';
 import { DataInfoModel } from '../models/data.info';
 import { sequelize, sequelizeOpen } from 'connect-rdb';
 import { extname } from 'path';
-import * as csvParse from 'csv-parse';
-import * as XLSX from 'xlsx';
+import { rm } from 'fs/promises';
+//import * as csvParse from 'csv-parse';
+//import * as XLSX from 'xlsx';
 import multer = require('multer');
-const multerRead = multer({ dest:'../upload-temp' });
+
+const UPLOAD_TEMP_PATH = '../upload-temp';
+
+const multerRead = multer({ dest: UPLOAD_TEMP_PATH });
+
+const PROTO_PATH = __dirname + '/../../MLServer/data_service.proto';
+import { loadPackageDefinition, credentials } from '@grpc/grpc-js';
+import { loadSync } from '@grpc/proto-loader';
+
+const pkgDef = loadSync(PROTO_PATH, {
+    keepCase: true, longs: String, enums: String, defaults: true, oneofs: true
+});
+
+const DataService = loadPackageDefinition(pkgDef).data['Upload'];
+
+const client = new DataService('localhost:50051', credentials.createInsecure());
 
 const router = Router();
 
@@ -14,7 +30,14 @@ router.all('*', ensureAuthenticated);
 
 // get the list of open datasets
 router.get('/open', async (req: Request, res: Response) => {
-    const openData = await DataInfoModel.find({ owner: 0 });
+    try {
+        const openData = await DataInfoModel.find({ owner: 0 });
+        const names = openData.map(data => data.name);
+        res.send({ data: names });
+    }
+    catch (err) {
+        res.status(500).send(err);
+    }
 })
 
 // users' datasets
@@ -48,29 +71,24 @@ router.get('/:tablename', async (req: Request, res: Response) => {
     }
 });
 
+const AvailableExts = ['csv', 'xlsx', 'tsv'];
+
 router.post('/', multerRead.single('data'), async (req: Request, res: Response) => {
     try {
-        const file = req.file;
-        const ext = extname(file.filename);
-        let parser;
-        let data;
-        switch (ext) {
-            case 'csv':
-                csvParse(file.buffer, { columns: true }, (err, output) => {
-                    if (err) {
-                        res.status(500).send(err);
-                        return;
-                    }
+        const filename = req.file.filename;
+        const ext = extname(filename);
 
-                })
-
-                break;
-
-            case 'xlsx':
-                data = XLSX.read(file)
-
-                break;
+        if (!AvailableExts.includes(ext)) {
+            res.status(400).send('We only support ' + AvailableExts.toString());
+            return;
         }
+        const response = await client.upload({ name: filename });
+        if (response.error > -1) {
+            res.sendStatus(500);
+            return;
+        }
+        await rm(UPLOAD_TEMP_PATH + '/' + filename);
+        res.send('data uploaded to database');
     }
     catch (err) {
         res.status(500).send(err);
@@ -79,20 +97,21 @@ router.post('/', multerRead.single('data'), async (req: Request, res: Response) 
 
 router.post('/public', multerRead.single('data'), async (req: Request, res: Response) => {
     try {
-        const file = req.file;
-        const ext = extname(file.filename);
-        let parser;
-        let data;
-        switch (ext) {
-            case 'csv':
+        const filename = req.file.filename;
+        const ext = extname(filename);
 
-                break;
-
-            case 'xlsx':
-                data = XLSX.read(file);
-
-                break;
+        if (!AvailableExts.includes(ext)) {
+            res.status(400).send('We only support ' + AvailableExts.toString());
+            return;
         }
+        const response = await client.upload({ name: filename });
+        if (response.error > -1) {
+            res.sendStatus(500);
+            return;
+        }
+        await rm(UPLOAD_TEMP_PATH + '/' + filename);
+        res.send('data uploaded to database');
+
     }
     catch (err) {
         res.status(500).send(err);
