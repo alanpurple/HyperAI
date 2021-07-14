@@ -18,8 +18,7 @@ export class DataComponent implements OnInit, AfterViewInit {
     private dataService: DataService,
     private confirmDialog: ConfirmDialog,
     private errorAlert: ErrorAlert
-  ) {
-  }
+  ) { }
 
   ngOnInit(): void {
 

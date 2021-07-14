@@ -4,8 +4,6 @@ import { DataInfoModel } from '../models/data.info';
 import { sequelize, sequelizeOpen } from 'connect-rdb';
 import { extname } from 'path';
 import { rm } from 'fs/promises';
-//import * as csvParse from 'csv-parse';
-//import * as XLSX from 'xlsx';
 import multer = require('multer');
 
 const UPLOAD_TEMP_PATH = '../upload-temp';
