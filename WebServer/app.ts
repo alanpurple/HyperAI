@@ -24,10 +24,23 @@ UserModel.findById(1).then(user => {
         return UserModel.create({
             id: 1,
             email: 'alan@infinov.com',
-            emailVerified: true,
             nickName: 'alanracer',
             accountType: 'admin',
             password: 'testadmin'
+        });
+    }
+    else
+        return;
+});
+
+UserModel.findById(2).then(user => {
+    if (!user) {
+        return UserModel.create({
+            id: 2,
+            email: 'alanpurple@gmail.com',
+            nickName: 'retriever',
+            accountType: 'user',
+            password: 'testuser'
         });
     }
     else
