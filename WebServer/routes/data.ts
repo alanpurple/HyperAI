@@ -147,6 +147,15 @@ router.post('/public', multerRead.single('data'), async (req: Request, res: Resp
 
                 break;
 
+            case 'tsv':
+                csvParse(req.file.buffer, { delimiter: '\t', columns: true }, (err, output) => {
+                    if (err) {
+                        res.status(500).send(err);
+                        return;
+                    }
+                })
+                break;
+
             case 'xlsx':
                 data = XLSX.read(req.file.buffer)
 
