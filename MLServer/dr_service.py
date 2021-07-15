@@ -1,3 +1,5 @@
+from sklearnex import patch_sklearn
+patch_sklearn()
 from sklearn.decomposition import PCA
 import pandas as pd
 

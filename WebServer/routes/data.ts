@@ -1,9 +1,11 @@
 import { Router, Request, Response, NextFunction } from 'express';
-import { UserModel } from '../models/user';
-import { DataInfoModel } from '../models/data.info';
+import { UserModel } from 'models/user';
+import { DataInfoModel } from 'models/data.info';
 import { sequelize, sequelizeOpen } from 'connect-rdb';
 import { extname } from 'path';
 import { rm } from 'fs/promises';
+import * as csvParse from 'csv-parse';
+import * as XLSX from 'xlsx';
 import multer = require('multer');
 
 const UPLOAD_TEMP_PATH = '../upload-temp';
@@ -80,6 +82,35 @@ router.post('/', multerRead.single('data'), async (req: Request, res: Response) 
             res.status(400).send('We only support ' + AvailableExts.toString());
             return;
         }
+
+        let data;
+        switch (ext) {
+            case 'csv':
+                csvParse(req.file.buffer, { columns: true }, (err, output) => {
+                    if (err) {
+                        res.status(500).send(err);
+                        return;
+                    }
+
+                })
+
+                break;
+
+            case 'tsv':
+                csvParse(req.file.buffer, { delimiter: '\t', columns: true }, (err, output) => {
+                    if (err) {
+                        res.status(500).send(err);
+                        return;
+                    }
+                })
+                break;
+
+            case 'xlsx':
+                data = XLSX.read(req.file.buffer)
+
+                break;
+        }
+
         const response = await client.upload({ name: filename });
         if (response.error > -1) {
             res.sendStatus(500);
@@ -102,6 +133,26 @@ router.post('/public', multerRead.single('data'), async (req: Request, res: Resp
             res.status(400).send('We only support ' + AvailableExts.toString());
             return;
         }
+
+        let data;
+        switch (ext) {
+            case 'csv':
+                csvParse(req.file.buffer, { columns: true }, (err, output) => {
+                    if (err) {
+                        res.status(500).send(err);
+                        return;
+                    }
+
+                })
+
+                break;
+
+            case 'xlsx':
+                data = XLSX.read(req.file.buffer)
+
+                break;
+        }
+
         const response = await client.upload({ name: filename });
         if (response.error > -1) {
             res.sendStatus(500);
