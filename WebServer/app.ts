@@ -10,6 +10,10 @@ import * as logger from 'morgan';
 import { UserModel } from 'models/user';
 const MongoStore = require('connect-mongo');
 import * as session from 'express-session';
+import DataRoute from 'routes/data';
+import EdaRoute from 'routes/eda';
+import EdaTextRoute from 'routes/eda-text';
+import EdaVisionRoute from 'routes/eda-vision';
 
 
 
@@ -50,6 +54,7 @@ UserModel.findById(2).then(user => {
 
 const rootPath = path.join(__dirname, '../HyperAI/dist/HyperAI');
 
+// no authentication for mongodb currently, need to be updated
 const options = {
     mongoUrl: 'mongodb://localhost/hyperai',
     ttl: 24 * 60 * 60
@@ -95,11 +100,10 @@ app.use((req, res, next) => {
     err['status'] = 404;
     next(err);
 });
-
-app.use('/data', require('routes/data').default);
-app.use('/eda', require('routes/eda').default);
-app.use('/eda-text', require('routes/eda-text').default);
-app.use('/eda-vision', require('routes/eda-vision').default);
+app.use('/data', DataRoute);
+app.use('/eda', EdaRoute);
+app.use('/eda-text', EdaTextRoute);
+app.use('/eda-vision', EdaVisionRoute);
 
 // error handlers
 
