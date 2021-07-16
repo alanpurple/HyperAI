@@ -26,7 +26,11 @@ export class DataComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit() {
 
-    this.loadMyData();
+    this.isLoadingMy = true;
+    this.dataDB.getDataMy().subscribe(data => {
+      this.isLoadingMy = false;
+      this.myData = data;
+    }, err => this.errorAlert.open(err));
 
     this.isLoadingPublic = true;
     this.dataDB.getDataPublic().subscribe(data => {
@@ -34,14 +38,6 @@ export class DataComponent implements OnInit, AfterViewInit {
       this.openData = data;
     }, err => this.errorAlert.open(err));
 
-  }
-
-  loadMyData() {
-    this.isLoadingMy = true;
-    this.dataDB.getDataMy().subscribe(data => {
-      this.isLoadingMy = false;
-      this.openData = data;
-    }, err => this.errorAlert.open(err));
   }
 
   dataDB: DataDatabase = new DataDatabase(this._httpClient);
@@ -56,9 +52,9 @@ export class DataComponent implements OnInit, AfterViewInit {
   addData() {
     if (!this.files?.length)
       return;
-    this.dataService.uploadData(this.files[0]).subscribe(msg => {
-      this.confirmDialog.open(msg);
-      this.loadMyData();
+    this.dataService.uploadData(this.files[0]).subscribe(data => {
+      this.myData.push(data);
+      this.confirmDialog.open('data uplodaed');
     }, err => this.errorAlert.open(err));
   }
 

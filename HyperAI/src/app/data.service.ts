@@ -22,12 +22,12 @@ export class DataService {
   }
 
   // upload pulic data, for admin only
-  uploadDataPublic(data: File): Observable<string> {
-    return this._httpClient.post('/data/public', { file: data }, { responseType: 'text' });
+  uploadDataPublic(data: File): Observable<DataInfo> {
+    return this._httpClient.post<DataInfo>('/data/public', { file: data });
   }
 
-  uploadData(data: File): Observable<string> {
-    return this._httpClient.post('/data', { file: data }, { responseType: 'text' });
+  uploadData(data: File): Observable<DataInfo> {
+    return this._httpClient.post<DataInfo>('/data', { file: data });
   }
 }
 

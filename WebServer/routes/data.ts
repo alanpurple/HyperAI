@@ -1,11 +1,11 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { UserModel } from 'models/user';
-import { DataInfoModel } from 'models/data.info';
+import { DataInfo, DataInfoModel } from 'models/data.info';
 import { sequelize, sequelizeOpen } from 'connect-rdb';
 import { extname } from 'path';
 import { rm } from 'fs/promises';
-import * as csvParse from 'csv-parse';
-import * as XLSX from 'xlsx';
+//import * as csvParse from 'csv-parse';
+//import * as XLSX from 'xlsx';
 import multer = require('multer');
 
 const UPLOAD_TEMP_PATH = '../upload-temp';
@@ -83,8 +83,8 @@ router.post('/', multerRead.single('data'), async (req: Request, res: Response) 
             return;
         }
 
-        let data;
-        switch (ext) {
+        //let data;
+        /*switch (ext) {
             case 'csv':
                 csvParse(req.file.buffer, { columns: true }, (err, output) => {
                     if (err) {
@@ -109,7 +109,7 @@ router.post('/', multerRead.single('data'), async (req: Request, res: Response) 
                 data = XLSX.read(req.file.buffer)
 
                 break;
-        }
+        }*/
 
         const response = await client.upload({ name: filename });
         if (response.error > -1) {
@@ -117,7 +117,18 @@ router.post('/', multerRead.single('data'), async (req: Request, res: Response) 
             return;
         }
         await rm(UPLOAD_TEMP_PATH + '/' + filename);
-        res.send('data uploaded to database');
+
+        const data: DataInfo = {
+            _id: filename.split('.')[0],
+            numRows: req.file.buffer.length,
+            owner: req.user['id'],
+            // only 'structural' is available for now
+            type: 'structural'
+        };
+
+        const dataInfoModel = new DataInfoModel(data);
+        await dataInfoModel.save();
+        res.send({ name: data._id, numRows: data.numRows, type: data.type });
     }
     catch (err) {
         res.status(500).send(err);
@@ -134,15 +145,15 @@ router.post('/public', multerRead.single('data'), async (req: Request, res: Resp
             return;
         }
 
-        let data;
-        switch (ext) {
+        //let data;
+        /*switch (ext) {
             case 'csv':
                 csvParse(req.file.buffer, { columns: true }, (err, output) => {
                     if (err) {
                         res.status(500).send(err);
                         return;
                     }
-
+                    
                 })
 
                 break;
@@ -160,7 +171,7 @@ router.post('/public', multerRead.single('data'), async (req: Request, res: Resp
                 data = XLSX.read(req.file.buffer)
 
                 break;
-        }
+        }*/
 
         const response = await client.upload({ name: filename });
         if (response.error > -1) {
@@ -168,7 +179,17 @@ router.post('/public', multerRead.single('data'), async (req: Request, res: Resp
             return;
         }
         await rm(UPLOAD_TEMP_PATH + '/' + filename);
-        res.send('data uploaded to database');
+        const data: DataInfo = {
+            _id: filename.split('.')[0],
+            numRows: req.file.buffer.length,
+            owner: req.user['id'],
+            // only 'structural' is available for now
+            type: 'structural'
+        };
+
+        const dataInfoModel = new DataInfoModel(data);
+        await dataInfoModel.save();
+        res.send({ name: data._id, numRows: data.numRows, type: data.type });
 
     }
     catch (err) {
