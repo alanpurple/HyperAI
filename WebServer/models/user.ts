@@ -1,11 +1,10 @@
 import { Schema, model } from 'mongoose';
 import { hash, compare } from 'bcrypt';
-import { DataTypes } from 'sequelize';
 
 const NUM_ROUNDS = 10;
 
 interface User {
-    id: number,
+    _id: number,
     name: string;
     nickName: string;
     accountType: 'admin' | 'user';
@@ -21,10 +20,10 @@ interface User {
 }
 
 const schema = new Schema<User>({
-    id: { type: Number, required: true },
+    _id: { type: Number, required: true },
     name: { type: String, required: true },
     nickName: { type: String },
-    accountType: { type: DataTypes.ENUM,values:['admin','user'] },
+    accountType: { type: String, enum: ['admin', 'user'] },
     email: { type: String, required: true },
     data: { type: [String], default: [] },
     cleanData: { type: [String], default: [] },

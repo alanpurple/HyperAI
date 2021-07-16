@@ -8,8 +8,9 @@ import favicon = require('serve-favicon');
 import * as bodyParser from 'body-parser';
 import * as logger from 'morgan';
 import { UserModel } from 'models/user';
+const MongoStore = require('connect-mongo');
 import * as session from 'express-session';
-const SqlStore = require('express-mysql-session')(session);
+
 
 
 const debug = require('debug')('my express app');
@@ -50,14 +51,11 @@ UserModel.findById(2).then(user => {
 const rootPath = path.join(__dirname, '../HyperAI/dist/HyperAI');
 
 const options = {
-    host: 'localhost',
-    port: 3306,
-    user: 'root',
-    password: 'alan1234',
-    database: 'hyperai'
+    mongoUrl: 'mongodb://localhost/hyperai',
+    ttl: 24 * 60 * 60
 };
 
-const sessionStore = new SqlStore(options);
+const sessionStore = MongoStore.create(options);
 
 app.use(session({
     name: 'ai_cookie',

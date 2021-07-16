@@ -32,8 +32,12 @@ router.all('*', ensureAuthenticated);
 router.get('/open', async (req: Request, res: Response) => {
     try {
         const openData = await DataInfoModel.find({ owner: 0 });
-        const names = openData.map(data => data.name);
-        res.send({ data: names });
+        const result = openData.map(data => {
+            name: data._id;
+            numRows: data.numRows;
+            type: data.type
+        });
+        res.send(result);
     }
     catch (err) {
         res.status(500).send(err);
@@ -43,7 +47,7 @@ router.get('/open', async (req: Request, res: Response) => {
 // users' datasets
 router.get('/', async (req: Request, res: Response) => {
     try {
-        const UserData = await UserModel.findById(req.user['email']);
+        const UserData = await UserModel.findById(req.user['id']);
         res.send(UserData);
     }
     catch (err) {
