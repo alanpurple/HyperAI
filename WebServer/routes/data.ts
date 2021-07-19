@@ -1,7 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
-import { UserModel } from 'models/user';
-import { DataInfo, DataInfoModel } from 'models/data.info';
-import { sequelize, sequelizeOpen } from 'connect-rdb';
+import { UserModel } from '../models/user';
+import { DataInfo, DataInfoModel } from '../models/data.info';
+import { sequelize, sequelizeOpen } from '../connect-rdb';
 import { extname } from 'path';
 import { rm } from 'fs/promises';
 //import * as csvParse from 'csv-parse';
@@ -20,9 +20,9 @@ const pkgDef = loadSync(PROTO_PATH, {
     keepCase: true, longs: String, enums: String, defaults: true, oneofs: true
 });
 
-const DataService = loadPackageDefinition(pkgDef).data['Upload'];
+const DataService = loadPackageDefinition(pkgDef).dataservice;
 
-const client = new DataService('localhost:50051', credentials.createInsecure());
+const client = new DataService['Data']('localhost:50051', credentials.createInsecure());
 
 const router = Router();
 

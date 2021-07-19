@@ -1,6 +1,6 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { QueryTypes } from 'sequelize';
-import { sequelize, sequelizeOpen } from 'connect-rdb';
+import { sequelize, sequelizeOpen } from '../connect-rdb';
 
 const PROTO_PATH = __dirname + '/../../MLServer/eda.proto';
 import { loadPackageDefinition, credentials } from '@grpc/grpc-js';
@@ -10,9 +10,9 @@ const pkgdef = loadSync(PROTO_PATH, {
     keepCase: true, longs: String, enums: String, defaults: true, oneofs: true
 });
 
-const Preprocess = loadPackageDefinition(pkgdef).eda['Preprocess'];
+const EdaService = loadPackageDefinition(pkgdef).eda;
 
-const client = new Preprocess('localhost:50051', credentials.createInsecure());
+const client = new EdaService['Preprocess']('localhost:50051', credentials.createInsecure());
 
 const router = Router();
 

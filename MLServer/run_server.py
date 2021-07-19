@@ -1,6 +1,6 @@
+from time import sleep
 import grpc
 import asyncio
-from time import time
 from concurrent import futures
 
 from eda_service import EdaService
@@ -27,6 +27,6 @@ server.add_insecure_port('[::]:50051')
 server.start()
 try:
   while True:
-    time.sleep(_ONE_DAY_IN_SECONDS)
+    sleep(_ONE_DAY_IN_SECONDS)
 except KeyboardInterrupt:
   server.stop(0)

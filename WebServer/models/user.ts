@@ -6,6 +6,7 @@ const NUM_ROUNDS = 10;
 interface User {
     _id: number,
     name: string;
+    password: string;
     nickName: string;
     accountType: 'admin' | 'user';
     email: string;
@@ -20,8 +21,9 @@ interface User {
 }
 
 const schema = new Schema<User>({
-    _id: { type: Number, required: true },
+    _id: { type: Number, },
     name: { type: String, required: true },
+    password: { type: String, required: true },
     nickName: { type: String },
     accountType: { type: String, enum: ['admin', 'user'] },
     email: { type: String, required: true },
@@ -30,20 +32,21 @@ const schema = new Schema<User>({
     cleasedData: { type: [String], default: [] },
     preprocessedData: { type: [String], default: [] },
 
-    comparePassword(password: string, callback: any) {
-        const user = this;
-        compare(password, this.password, function (err, result) {
-            if (err) {
-                console.error(err);
-                callback(null, false);
-            }
-            else if (!result)
-                callback(null, false);
-            else
-                callback(null, user);
-        });
-    }
 });
+
+schema.methods.comparePassword = function(password: string, callback: any){
+    const user = this;
+    compare(password, user.password, function (err, result) {
+        if (err) {
+            console.error(err);
+            callback(null, false);
+        }
+        else if (!result)
+            callback(null, false);
+        else
+            callback(null, user);
+    });
+}
 
 schema.post('save', doc =>
     hash(doc.password, NUM_ROUNDS, (err, hashed) => {

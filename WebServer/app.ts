@@ -7,13 +7,13 @@ import { connectDdb } from './connect-ddb';
 import favicon = require('serve-favicon');
 import * as bodyParser from 'body-parser';
 import * as logger from 'morgan';
-import { UserModel } from 'models/user';
+import { UserModel } from './models/user';
 const MongoStore = require('connect-mongo');
 import * as session from 'express-session';
-import DataRoute from 'routes/data';
-import EdaRoute from 'routes/eda';
-import EdaTextRoute from 'routes/eda-text';
-import EdaVisionRoute from 'routes/eda-vision';
+import DataRoute from './routes/data';
+import EdaRoute from './routes/eda';
+import EdaTextRoute from './routes/eda-text';
+import EdaVisionRoute from './routes/eda-vision';
 
 
 
@@ -27,7 +27,8 @@ connectDdb().then(() => console.log('document db connected')).catch(err => conso
 UserModel.findById(1).then(user => {
     if (!user) {
         return UserModel.create({
-            id: 1,
+            _id: 1,
+            name: 'Alan Anderson',
             email: 'alan@infinov.com',
             nickName: 'alanracer',
             accountType: 'admin',
@@ -41,7 +42,8 @@ UserModel.findById(1).then(user => {
 UserModel.findById(2).then(user => {
     if (!user) {
         return UserModel.create({
-            id: 2,
+            _id: 2,
+            name: 'Alan User',
             email: 'alanpurple@gmail.com',
             nickName: 'retriever',
             accountType: 'user',
