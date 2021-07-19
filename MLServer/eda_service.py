@@ -1,5 +1,7 @@
 import numpy as np
 import pandas as pd
+from pandas.api.types import is_string_dtype
+from datetime import date
 
 from connectdb import getAll
 
@@ -9,7 +11,7 @@ import eda_pb2_grpc
 class EdaService(eda_pb2_grpc.PreprocessServicer):
     def Cleanse(self, request, context):
         if request.location =='':
-            return eda_pb2.CleanseReply(error=0)
+            return eda_pb2.ProcessedReply(error=0)
         conn, session, Base = getAll()
         data=Base.classes[request.location]
         q=session.query(data)
@@ -17,7 +19,7 @@ class EdaService(eda_pb2_grpc.PreprocessServicer):
         df=pd.read_sql(q.statement,conn)
         is_cleansed=False
         for label,content in df.items():
-            if pd.api.types.is_string_dtype(content):
+            if is_string_dtype(content):
                 hasnoemptystr=(content.str.len()>0).all()
                 # convert to numeric
                 if content[content.str.len()>0].str.isnumeric.all() and content.unique().size>content.size*0.01:
@@ -32,14 +34,14 @@ class EdaService(eda_pb2_grpc.PreprocessServicer):
                     if content[content.str.len()<1].size>0.001*content.size:
                         content.replace('','unknown')
                     else:
-                        content.replace('',content.mode()[0])
+                        content.replace('',str(content.mode(True)[0]))
                     is_cleansed=True
             # numerical
             else:
                 hasnona=content.notna().all()
                 if content.unique().size<content.size*0.01:
                     if not hasnona:
-                        content.fillna(content.mode()[0],inplace=True)
+                        content.fillna(content.mode(True)[0],inplace=True)
                     #convert to string
                     content.apply(str)
                     is_cleansed=True
@@ -54,7 +56,7 @@ class EdaService(eda_pb2_grpc.PreprocessServicer):
 
     def Describe(self, request, context):
         if request.location =='':
-            return eda_pb2.CleanseReply(error=0)
+            return eda_pb2.ProcessedReply
         conn, session, Base = getAll()
         data=Base.classes[request.location]
         q=session.query(data)
@@ -65,27 +67,27 @@ class EdaService(eda_pb2_grpc.PreprocessServicer):
         result=[]
         for key,data in obj.items():
             temp={'name':key, 'count':int(data['count'])}
-            currentData=df.loc[:,key]
+            currentData=df[:,key]
 
             # normal categorical attribute
-            if 'unique' in data and not numpy.isnan(data['unique']):
+            if 'unique' in data and not np.isnan(data['unique']):
                 temp['type']='categorical'
                 temp['unique']=int(data['unique'])
                 if not isinstance(data['top'],float):
-                    if isinstance(data['top'],datetime.date):
+                    if isinstance(data['top'],date):
                         temp['top']= data['top'].strftime('%Y-%m-%d %H:%M')
                         temp['type']='datetime'
                     else:
                         temp['top']=data['top']
-                if not numpy.isnan(data['freq']):
+                if not np.isnan(data['freq']):
                     temp['freq']=int(data['freq'])
             # numerical, but needs to be categorical
-            elif len(numpy.unique(currentData))<20:
+            elif len(np.unique(currentData))<20:
                 temp['type']='categorical'
-                x,y=numpy.unique(currentData,return_counts=True)
+                x,y=np.unique(currentData,return_counts=True)
                 temp['unique']=len(x)
                 temp['freq']=max(y)
-                temp['top']=str(x[numpy.argmax(y)])
+                temp['top']=str(x[np.argmax(y)])
             # normal numerical
             else:
                 temp['type']='numeric'
