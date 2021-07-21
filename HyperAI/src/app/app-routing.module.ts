@@ -12,6 +12,7 @@ import { SignupComponent } from './signup.component';
 import { ModelComponent } from './model.component';
 import { TrainComponent } from './train.component';
 import { EdaComponent } from './eda.component';
+import { UserInfo } from './user.info';
 
 const routes: Routes = [
   {
@@ -52,6 +53,12 @@ const routes: Routes = [
     canActivate: [LoggedIn]
   }, {
     path: 'eda-manager', component: EdaComponent,
+    canActivate: [LoggedIn]
+  }, {
+    path: 'admin', component: AdminComponent,
+    canActivate: [IsAdmin]
+  }, {
+    path: 'user-info', component: UserInfo,
     canActivate: [LoggedIn]
   }
 ];

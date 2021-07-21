@@ -7,6 +7,7 @@ export interface User {
     name: string;
     password: string;
     nickName: string;
+    hasNickName: boolean;
     accountType: 'admin' | 'user';
     email: string;
     data: string[];
@@ -23,13 +24,13 @@ const schema = new Schema<User>({
     name: { type: String, required: true },
     password: { type: String, required: true },
     nickName: { type: String },
+    hasNickName: { type: Boolean, default: false },
     accountType: { type: String, enum: ['admin', 'user'] },
     email: { type: String, required: true },
     data: { type: [String], default: [] },
     cleanData: { type: [String], default: [] },
     cleasedData: { type: [String], default: [] },
     preprocessedData: { type: [String], default: [] },
-
 });
 
 schema.methods.comparePassword = function(password: string, callback: any){
@@ -47,7 +48,7 @@ schema.methods.comparePassword = function(password: string, callback: any){
 }
 
 schema.post('save', doc =>
-    hash(doc.password, NUM_ROUNDS, (err, hashed) => {
+    hash(doc.password, NUM_ROUNDS, function (err, hashed) {
         if (err)
             throw err;
         else
@@ -57,7 +58,7 @@ schema.post('save', doc =>
 
 schema.post('update', doc => {
     if (doc.changed('password'))
-        hash(doc.password, NUM_ROUNDS, (err, hashed) => {
+        hash(doc.password, NUM_ROUNDS, function (err, hashed) {
             if (err)
                 throw err;
             else

@@ -26,7 +26,7 @@ export class SignupComponent {
         msg => this.router.navigate(['/login', encodeURI(this.email)]),
         err => {
           if (err.status == 404) {
-            console.info('등록 가능 계정');
+            console.info('available email address');
             this.emailChecked = true;
           }
         });

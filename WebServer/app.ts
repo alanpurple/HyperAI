@@ -92,7 +92,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
 app.get(['/', '/data-manager/?', '/login/?', '/signup/?', 'admin/?', 'info',
-    '/description/?', '/model-suggestion/?', '/train-manager/?', '/eda-manager/?'],
+    '/description/?', '/model-suggestion/?', '/train-manager/?', '/eda-manager/?','/user-info'],
     (req, res) => res.sendFile(path.join(rootPath, 'index.html')));
 
 // catch 404 and forward to error handler

@@ -34,14 +34,19 @@ import { UserService } from './user.service';*/
 import { LoggedIn, NotLoggedIn, HasNick, IsAdmin } from './check.login';
 import { ErrorAlert, ErrorDialog } from './error.alert';
 import { ConfirmDialog, ConfirmDialogTemplate } from './confirm.dialog';
-import { UserInfo } from './user.info';
+import { UserInfo, ComingSoonDialog, NickNameConfirmDialog, NickNameTakenDialog } from './user.info';
 
 @NgModule({
   declarations: [
     AppComponent, SignupComponent, LoginComponent, HomeComponent,
     AdminComponent,InfoComponent,DescComponent,TrainComponent,
     DataComponent, ModelComponent, EdaComponent,
-    ErrorDialog, ConfirmDialogTemplate, UserInfo
+    ErrorDialog, ConfirmDialogTemplate, UserInfo,
+    ComingSoonDialog, NickNameTakenDialog, NickNameConfirmDialog
+  ],
+  entryComponents: [
+    ConfirmDialogTemplate, ErrorDialog, ComingSoonDialog, NickNameConfirmDialog,
+    NickNameTakenDialog
   ],
   imports: [
     BrowserModule,

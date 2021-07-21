@@ -323,11 +323,10 @@
         <mat-icon>person</mat-icon>
       </button>
       <mat-menu #accountMenu="matMenu">
-        <button mat-menu-item routerLink="/user-info">정보관리</button>
-        <button mat-menu-item>친구관리</button>
+        <button mat-menu-item routerLink="/user-info">User Setting</button>
       </mat-menu>
     </div>
-    <a *ngIf="user" mat-button target="_self" href="/account/logout">로그아웃</a>
+    <a *ngIf="user" mat-button target="_self" href="/account/logout">logout</a>
   </mat-toolbar>
   <mat-sidenav-container fxFlex>
     <mat-sidenav #sidemenu [mode]="sidenavMode" [opened]="isOpened">
@@ -338,45 +337,45 @@
           </button>
         </mat-list-item>
         <mat-list-item>
-          <button mat-button [disabled]="!user" routerLink="/summary"
+          <button mat-button [disabled]="!user" routerLink="/data-manager"
                   (click)="handleMenu(sidemenu)">
-            데이터 summary 보기
+            Data view/upload
           </button>
         </mat-list-item>
         <mat-list-item>
-          <button mat-button [disabled]="!user" routerLink="/association"
+          <button mat-button [disabled]="!user" routerLink="/description"
                   (click)="handleMenu(sidemenu)">
-            Association 분석
+            Data description
           </button>
         </mat-list-item>
         <mat-list-item>
-          <button mat-button [disabled]="!user" routerLink="/outlier-detection"
+          <button mat-button [disabled]="!user" routerLink="/eda-manager"
                   (click)="handleMenu(sidemenu)">
-            Outlier 분석
+            EDA(Exploratory Data Analysis)
           </button>
         </mat-list-item>
         <mat-list-item>
-          <button mat-button [disabled]="!user" routerLink="/svm-classification"
+          <button mat-button [disabled]="!user" routerLink="/model-suggestion"
                   (click)="handleMenu(sidemenu)">
-            SVM Classification
+            Model suggestion
           </button>
         </mat-list-item>
         <mat-list-item>
-          <button mat-button [disabled]="!user" routerLink="/dim-red"
+          <button mat-button [disabled]="!user" routerLink="/train-manager"
                   (click)="handleMenu(sidemenu)">
-            Dimensionality Reduction
+            Train manager
           </button>
         </mat-list-item>
         <mat-list-item>
           <button mat-button [disabled]="!user" routerLink="/admin"
                   (click)="handleMenu(sidemenu)">
-            관리자
+            Administration
           </button>
         </mat-list-item>
         <mat-list-item>
           <button mat-button routerLink="/info-view"
                   (click)="handleMenu(sidemenu)">
-            About the Developer
+            About the software
           </button>
         </mat-list-item>
       </mat-list>
