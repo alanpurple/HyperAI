@@ -3,8 +3,7 @@ import { hash, compare } from 'bcrypt';
 
 const NUM_ROUNDS = 10;
 
-interface User {
-    _id: number,
+export interface User {
     name: string;
     password: string;
     nickName: string;
@@ -21,7 +20,6 @@ interface User {
 }
 
 const schema = new Schema<User>({
-    _id: { type: Number, },
     name: { type: String, required: true },
     password: { type: String, required: true },
     nickName: { type: String },

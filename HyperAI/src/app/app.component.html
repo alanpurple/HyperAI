@@ -314,11 +314,11 @@
     <button *ngIf="!user" mat-button routerLink="/signup">회원가입</button>
     <button *ngIf="!user" mat-button routerLink="/login">로그인</button>
     <div *ngIf="user">
-      <mat-menu #alertMenu>
+      <!--<mat-menu #alertMenu>
         <button *ngFor="let msg of msgs; let i=index" mat-menu-item (click)="confirmMsg(i)">
           {{msg}}
         </button>
-      </mat-menu>
+      </mat-menu>-->
       <button mat-icon-button [mat-menu-trigger-for]="accountMenu">
         <mat-icon>person</mat-icon>
       </button>

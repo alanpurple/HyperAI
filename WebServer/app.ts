@@ -14,6 +14,7 @@ import DataRoute from './routes/data';
 import EdaRoute from './routes/eda';
 import EdaTextRoute from './routes/eda-text';
 import EdaVisionRoute from './routes/eda-vision';
+import AccountRoute from './routes/account';
 
 
 
@@ -24,10 +25,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 connectDdb().then(() => console.log('document db connected')).catch(err => console.error(err));
 
-UserModel.findById(1).then(user => {
+UserModel.findOne({email:'alan@infinov.com'}).then(user => {
     if (!user) {
         return UserModel.create({
-            _id: 1,
             name: 'Alan Anderson',
             email: 'alan@infinov.com',
             nickName: 'alanracer',
@@ -39,10 +39,9 @@ UserModel.findById(1).then(user => {
         return;
 });
 
-UserModel.findById(2).then(user => {
+UserModel.findOne({ email: 'alanpurple@gmail.com'}).then(user => {
     if (!user) {
         return UserModel.create({
-            _id: 2,
             name: 'Alan User',
             email: 'alanpurple@gmail.com',
             nickName: 'retriever',
@@ -106,6 +105,7 @@ app.use('/data', DataRoute);
 app.use('/eda', EdaRoute);
 app.use('/eda-text', EdaTextRoute);
 app.use('/eda-vision', EdaVisionRoute);
+app.use('/account', AccountRoute);
 
 // error handlers
 
@@ -114,9 +114,8 @@ app.use('/eda-vision', EdaVisionRoute);
 if (app.get('env') === 'development') {
     app.use((err, req, res, next) => { // eslint-disable-line @typescript-eslint/no-unused-vars
         res.status(err[ 'status' ] || 500);
-        res.render('error', {
-            message: err.message,
-            error: err
+        res.send({
+            message: err.message
         });
     });
 }
@@ -125,9 +124,8 @@ if (app.get('env') === 'development') {
 // no stacktraces leaked to user
 app.use((err, req, res, next) => { // eslint-disable-line @typescript-eslint/no-unused-vars
     res.status(err.status || 500);
-    res.render('error', {
-        message: err.message,
-        error: {}
+    res.send({
+        message: err.message
     });
 });
 

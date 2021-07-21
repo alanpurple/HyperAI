@@ -15,7 +15,9 @@ export class ErrorDialog {
   constructor(@Inject(MAT_DIALOG_DATA) public data: string) { }
 }
 
-@Injectable()
+@Injectable({
+  providedIn: 'root'
+})
 export class ErrorAlert {
   constructor(private dialog: MatDialog,
     private router: Router) {

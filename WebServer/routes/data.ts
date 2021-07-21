@@ -31,7 +31,7 @@ router.all('*', ensureAuthenticated);
 // get the list of open datasets
 router.get('/open', async (req: Request, res: Response) => {
     try {
-        const openData = await DataInfoModel.find({ owner: 0 });
+        const openData = await DataInfoModel.find({'user.accountType':'admin'});
         const result = openData.map(data => {
             name: data._id;
             numRows: data.numRows;
@@ -56,23 +56,26 @@ router.get('/', async (req: Request, res: Response) => {
 })
 
 // get actual data from rdb
-router.get('/:tablename', async (req: Request, res: Response) => {
+router.get('/:tablename', (req: Request, res: Response) => {
     ////////////
     //Todo: check authentication ( actual owner )
     ////////////
-    try {
-        const tableName = req.params.tablename;
-        const dataInfo = await DataInfoModel.findOne({ name: tableName });
-        const ownerId = dataInfo.owner;
-        const data =
-            ownerId != 0 ?
-                await sequelize.query('SELECT * FROM `' + tableName + '`')
-                : await sequelizeOpen.query('SELECT * FROM `' + tableName + '`');
-        res.send({ data: data });
-    }
-    catch (err) {
-        res.status(500).send(err);
-    }
+    const tableName = req.params.tablename;
+    DataInfoModel.findOne({ name: tableName }).populate('owner', 'accountType').orFail()
+        .then((dataInfo: DataInfo) => {
+            const owner = dataInfo.owner.accountType;
+            if (owner == 'admin')
+                sequelizeOpen.query('SELECT * FROM `' + tableName + '`').then(data => res.send({ data: data }));
+            else if (owner == 'user')
+                sequelize.query('SELECT * FROM `' + tableName + '`').then(data => res.send({ data: data }));
+            else {
+                console.error('somethings wrong, account type is not usual: ' + owner);
+                res.sendStatus(500);
+            }
+        }).catch(err => {
+            console.error(err);
+            res.sendStatus(500);
+        });
 });
 
 const AvailableExts = ['csv', 'xlsx', 'tsv'];

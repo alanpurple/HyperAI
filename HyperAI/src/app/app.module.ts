@@ -2,6 +2,8 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { HttpClientModule } from '@angular/common/http';
 import { FlexLayoutModule } from '@angular/flex-layout';
+import { MAT_DIALOG_DEFAULT_OPTIONS } from '@angular/material/dialog';
+import { FormsModule } from '@angular/forms';
 import { MatModule } from './mat.module';
 
 import * as PlotlyJS from 'plotly.js-dist';
@@ -23,25 +25,27 @@ import { DataComponent } from './data.component';
 import { ModelComponent } from './model.component';
 import { EdaComponent } from './eda.component';
 
-import { DataService } from './data.service';
+/*import { DataService } from './data.service';
 import { EdaService } from './eda.service';
 import { ReportService } from './report.service';
 import { TrainService } from './train.service';
+import { UserService } from './user.service';*/
 
 import { LoggedIn, NotLoggedIn, HasNick, IsAdmin } from './check.login';
 import { ErrorAlert, ErrorDialog } from './error.alert';
 import { ConfirmDialog, ConfirmDialogTemplate } from './confirm.dialog';
-import { MAT_DIALOG_DEFAULT_OPTIONS } from '@angular/material/dialog';
+import { UserInfo } from './user.info';
 
 @NgModule({
   declarations: [
     AppComponent, SignupComponent, LoginComponent, HomeComponent,
     AdminComponent,InfoComponent,DescComponent,TrainComponent,
     DataComponent, ModelComponent, EdaComponent,
-    ErrorDialog, ConfirmDialogTemplate
+    ErrorDialog, ConfirmDialogTemplate, UserInfo
   ],
   imports: [
     BrowserModule,
+    FormsModule,
     AppRoutingModule,
     BrowserAnimationsModule,
     FlexLayoutModule,

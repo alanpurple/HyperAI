@@ -57,6 +57,7 @@
     <TypeScriptCompile Include="passport-init.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>
+    <TypeScriptCompile Include="routes\account.ts" />
     <TypeScriptCompile Include="routes\data.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>

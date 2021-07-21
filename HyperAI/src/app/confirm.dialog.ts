@@ -13,7 +13,9 @@ export class ConfirmDialogTemplate {
   constructor(@Inject(MAT_DIALOG_DATA) public data: string) { }
 }
 
-@Injectable()
+@Injectable({
+  providedIn: 'root'
+})
 export class ConfirmDialog {
   constructor(private dialog: MatDialog) { }
 
