@@ -5,7 +5,7 @@ const router = Router();
 router.all('*', ensureAuthenticated);
 
 function ensureAuthenticated(req: Request, res: Response, next: NextFunction) {
-    if (req.isAuthenticated())
+    if (req.isUnauthenticated())
         res.status(401).send('unauthorized');
     else
         next();

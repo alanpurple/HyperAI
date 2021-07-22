@@ -21,7 +21,7 @@ import AccountRoute from './routes/account';
 const debug = require('debug')('my express app');
 const app = express();
 
-app.use(express.static(path.join(__dirname, 'public')));
+//app.use(express.static(path.join(__dirname, 'public')));
 
 connectDdb().then(() => console.log('document db connected')).catch(err => console.error(err));
 
@@ -95,12 +95,8 @@ app.get(['/', '/data-manager/?', '/login/?', '/signup/?', 'admin/?', 'info',
     '/description/?', '/model-suggestion/?', '/train-manager/?', '/eda-manager/?','/user-info'],
     (req, res) => res.sendFile(path.join(rootPath, 'index.html')));
 
-// catch 404 and forward to error handler
-app.use((req, res, next) => {
-    const err = new Error('Not Found');
-    err['status'] = 404;
-    next(err);
-});
+app.use(express.static(rootPath, { index: false }));
+
 app.use('/data', DataRoute);
 app.use('/eda', EdaRoute);
 app.use('/eda-text', EdaTextRoute);
@@ -108,6 +104,13 @@ app.use('/eda-vision', EdaVisionRoute);
 app.use('/account', AccountRoute);
 
 // error handlers
+
+// catch 404 and forward to error handler
+app.use((req, res, next) => {
+    const err = new Error('Not Found');
+    err['status'] = 404;
+    next(err);
+});
 
 // development error handler
 // will print stacktrace

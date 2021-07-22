@@ -18,7 +18,7 @@ export class AppComponent implements OnInit {
 
   }
 
-  user: UserData = new UserData();
+  user: UserData|null = null;
 
   title = 'HyperAI';
 

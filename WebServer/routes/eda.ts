@@ -112,7 +112,7 @@ router.get('/describe/:name', async (req: Request, res: Response) => {
 })
 
 function ensureAuthenticated(req: Request, res: Response, next: NextFunction) {
-    if (req.isAuthenticated())
+    if (req.isUnauthenticated())
         res.status(401).send('unauthorized');
     else
         next();

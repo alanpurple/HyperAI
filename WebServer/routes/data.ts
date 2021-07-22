@@ -47,13 +47,26 @@ router.get('/open', async (req: Request, res: Response) => {
 // users' datasets
 router.get('/', async (req: Request, res: Response) => {
     try {
-        const UserData = await UserModel.findById(req.user['id']);
-        res.send(UserData);
+        const UserData = await UserModel.findById(req.user['id'], 'data');
+        const result = UserData.data;
+        res.send(result);
     }
     catch (err) {
         res.status(500).send(err);
     }
-})
+});
+
+router.get('/public', async (req: Request, res: Response) => {
+    try {
+        const admins = await UserModel.find({ accountType: 'admin' }, 'data')
+        let result = [];
+        admins.forEach(userdata => result.concat(userdata.data));
+        res.send(result);
+    }
+    catch (err) {
+        res.status(500).send(err);
+    }
+});
 
 // get actual data from rdb
 router.get('/:tablename', (req: Request, res: Response) => {
@@ -205,7 +218,7 @@ router.post('/public', multerRead.single('data'), async (req: Request, res: Resp
 })
 
 function ensureAuthenticated(req: Request, res: Response, next: NextFunction) {
-    if (req.isAuthenticated())
+    if (req.isUnauthenticated())
         res.status(401).send('unauthorized');
     else
         next();

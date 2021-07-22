@@ -47,22 +47,28 @@ schema.methods.comparePassword = function(password: string, callback: any){
     });
 }
 
-schema.post('save', doc =>
-    hash(doc.password, NUM_ROUNDS, function (err, hashed) {
+schema.pre('save', { document: true, query: false }, function (next) {
+    const user = this;
+    hash(user.password, NUM_ROUNDS, function (err, hashed) {
         if (err)
             throw err;
-        else
-            doc.update({ password: hashed });
+        else {
+            user.password = hashed;
+            next();
+        }
     })
-);
+});
 
-schema.post('update', doc => {
+schema.pre('updateOne', { document: true, query: false }, function (next) {
+    let doc = this;
     if (doc.changed('password'))
         hash(doc.password, NUM_ROUNDS, function (err, hashed) {
             if (err)
                 throw err;
-            else
+            else {
                 doc.password = hashed;
+                next();
+            }
         });
 });
 

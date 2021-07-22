@@ -6,10 +6,14 @@ import { MAT_DIALOG_DEFAULT_OPTIONS } from '@angular/material/dialog';
 import { FormsModule } from '@angular/forms';
 import { MatModule } from './mat.module';
 
-import * as PlotlyJS from 'plotly.js-dist';
-import { PlotlyModule } from 'angular-plotly.js';
+// not working ( hopefully only for now )
+//import * as PlotlyJS from 'plotly.js-dist';
+//import { PlotlyModule } from 'angular-plotly.js';
+//PlotlyModule.plotlyjs = PlotlyJS;
 
-PlotlyModule.plotlyjs = PlotlyJS;
+import { PlotlyViaCDNModule } from 'angular-plotly.js';
+PlotlyViaCDNModule.setPlotlyVersion('latest');
+PlotlyViaCDNModule.setPlotlyBundle('basic');
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -55,7 +59,8 @@ import { UserInfo, ComingSoonDialog, NickNameConfirmDialog, NickNameTakenDialog 
     BrowserAnimationsModule,
     FlexLayoutModule,
     HttpClientModule,
-    PlotlyModule,
+    //PlotlyModule,
+    PlotlyViaCDNModule,
     MatModule
   ],
   providers: [ConfirmDialog, LoggedIn, NotLoggedIn, IsAdmin, ErrorAlert, HasNick,

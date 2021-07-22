@@ -4,6 +4,46 @@ import { authenticate } from 'passport';
 
 const router = Router();
 
+router.post('/login', (req: Request, res: Response, next: NextFunction)=> {
+    UserModel.findOne({ email: req.body.username }).then(user => {
+        if (!user)
+            res.redirect('/signup');
+        else
+            next();
+    }).catch(err => {
+        console.error(err);
+        res.redirect('/');
+    });
+},
+    authenticate('local', { failureRedirect: '/login' }),
+    function (req, res) {
+        // email verification not implemented for now
+        /*if (!req.user['emailVerified'])
+            res.redirect('/emailVerification');
+        else */if (!req.user['nickName'])
+            res.redirect('/user-info');
+        //else if (req.user.accountType == 'admin')
+        //    res.redirect('/admin');
+        else
+            res.redirect('/');
+    });
+
+router.post('/signup', (req: Request, res: Response, next: NextFunction)=> {
+    UserModel.findOne({ email: req.body.username }).then(user => {
+        if (!user)
+            next();
+        else
+            res.redirect('/login/' + encodeURI(req.body.username));
+    }).catch(err => {
+        console.error(err);
+        res.redirect('/');
+    });
+},
+    authenticate('local', {
+        successRedirect: '/user-info',
+        failureRedirect: '/signup'
+    }));
+
 router.get('/logout', ensureAuthenticated, (req: Request, res: Response) => {
     req.logout();
     res.redirect('/');
@@ -81,7 +121,7 @@ router.get('/checkUser/:id', (req: Request, res: Response) => {
 });
 
 function ensureAuthenticated(req: Request, res: Response, next: NextFunction) {
-    if (req.isAuthenticated())
+    if (req.isUnauthenticated())
         res.status(401).send('unauthorized');
     else
         next();

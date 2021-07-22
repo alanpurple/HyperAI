@@ -8,14 +8,14 @@ import { UserModel } from './models/user';
 passport.serializeUser((user, done) => done(null, user['email']));
 
 passport.deserializeUser(function (em, done) {
-    UserModel.findOne({ where: { email: em } }).then(user => {
+    UserModel.findOne({ email: em }).then(user => {
         done(null, user);
     }).catch(err => done(err));
 });
 
 passport.use(new LocalStrategy(
     function (emailAddr, password, done) {
-        UserModel.findOne({ where: { email: emailAddr } }).then(user => {
+        UserModel.findOne({ email: emailAddr }).then(user => {
             if (!user) {
                 UserModel.create({
                     email: emailAddr,
@@ -23,7 +23,7 @@ passport.use(new LocalStrategy(
                     accountType: 'local'
                 }).then(user => done(null, user));
             }
-            else
+            else 
                 user.comparePassword(password, done);
         }).catch(err => done(err));
     }
