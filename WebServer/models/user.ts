@@ -23,14 +23,14 @@ export interface User {
 const schema = new Schema<User>({
     name: { type: String, required: true },
     password: { type: String, required: true },
-    nickName: { type: String },
+    nickName: String,
     hasNickName: { type: Boolean, default: false },
     accountType: { type: String, enum: ['admin', 'user'] },
     email: { type: String, required: true },
-    data: { type: [String], default: [] },
-    cleanData: { type: [String], default: [] },
-    cleasedData: { type: [String], default: [] },
-    preprocessedData: { type: [String], default: [] },
+    data: [String],
+    cleanData: [String],
+    cleasedData: [String],
+    preprocessedData: [String],
 });
 
 schema.methods.comparePassword = function(password: string, callback: any){
