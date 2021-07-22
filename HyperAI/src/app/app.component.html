@@ -323,10 +323,12 @@
         <mat-icon>person</mat-icon>
       </button>
       <mat-menu #accountMenu="matMenu">
+        <button mat-menu-item (click)="showAccountInfo()">Welcome, {{user.nickName}}</button>
         <button mat-menu-item routerLink="/user-info">User Setting</button>
+        <a *ngIf="user" mat-button target="_self" href="/account/logout">logout</a>
       </mat-menu>
     </div>
-    <a *ngIf="user" mat-button target="_self" href="/account/logout">logout</a>
+    
   </mat-toolbar>
   <mat-sidenav-container fxFlex>
     <mat-sidenav #sidemenu [mode]="sidenavMode" [opened]="isOpened">

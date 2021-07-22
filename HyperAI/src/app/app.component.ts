@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 
 import { UserData } from './user.data';
 import { UserService } from './user.service';
+import { ConfirmDialog } from './confirm.dialog';
 
 @Component({
   selector: 'app-root',
@@ -13,7 +14,8 @@ import { UserService } from './user.service';
 export class AppComponent implements OnInit {
   constructor(
     private router: Router,
-    private userService: UserService
+    private userService: UserService,
+    private confirmDialog: ConfirmDialog
   ) {
 
   }
@@ -43,5 +45,16 @@ export class AppComponent implements OnInit {
           if (error.status != 401)
             console.error(error._body);
         });
+  }
+
+  showAccountInfo() {
+    if (!this.user)
+      this.confirmDialog.open('untouchable code(user only menu but no user?), error');
+    else
+      this.confirmDialog.open([
+        'email: ' + this.user.email,
+        'name: ' + this.user.name,
+        'nickname: ' + this.user.nickName
+      ]);
   }
 }

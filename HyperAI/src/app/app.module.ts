@@ -37,7 +37,7 @@ import { UserService } from './user.service';*/
 
 import { LoggedIn, NotLoggedIn, HasNick, IsAdmin } from './check.login';
 import { ErrorAlert, ErrorDialog } from './error.alert';
-import { ConfirmDialog, ConfirmDialogTemplate } from './confirm.dialog';
+import { ConfirmDialog, ConfirmDialogTemplate,ConfirmDialogTemplate2 } from './confirm.dialog';
 import { UserInfo, ComingSoonDialog, NickNameConfirmDialog, NickNameTakenDialog } from './user.info';
 
 @NgModule({
@@ -45,12 +45,12 @@ import { UserInfo, ComingSoonDialog, NickNameConfirmDialog, NickNameTakenDialog 
     AppComponent, SignupComponent, LoginComponent, HomeComponent,
     AdminComponent,InfoComponent,DescComponent,TrainComponent,
     DataComponent, ModelComponent, EdaComponent,
-    ErrorDialog, ConfirmDialogTemplate, UserInfo,
+    ErrorDialog, ConfirmDialogTemplate, ConfirmDialogTemplate2, UserInfo,
     ComingSoonDialog, NickNameTakenDialog, NickNameConfirmDialog
   ],
   entryComponents: [
-    ConfirmDialogTemplate, ErrorDialog, ComingSoonDialog, NickNameConfirmDialog,
-    NickNameTakenDialog
+    ConfirmDialogTemplate, ConfirmDialogTemplate2, ErrorDialog, ComingSoonDialog,
+    NickNameConfirmDialog, NickNameTakenDialog
   ],
   imports: [
     BrowserModule,
