@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+from re import sub
 
 import data_service_pb2
 import data_service_pb2_grpc
@@ -14,17 +15,17 @@ class DataServicer(data_service_pb2_grpc.DataServicer):
         # header should be on the first row
         path='../WebServer/upload-temp'
         ext=filename.split('.')[-1]
-        tablename=filename.split('.')[0]
+        tablename=sub('[-_]','', filename.split('.')[0])
         if len(ext)<1 or len(tablename)<1:
-            return data_service_pb2.UploadRequest(error=0)
-        f=open(path+filename,'r')
+            return data_service_pb2.UploadResponse(errpr=0)
         conn, session, Base = getAll()
         if ext=='csv':
-            df=pd.read_csv(f)
+            df=pd.read_csv(path+filename,index_col=0)
         elif ext=='xlsx':
-            df=pd.read_excel(f)
-
-        f.close()
+            df=pd.read_excel(path+filename,index_col=0)
+        else:
+            return data_service_pb2.UploadResponse(error=0)
+        
         df.to_sql(tablename,conn)
 
         return data_service_pb2.UploadResponse(error=-1)
