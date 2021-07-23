@@ -19,8 +19,12 @@ class DataServicer(data_service_pb2_grpc.DataServicer):
         if len(ext)<1 or len(tablename)<1:
             return data_service_pb2.UploadResponse(errpr=0)
         conn, session, Base = getAll()
+
+        # only csv,tsv and xlsx are available for now
         if ext=='csv':
             df=pd.read_csv(path+filename,index_col=0)
+        elif ext='tsv':
+            df=pd.read_csv(path+filename,'\t',index_col=0)
         elif ext=='xlsx':
             df=pd.read_excel(path+filename,index_col=0)
         else:
