@@ -16,7 +16,7 @@
     </table>
   </mat-tab>
   <mat-tab label="My data">
-    <input type="file" [ngModel]="files"> <!--(change)="onFileSelect($event)" #fileUpload >-->
+    <input type="file" [(ngModel)]="files"> <!--(change)="onFileSelect($event)" #fileUpload >-->
     <button mat-fab color="accent" aria-label="Upload button" (click)="addData()"
             [disabled]="!files?.length">
       <mat-icon>add</mat-icon>
