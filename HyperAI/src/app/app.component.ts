@@ -37,6 +37,7 @@ export class AppComponent implements OnInit {
     this.userService.getUser()
       .subscribe(
         user => {
+          console.log(user);
           this.user = user;
           if (!user.nickName)
             this.router.navigate(['/user-info']);

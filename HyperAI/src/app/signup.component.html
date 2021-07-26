@@ -1,27 +1,31 @@
 <mat-card>
-  <mat-toolbar color="primary">로컬 계정으로 생성</mat-toolbar>
+  <mat-toolbar color="primary">Create local Account(non-admin)</mat-toolbar>
   <mat-card-content>
     <form action="/account/signup" method="post" ngNoForm fxLayout="column">
       <mat-form-field>
-        <input matInput type="email" name="username" placeholder="이메일 주소" [(ngModel)]="email"
+        <input matInput type="email" name="username" placeholder="Email" [(ngModel)]="email"
                required (keyup.enter)="checkEmail()">
       </mat-form-field>
       <button mat-raised-button type="button" color="warn" (click)="checkEmail()" [fxHide]="emailChecked">
-        계정 존재여부 확인
+        Check Availability
       </button>
       <div [fxHide]="!emailChecked" fxLayout="column">
         <button mat-raised-button type="button" (click)="resetEmail()" color="accent">
-          계정 다시 입력
+          Reset E-mail
         </button>
         <mat-form-field>
-          <input matInput placeholder="패쓰워드" name="password"
-                 [(ngModel)]="password" type="password" required [autofocus]="emailChecked">
+          <input matInput placeholder="Name" name="name"
+                 [(ngModel)]="name" type="text" required [autofocus]="emailChecked">
+        </mat-form-field>
+        <mat-form-field>
+          <input matInput placeholder="Password" name="password"
+                 [(ngModel)]="password" type="password" required>
         </mat-form-field>
         <mat-form-field *ngIf="password">
-          <input matInput placeholder="패쓰워드확인"
+          <input matInput placeholder="Confirm Password"
                  [(ngModel)]="passwordConfirm" type="password" required>
         </mat-form-field>
-        <button mat-raised-button type="submit" color="warn">계정 생성</button>
+        <button mat-raised-button type="submit" color="warn">Create Account</button>
       </div>
     </form>
   </mat-card-content>

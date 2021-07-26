@@ -41,7 +41,8 @@ router.post('/signup', (req: Request, res: Response, next: NextFunction)=> {
 },
     authenticate('local', {
         successRedirect: '/user-info',
-        failureRedirect: '/signup'
+        failureRedirect: '/signup',
+        passReqToCallback: true
     }));
 
 router.get('/logout', ensureAuthenticated, (req: Request, res: Response) => {

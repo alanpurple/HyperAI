@@ -311,8 +311,8 @@
       <mat-icon class="mat-24">menu</mat-icon>
     </button>
     <span fxFlex></span>
-    <button *ngIf="!user" mat-button routerLink="/signup">회원가입</button>
-    <button *ngIf="!user" mat-button routerLink="/login">로그인</button>
+    <button *ngIf="!user" mat-button routerLink="/signup">Sign up</button>
+    <button *ngIf="!user" mat-button routerLink="/login">Sign in </button>
     <div *ngIf="user">
       <!--<mat-menu #alertMenu>
         <button *ngFor="let msg of msgs; let i=index" mat-menu-item (click)="confirmMsg(i)">

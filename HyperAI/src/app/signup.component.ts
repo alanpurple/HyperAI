@@ -19,6 +19,7 @@ export class SignupComponent {
   emailChecked: boolean = false;
   password: string = '';
   passwordConfirm: string = '';
+  name: string = '';
 
   checkEmail(): void {
     this.userService.checkuser(this.email)
@@ -33,6 +34,7 @@ export class SignupComponent {
   }
 
   resetEmail(): void {
+    this.name = '';
     this.emailChecked = false;
     this.email = '';
     this.password = '';

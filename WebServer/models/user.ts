@@ -23,8 +23,10 @@ export interface User {
 const schema = new Schema<User>({
     name: { type: String, required: true },
     password: { type: String, required: true },
-    nickName: String,
-    hasNickName: { type: Boolean, default: false },
+    // temporary default nickname
+    nickName: { type: String, default:'Tom'},
+    // true for now
+    hasNickName: { type: Boolean, default: true },
     accountType: { type: String, enum: ['admin', 'user'] },
     email: { type: String, required: true },
     data: [String],
