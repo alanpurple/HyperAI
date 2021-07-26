@@ -80,22 +80,23 @@ router.get('/relation/:open/:name/:source/:target/:type', (req, res) => {
         });
 });
 
-router.get('/cleanse/:name', async (req: Request, res: Response) => {
-    try {
-        const response = await client.cleanse({ location: req.params.name });
-        if (response.error == 0)
-            res.sendStatus(400);
-        else if (response.error == 1)
+router.get('/cleanse/:name', (req: Request, res: Response) => {
+    client.cleanse({ location: req.params.name }, (err, result) => {
+        if (err || result.error == 1) {
+            if (err)
+                console.error(err);
             res.sendStatus(500);
+        }
+        else if (result.error == 0) {
+            res.sendStatus(400);
+        }
         else
             res.send({
-                msg: response.msg,
-                table: response.loc
-            });
-    }
-    catch (err) {
-        res.status(500).send(err);
-    }
+                msg: result.msg,
+                table: result.loc
+            })
+    });
+
 });
 
 router.get('/normlog/:name', async (req: Request, res: Response) => {

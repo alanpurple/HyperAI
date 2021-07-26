@@ -1,43 +1,51 @@
 <mat-tab-group>
+  <mat-spinner *ngIf="isLoadingPublic"></mat-spinner>
   <mat-tab label="Open data">
     <table mat-table [dataSource]="openData" matSort>
       <ng-container matColumnDef="name">
-        <th mat-header-cell *matHeaderCelllDef>name</th>
+        <th mat-header-cell *matHeaderCellDef>name</th>
         <td mat-cell *matCellDef="let row">{{row.name}}</td>
       </ng-container>
       <ng-container matColumnDef="type">
-        <th mat-header-cell *matHeaderCelllDef>type</th>
+        <th mat-header-cell *matHeaderCellDef>type</th>
         <td mat-cell *matCellDef="let row">{{row.type}}</td>
       </ng-container>
       <ng-container matColumnDef="numRows">
-        <th mat-header-cell *matHeaderCelllDef>size</th>
+        <th mat-header-cell *matHeaderCellDef>size</th>
         <td mat-cell *matCellDef="let row">{{row.numRows}}</td>
       </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
     </table>
   </mat-tab>
   <mat-tab label="My data">
-    <input type="file" [(ngModel)]="files"> <!--(change)="onFileSelect($event)" #fileUpload >-->
+    <input type="file" (change)="onFileSelected($event)" #fileUpload>
     <button mat-fab color="accent" aria-label="Upload button" (click)="addData()"
-            [disabled]="!files?.length">
+            [disabled]="!file">
       <mat-icon>add</mat-icon>
     </button>
     <!--<form action="/data" method="post" enctype="multipart/form-data">
-      <input type="file" name="data" />
-      <button color="primary" mat-button type="submit">upload data</button>
+    <input type="file" name="data" />
+    <button color="primary" mat-button type="submit">upload data</button>
     </form>-->
+    <mat-spinner *ngIf="isLoadingMy"></mat-spinner>
     <table mat-table [dataSource]="myData" matSort>
       <ng-container matColumnDef="name">
-        <th mat-header-cell *matHeaderCelllDef>name</th>
+        <th mat-header-cell *matHeaderCellDef>name</th>
         <td mat-cell *matCellDef="let row">{{row.name}}</td>
       </ng-container>
       <ng-container matColumnDef="type">
-        <th mat-header-cell *matHeaderCelllDef>type</th>
+        <th mat-header-cell *matHeaderCellDef>type</th>
         <td mat-cell *matCellDef="let row">{{row.type}}</td>
       </ng-container>
       <ng-container matColumnDef="numRows">
-        <th mat-header-cell *matHeaderCelllDef>size</th>
+        <th mat-header-cell *matHeaderCellDef>size</th>
         <td mat-cell *matCellDef="let row">{{row.numRows}}</td>
       </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
     </table>
   </mat-tab>
 </mat-tab-group>

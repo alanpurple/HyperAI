@@ -38,7 +38,7 @@
   "devDependencies": {
     "@types/bcrypt": "^5.0.0",
     "@types/csv-parse": "^1.2.2",
-    "@types/debug": "^4.1.6",
+    "@types/debug": "^4.1.7",
     "@types/express": "^4.17.13",
     "@types/express-serve-static-core": "^4.17.24",
     "@types/mime": "^2.0.3",
@@ -46,7 +46,7 @@
     "@types/mongoose": "^5.11.97",
     "@types/morgan": "^1.9.3",
     "@types/multer": "^1.4.7",
-    "@types/node": "^16.4.1",
+    "@types/node": "^16.4.3",
     "@types/passport": "^1.0.7",
     "@types/passport-facebook": "^2.1.11",
     "@types/passport-google-oauth": "^1.0.42",

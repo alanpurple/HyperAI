@@ -21,13 +21,10 @@ export class DataService {
     return this._httpClient.get<DataInfo[]>('/data');
   }
 
-  // upload pulic data, for admin only
-  uploadDataPublic(data: File): Observable<DataInfo> {
-    return this._httpClient.post<DataInfo>('/data/public', { file: data });
-  }
-
   uploadData(data: File): Observable<DataInfo> {
-    return this._httpClient.post<DataInfo>('/data', { file: data });
+    let formData = new FormData();
+    formData.append('data', data);
+    return this._httpClient.post<DataInfo>('/data', formData);
   }
 }
 
@@ -35,7 +32,7 @@ export class DataDatabase {
   constructor(private _httpClient: HttpClient) { }
 
   getDataPublic(): Observable<DataInfo[]> {
-    return this._httpClient.get<DataInfo[]>('/data/public');
+    return this._httpClient.get<DataInfo[]>('/data/open');
   }
 
   getDataMy(): Observable<DataInfo[]> {

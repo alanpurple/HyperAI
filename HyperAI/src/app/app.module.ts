@@ -7,9 +7,9 @@ import { FormsModule } from '@angular/forms';
 import { MatModule } from './mat.module';
 
 // not working ( hopefully only for now )
-//import * as PlotlyJS from 'plotly.js-dist';
-//import { PlotlyModule } from 'angular-plotly.js';
-//PlotlyModule.plotlyjs = PlotlyJS;
+/*import * as PlotlyJS from 'plotly.js-dist';
+import { PlotlyModule } from 'angular-plotly.js';
+PlotlyModule.plotlyjs = PlotlyJS;*/
 
 import { PlotlyViaCDNModule } from 'angular-plotly.js';
 PlotlyViaCDNModule.setPlotlyVersion('latest');

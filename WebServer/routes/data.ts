@@ -31,11 +31,15 @@ router.all('*', ensureAuthenticated);
 // get the list of open datasets
 router.get('/open', async (req: Request, res: Response) => {
     try {
-        const openData = await DataInfoModel.find({'user.accountType':'admin'});
+        const entireData = await DataInfoModel.find().populate('owner', 'accountType');
+        entireData.forEach(data => console.dir(data.owner));
+        const openData = entireData.filter(data => data.owner.accountType == 'admin');
         const result = openData.map(data => {
-            name: data._id;
-            numRows: data.numRows;
-            type: data.type
+            return {
+                name: data._id,
+                numRows: data.numRows,
+                type: data.type
+            }
         });
         res.send(result);
     }
@@ -56,7 +60,7 @@ router.get('/', async (req: Request, res: Response) => {
     }
 });
 
-router.get('/public', async (req: Request, res: Response) => {
+/*router.get('/public', async (req: Request, res: Response) => {
     try {
         const admins = await UserModel.find({ accountType: 'admin' }, 'data')
         let result = [];
@@ -67,7 +71,7 @@ router.get('/public', async (req: Request, res: Response) => {
         res.status(500).send(err);
     }
 });
-
+*/
 // get actual data from rdb
 router.get('/:tablename', (req: Request, res: Response) => {
     ////////////
@@ -93,129 +97,51 @@ router.get('/:tablename', (req: Request, res: Response) => {
 
 const AvailableExts = ['csv', 'xlsx', 'tsv'];
 
-router.post('/', multerRead.single('data'), async (req: Request, res: Response) => {
-    try {
-        const filename = req.file.filename;
-        const ext = extname(filename);
-
-        if (!AvailableExts.includes(ext)) {
-            res.status(400).send('We only support ' + AvailableExts.toString());
-            return;
-        }
-
-        //let data;
-        /*switch (ext) {
-            case 'csv':
-                csvParse(req.file.buffer, { columns: true }, (err, output) => {
-                    if (err) {
-                        res.status(500).send(err);
-                        return;
-                    }
-
-                })
-
-                break;
-
-            case 'tsv':
-                csvParse(req.file.buffer, { delimiter: '\t', columns: true }, (err, output) => {
-                    if (err) {
-                        res.status(500).send(err);
-                        return;
-                    }
-                })
-                break;
-
-            case 'xlsx':
-                data = XLSX.read(req.file.buffer)
-
-                break;
-        }*/
-
-        const response = await client.upload({ name: filename });
-        if (response.error > -1) {
-            res.sendStatus(500);
-            return;
-        }
-        await rm(UPLOAD_TEMP_PATH + '/' + filename);
-
-        const data: DataInfo = {
-            _id: filename.split('.')[0],
-            numRows: req.file.buffer.length,
-            owner: req.user['id'],
-            // only 'structural' is available for now
-            type: 'structural'
-        };
-
-        const dataInfoModel = new DataInfoModel(data);
-        await dataInfoModel.save();
-        res.send({ name: data._id, numRows: data.numRows, type: data.type });
+router.post('/', multerRead.single('data'), (req: Request, res: Response) => {
+    const filename = req.file.originalname;
+    const splited = filename.split('.');
+    if (splited.length != 2) {
+        res.status(400).send('filename can include only one dot');
+        return;
     }
-    catch (err) {
-        res.status(500).send(err);
+    const tempName = req.file.filename;
+    const ext = splited[1];
+    const name = splited[0];
+    if (!AvailableExts.includes(ext)) {
+        res.status(400).send('We only support ' + AvailableExts.toString());
+        return;
     }
-})
 
-router.post('/public', multerRead.single('data'), async (req: Request, res: Response) => {
-    try {
-        const filename = req.file.filename;
-        const ext = extname(filename);
+    client.Upload({
+        location: tempName, name: name, extname: ext,
+        isadmin: req.user['accountType'] == 'admin'
+    }, async (err, result) => {
+        try {
+            await rm(UPLOAD_TEMP_PATH + '/' + req.file.filename);
+            if (err || result.error > -1) {
+                if (err)
+                    console.error(err);
+                res.sendStatus(500);
+                return;
+            }
+            const data: DataInfo = {
+                _id: result.tablename,
+                numRows: result.numrows,
+                owner: req.user['id'],
+                // only 'structural' is available for now
+                type: 'structural'
+            };
 
-        if (!AvailableExts.includes(ext)) {
-            res.status(400).send('We only support ' + AvailableExts.toString());
-            return;
+            const dataInfoModel = new DataInfoModel(data);
+            await dataInfoModel.save();
+            res.send({ name: data._id, numRows: data.numRows, type: data.type });
         }
-
-        //let data;
-        /*switch (ext) {
-            case 'csv':
-                csvParse(req.file.buffer, { columns: true }, (err, output) => {
-                    if (err) {
-                        res.status(500).send(err);
-                        return;
-                    }
-                    
-                })
-
-                break;
-
-            case 'tsv':
-                csvParse(req.file.buffer, { delimiter: '\t', columns: true }, (err, output) => {
-                    if (err) {
-                        res.status(500).send(err);
-                        return;
-                    }
-                })
-                break;
-
-            case 'xlsx':
-                data = XLSX.read(req.file.buffer)
-
-                break;
-        }*/
-
-        const response = await client.upload({ name: filename });
-        if (response.error > -1) {
-            res.sendStatus(500);
-            return;
+        catch (err) {
+            console.error(err);
+            res.status(500).send(err)
         }
-        await rm(UPLOAD_TEMP_PATH + '/' + filename);
-        const data: DataInfo = {
-            _id: filename.split('.')[0],
-            numRows: req.file.buffer.length,
-            owner: req.user['id'],
-            // only 'structural' is available for now
-            type: 'structural'
-        };
-
-        const dataInfoModel = new DataInfoModel(data);
-        await dataInfoModel.save();
-        res.send({ name: data._id, numRows: data.numRows, type: data.type });
-
-    }
-    catch (err) {
-        res.status(500).send(err);
-    }
-})
+    });
+});
 
 function ensureAuthenticated(req: Request, res: Response, next: NextFunction) {
     if (req.isUnauthenticated())

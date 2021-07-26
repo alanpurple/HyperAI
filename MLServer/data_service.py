@@ -6,30 +6,27 @@ import data_service_pb2
 import data_service_pb2_grpc
 
 from connectdb import getAll
+from connectdb_open import getAll as getAllOpen
 
 class DataServicer(data_service_pb2_grpc.DataServicer):
     def Upload(self, request, context):
-        if '.' not in request.name:
+        if request.name=='' or request.location=='' or request.extname=='':
             return data_service_pb2.UploadResponse(error=0)
-        filename=request.name
+        tablename=tablename=sub('[-_]','', request.name).lower()
         # header should be on the first row
-        path='../WebServer/upload-temp'
-        ext=filename.split('.')[-1]
-        tablename=sub('[-_]','', filename.split('.')[0])
-        if len(ext)<1 or len(tablename)<1:
-            return data_service_pb2.UploadResponse(errpr=0)
-        conn, session, Base = getAll()
-
+        path='../upload-temp/'+request.location
+        ext=request.extname
+        conn, session, Base = getAllOpen() if request.isadmin else getAll()
         # only csv,tsv and xlsx are available for now
         if ext=='csv':
-            df=pd.read_csv(path+filename,index_col=0)
-        elif ext='tsv':
-            df=pd.read_csv(path+filename,'\t',index_col=0)
+            df=pd.read_csv(path)
+        elif ext=='tsv':
+            df=pd.read_csv(path,'\t')
         elif ext=='xlsx':
-            df=pd.read_excel(path+filename,index_col=0)
+            df=pd.read_excel(path)
         else:
             return data_service_pb2.UploadResponse(error=0)
         
         df.to_sql(tablename,conn)
 
-        return data_service_pb2.UploadResponse(error=-1)
+        return data_service_pb2.UploadResponse(error=-1,tablename=tablename,numrows=df.shape[0])

@@ -20,54 +20,68 @@ export class DataComponent implements OnInit, AfterViewInit {
     private errorAlert: ErrorAlert
   ) { }
 
-  ngOnInit(): void {
+  displayedColumns: string[] = ['name', 'type', 'numRows'];
 
+  ngOnInit(): void {
+    console.log('oninit');
   }
 
   ngAfterViewInit() {
+    this.dataDB = new DataDatabase(this._httpClient);
+    this.loadOpen();
+    this.loadMy();
+  }
 
-    this.isLoadingMy = true;
-    this.dataDB.getDataMy().subscribe(data => {
-      this.isLoadingMy = false;
-      this.myData = data;
-    }, err => this.errorAlert.open(err));
-
+  loadOpen() {
+    if (!this.dataDB)
+      return;
     this.isLoadingPublic = true;
     this.dataDB.getDataPublic().subscribe(data => {
       this.isLoadingPublic = false;
       this.openData = data;
     }, err => this.errorAlert.open(err));
-
   }
 
-  dataDB: DataDatabase = new DataDatabase(this._httpClient);
+  loadMy() {
+    if (!this.dataDB)
+      return;
+    this.isLoadingMy = true;
+    this.dataDB.getDataMy().subscribe(data => {
+      this.isLoadingMy = false;
+      this.myData = data;
+    }, err => this.errorAlert.open(err));
+  }
+
+  dataDB: DataDatabase | null = null;
   openData: DataInfo[] = [];
   myData: DataInfo[] = [];
 
-  files: FileList|null = null;
+  file: File|null = null;
 
   isLoadingMy = true;
   isLoadingPublic = true;
 
   addData() {
-    if (!this.files?.length)
+    if (!this.file)
       return;
-    this.dataService.uploadData(this.files[0]).subscribe(data => {
-      this.myData.push(data);
+    this.dataService.uploadData(this.file).subscribe(data => {
+      this.file = null;
+      this.loadMy();
+      this.loadOpen();
       this.confirmDialog.open('data uplodaed');
     }, err => this.errorAlert.open(err));
   }
 
-  /*onFileSelected(event: InputEvent) {
-    const files = event.target.files;
-    if (!files)
+  onFileSelected(event: Event) {
+    if (!event.target)
       return;
-    const file: File = files[0];
+    if (!('files' in event.target))
+      return;
+    const files = event.target['files'];
+    if (!files)
+      this.file = null;
+    else
+      this.file = files[0];
     
-  }*/
+  }
 }
-
-/*interface InputEvent extends Event {
-  target: HTMLInputElement & EventTarget;
-}
-*/
