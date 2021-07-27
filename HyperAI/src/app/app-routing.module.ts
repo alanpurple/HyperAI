@@ -24,8 +24,7 @@ const routes: Routes = [
   },
   {
     path: 'login/:id', component: LoginComponent,
-    canActivate: [NotLoggedIn],
-    canDeactivate: [LoggedIn]
+    canActivate: [NotLoggedIn]
   },
   {
     path: 'signup', component: SignupComponent,

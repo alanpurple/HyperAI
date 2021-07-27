@@ -53,7 +53,7 @@ UserModel.findOne({ email: 'alanpurple@gmail.com'}).then(user => {
         return;
 });
 
-const rootPath = path.join(__dirname, '../HyperAI/dist/HyperAI');
+const rootPath = path.join(__dirname, '../wwwroot');
 
 // no authentication for mongodb currently, need to be updated
 const options = {

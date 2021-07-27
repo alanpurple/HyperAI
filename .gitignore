@@ -405,3 +405,6 @@ package-lock.json
 # WedServer output
 WebServer/**/*.js
 WebServer/**/*.map
+
+# front-end output
+wwwroot/
