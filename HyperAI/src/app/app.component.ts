@@ -17,7 +17,10 @@ export class AppComponent implements OnInit {
     private userService: UserService,
     private confirmDialog: ConfirmDialog
   ) {
-
+    if (window.outerWidth < 800) {
+      this.sidenavMode = 'over';
+      this.isOpened = false;
+    }
   }
 
   user: UserData|null = null;
