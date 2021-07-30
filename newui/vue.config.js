@@ -3,6 +3,7 @@ const webpack = require("webpack");
 // const BundleAnalyzerPlugin = require("webpack-bundle-analyzer")
 //   .BundleAnalyzerPlugin;
 module.exports = {
+  outputDir: path.resolve(__dirname, "../wwwroot"),
   chainWebpack: (config) => {
     // lazyload 한번에 리소스를 다운받기보다는 해당라우터에서 필요한 리로스만 다운받을수있도록
     config.plugins.delete("prefetch");
