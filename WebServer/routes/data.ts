@@ -97,6 +97,8 @@ router.get('/:tablename', (req: Request, res: Response) => {
 
 const AvailableExts = ['csv', 'xlsx', 'tsv'];
 
+router.get('/ext', (req: Request, res: Response) => res.send({ ext: AvailableExts }));
+
 router.post('/', multerRead.single('data'), (req: Request, res: Response) => {
     const filename = req.file.originalname;
     const splited = filename.split('.');
