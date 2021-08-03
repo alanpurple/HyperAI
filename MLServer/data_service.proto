@@ -4,6 +4,7 @@ package dataservice;
 
 service Data {
 	rpc Upload (UploadRequest) returns (UploadResponse){}
+	rpc GetSummary (TableRequest) returns (SummaryReply){}
 }
 
 message UploadRequest{
@@ -17,4 +18,29 @@ message UploadResponse{
 	int32 error = 1;
 	string tablename = 2;
 	int32 numrows = 3;
+}
+
+message TableRequest {
+	bool isOpen = 1;
+	string tableName = 2;
+}
+
+message SummaryReply {
+	repeated Summary summaries = 1;
+}
+
+message Summary {
+	string name = 13;
+	uint32 count = 1;
+	float mean = 2;
+	float min = 3;
+	float std = 4;
+	float q1 = 5;
+	float q2 = 6;
+	float q3 = 7;
+	float max = 8;
+	uint32 unique = 9;
+	string top = 10;
+	uint32 freq = 11;
+	string type = 12;
 }

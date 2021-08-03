@@ -408,3 +408,7 @@ WebServer/**/*.map
 
 # front-end output
 wwwroot/
+
+# images for showcase
+
+images/

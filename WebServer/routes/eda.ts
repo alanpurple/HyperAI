@@ -67,7 +67,7 @@ router.get('/relation/:open/:name/:source/:target/:type', (req, res) => {
                             result[elem[tgt]] = [];
                     });
                     for (let target in result) {
-                        let filtered = data.filter(elem => elem[tgt] == target);
+                        const filtered = data.filter(elem => elem[tgt] == target);
                         result[target] = filtered.map(elem => elem[src]);
                     }
                     res.send(result);

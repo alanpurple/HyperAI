@@ -30,3 +30,11 @@ class DataServicer(data_service_pb2_grpc.DataServicer):
         df.to_sql(tablename,conn)
 
         return data_service_pb2.UploadResponse(error=-1,tablename=tablename,numrows=df.shape[0])
+
+    def GetSummary(self, request, context):
+        if request.tableName=='':
+            return data_service_pb2.SummaryReply(error=0)
+        tablename=request.tableName
+        conn, session, Base = getAllOpen() if request.isOpen else getAll()
+
+        return super().GetSummary(request, context)
