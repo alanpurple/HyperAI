@@ -2,7 +2,7 @@ import { Router, Request, Response, NextFunction } from 'express';
 import { UserModel } from '../models/user';
 import { DataInfo, DataInfoModel } from '../models/data.info';
 import { sequelize, sequelizeOpen } from '../connect-rdb';
-import { extname } from 'path';
+//import { extname } from 'path';
 import { rm } from 'fs/promises';
 //import * as csvParse from 'csv-parse';
 //import * as XLSX from 'xlsx';
