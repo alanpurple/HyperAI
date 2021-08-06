@@ -1,0 +1,49 @@
+<mat-form-field>
+  <mat-select [(ngModel)]="selectedTable" placeholder="테이블 선택" (selectionChange)="getSummary()">
+    <mat-option *ngFor="let table of tableNames" [value]="table">
+      {{table}}
+    </mat-option>
+  </mat-select>
+</mat-form-field>
+
+<mat-spinner *ngIf="gettingData"></mat-spinner>
+
+<ng-container *ngIf="type==0">
+  <mat-slide-toggle color="primary" (change)="graphType=!graphType">
+    그래프 타입
+  </mat-slide-toggle>
+  <plotly-plot [data]="associationData1" [layout]="barLayout"></plotly-plot>
+  <!--<ngx-charts-bar-vertical-2d *ngIf="!graphType"
+                              [view]="[900, 500]"
+                              [scheme]="colorScheme"
+                              [results]="associationData"
+                              [gradient]="true"
+                              [xAxis]="true"
+                              [yAxis]="true"
+                              [legend]="true"
+                              [showXAxisLabel]="true"
+                              [showYAxisLabel]="true"
+                              [xAxisLabel]="source?.name"
+                              [yAxisLabel]="target?.name"
+                              (select)="onSelect($event)">
+  </ngx-charts-bar-vertical-2d>-->
+  <plotly-plot [data]="associationData2" [layout]="pieLayout"></plotly-plot>
+  <!--<mat-grid-list cols="2" rowHeight="2:1" *ngIf="graphType">
+    <mat-grid-tile *ngFor="let elem of associationData">-->
+      <!--<ngx-charts-pie-chart [view]="[900, 500]"
+                            [scheme]="colorScheme"
+                            [results]="elem.series"
+                            [legend]="true"
+                            [explodeSlices]="true"
+                            [labels]="true"
+                            [doughnut]="false"
+                            [gradient]="true"
+                            (select)="onSelect($event)">
+      </ngx-charts-pie-chart>-->
+      <!--<mat-grid-tile-footer>{{elem.name}}</mat-grid-tile-footer>
+    </mat-grid-tile>
+  </mat-grid-list>-->
+</ng-container>
+
+<plotly-plot [data]="boxPlotData" [layout]="boxPlotLayout" *ngIf="boxPlotData"></plotly-plot>
+<plotly-plot [data]="lrData" [layout]="lrLayout" *ngIf="lrData"></plotly-plot>
