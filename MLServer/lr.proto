@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package lr;
+
+service lr {
+	rpc Elasticnetcv (LrRequest) returns (LrResponse) {}
+}
+
+message LrRequest {
+	string isOpen = 1;
+	string tableName = 2;
+	string sourceColumn = 3;
+	string targetColumn = 4;
+	uint32 numOfFolds = 5;
+}
+
+message LrResponse {
+	int32 error = 1;
+	float alpha = 2;
+	float slope = 3;
+	float intercept = 4;
+}

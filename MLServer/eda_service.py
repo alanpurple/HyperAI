@@ -4,15 +4,17 @@ from pandas.api.types import is_string_dtype
 from datetime import date
 
 from connectdb import getAll
+from connectdb_open import getAll as getAllOpen
 
 import eda_pb2
 import eda_pb2_grpc
 
 class EdaService(eda_pb2_grpc.PreprocessServicer):
     def Cleanse(self, request, context):
+        # location is just a table name (for now)
         if request.location =='':
             return eda_pb2.ProcessedReply(error=0)
-        conn, session, Base = getAll()
+        conn, session, Base = getAllOpen() if request.isOpen else getAll()
         data=Base.classes[request.location]
         q=session.query(data)
         session.close()

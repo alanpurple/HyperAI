@@ -42,32 +42,16 @@
     <Folder Include="routes\" />
   </ItemGroup>
   <ItemGroup>
-    <TypeScriptCompile Include="connect-ddb.ts">
+    <TypeScriptCompile Include="*.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>
-    <TypeScriptCompile Include="connect-rdb.ts">
-      <SubType>Code</SubType>
-    </TypeScriptCompile>
-    <TypeScriptCompile Include="models\data.info.ts">
-      <SubType>Code</SubType>
-    </TypeScriptCompile>
-    <TypeScriptCompile Include="models\user.ts">
+    <TypeScriptCompile Include="models\*.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>
     <TypeScriptCompile Include="passport-init.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>
-    <TypeScriptCompile Include="routes\account.ts" />
-    <TypeScriptCompile Include="routes\data.ts">
-      <SubType>Code</SubType>
-    </TypeScriptCompile>
-    <TypeScriptCompile Include="routes\eda-text.ts">
-      <SubType>Code</SubType>
-    </TypeScriptCompile>
-    <TypeScriptCompile Include="routes\eda-vision.ts">
-      <SubType>Code</SubType>
-    </TypeScriptCompile>
-    <TypeScriptCompile Include="routes\eda.ts">
+    <TypeScriptCompile Include="routes\*.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>
   </ItemGroup>

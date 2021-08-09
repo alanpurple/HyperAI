@@ -15,6 +15,7 @@ import EdaRoute from './routes/eda';
 import EdaTextRoute from './routes/eda-text';
 import EdaVisionRoute from './routes/eda-vision';
 import AccountRoute from './routes/account';
+import LrRoute from './routes/lr';
 
 
 
@@ -102,6 +103,7 @@ app.use('/eda', EdaRoute);
 app.use('/eda-text', EdaTextRoute);
 app.use('/eda-vision', EdaVisionRoute);
 app.use('/account', AccountRoute);
+app.use('/lr', LrRoute);
 
 // error handlers
 

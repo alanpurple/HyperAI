@@ -10,8 +10,10 @@ service Preprocess {
 }
 
 message dataloc {
-	int32 type = 1;
-	string location = 2;
+	bool isOpen = 1;
+	int32 type = 2;
+	// location is just a table name (for now)
+	string location = 3;
 }
 
 message ResultMsg {
