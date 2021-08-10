@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { PieData, BoxPlotData, ScatterData, PlotData } from 'plotly.js';
 
+import { LrService } from './lr.service';
+
 import { DataService } from './data.service';
 import { ErrorAlert } from './error.alert';
 
@@ -9,6 +11,7 @@ import { ErrorAlert } from './error.alert';
 })
 export class Association implements OnInit {
   constructor(
+    private lrService: LrService,
     private dataService: DataService,
     private errorAlert: ErrorAlert
   ) {
@@ -22,6 +25,10 @@ export class Association implements OnInit {
   boxPlotData: BoxPlotData[] = [];
   lrData = [];
 
+  private readonly colors: string[] = ['rgba(93, 164, 214, 0.5)', 'rgba(255, 144, 14, 0.5)',
+    'rgba(44, 160, 101, 0.5)', 'rgba(255, 65, 54, 0.5)', 'rgba(207, 114, 255, 0.5)',
+    'rgba(127, 96, 0, 0.5)', 'rgba(255, 140, 184, 0.5)', 'rgba(79, 90, 117, 0.5)',
+    'rgba(222, 223, 0, 0.5)'];
 
   ngOnInit() {
     this.dataService.getDataMy().subscribe(datalist => {

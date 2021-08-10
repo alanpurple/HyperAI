@@ -16,9 +16,22 @@ const router = Router();
 
 router.all('*', ensureAuthenticated);
 
-router.post('/elasticnetcv', (req: Request, res: Response) => {
-
-})
+router.post('/elasticnetcv', (req: Request, res: Response) =>
+    client.elasticnetcv(req.body, (err, result) => {
+        if (err) {
+            console.error(err);
+            res.sendStatus(500);
+        }
+        else if (result.error == 0)
+            res.sendStatus(401);
+        else if (result.error == -1) {
+            delete result.error;
+            res.send(result);
+        }
+        else
+            res.sendStatus(500);
+    })
+);
 
 function ensureAuthenticated(req: Request, res: Response, next: NextFunction) {
     if (req.isUnauthenticated())

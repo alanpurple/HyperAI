@@ -102,3 +102,6 @@ class EdaService(eda_pb2_grpc.PreprocessServicer):
                 temp['std']=data['std']
             result.append(temp)
             return eda_pb2.SummaryReply(summaries=result)
+
+    def NormLog(self, request, context):
+        return super().NormLog(request, context)
