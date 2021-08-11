@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { PieData, BoxPlotData, ScatterData, PlotData } from 'plotly.js';
+import { PieData, BoxPlotData, ScatterData, PlotData, Layout } from 'plotly.js';
 
 import { LrService } from './lr.service';
 
 import { DataService } from './data.service';
 import { ErrorAlert } from './error.alert';
+import { EdaService } from './eda.service';
 
 @Component({
   templateUrl: './association.html'
@@ -13,12 +14,17 @@ export class Association implements OnInit {
   constructor(
     private lrService: LrService,
     private dataService: DataService,
+    private edaService: EdaService,
     private errorAlert: ErrorAlert
-  ) {
-
-  }
+  ) { }
 
   tableNames: string[] = [];
+
+  selectedTable: string = '';
+  barLayout: Layout | {} = {};
+  pieLayout: Layout | {} = {};
+  boxPlotLayout: Layout | {} = {};
+
 
   associationData1: PlotData[] = [];
   associationData2: PieData[] = [];
@@ -34,5 +40,12 @@ export class Association implements OnInit {
     this.dataService.getDataMy().subscribe(datalist => {
       this.tableNames = datalist.filter(data => data.type == 'structural').map(data => data.name);
     })
+  }
+
+  resetAssociation() {
+    this.associationData1 = [];
+    this.associationData2 = [];
+    this.boxPlotData = [];
+    this.lrData = [];
   }
 }
