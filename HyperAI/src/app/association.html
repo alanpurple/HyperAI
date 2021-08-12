@@ -1,3 +1,8 @@
+<mat-radio-group [(ngModel)]="isOpen" (change)="swapTables()">
+  <mat-radio-button [value]="true">Open Data</mat-radio-button>
+  <mat-radio-button [value]="false">My Data</mat-radio-button>
+</mat-radio-group>
+
 <mat-form-field>
   <mat-select [(ngModel)]="selectedTable" placeholder="테이블 선택" (selectionChange)="getSummary()">
     <mat-option *ngFor="let table of tableNames" [value]="table">

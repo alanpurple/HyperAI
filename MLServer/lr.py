@@ -1,14 +1,18 @@
-from lr_pb2 import LrRequest,LrResponse
-from lr_pb2_grpc import lrServicer
+import pandas as pd
+from sqlalchemy.orm import load_only
+from sklearn.linear_model import ElasticNetCV
+
+from lr_pb2 import LrResponse
+from lr_pb2_grpc import LrServicer
 from connectdb import getAll
 from connectdb_open import getAll as getAllOpen
 
 from sklearn.linear_model import ElasticNetCV as elanetcv
 
-class LrService(lrServicer):
+class LrService(LrServicer):
     def Elasticnetcv(self, request, context):
         if request.tableName=='' or request.sourceColumn=='' or request.targetColumn=='':
-            return lrservice_pb2.LrResponse(error=0)
+            return LrResponse(error=0)
         numOfFolds=5
         if request.numOfFolds>0:
             numOfFolds=request.numOfFolds
@@ -16,10 +20,10 @@ class LrService(lrServicer):
         data=Base.classes[request.tableName]
         q=session.query(data).options(load_only(request.sourceColumn,request.targetColumn))
         session.close()
-        df=pandas.read_sql(q.statement,conn)
+        df=pd.read_sql(q.statement,conn)
         x=df.loc[:,request.sourceColumn]
         y=df.loc[:,request.targetColumn]
         regr=ElasticNetCV(cv=numOfFolds)
         xarr=x.values.reshape((len(x),1))
         regr.fit(xarr,y)
-        return lrservice_pb2.LrResponse(error=-1,alpha=regr.alpha_,slope=regr.coef_[0],intercept=regr.intercept_)
+        return LrResponse(error=-1,alpha=regr.alpha_,slope=regr.coef_[0],intercept=regr.intercept_)

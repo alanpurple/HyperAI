@@ -10,7 +10,7 @@ const pkgdef = loadSync(PROTO_PATH, {
 
 const LrService = loadPackageDefinition(pkgdef).lr;
 
-const client = new LrService['Elasticnetcv']('localhost:50051', credentials.createInsecure());
+const client = new LrService['Lr']('localhost:50051', credentials.createInsecure());
 
 const router = Router();
 

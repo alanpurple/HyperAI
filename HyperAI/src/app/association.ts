@@ -7,6 +7,8 @@ import { DataService } from './data.service';
 import { ErrorAlert } from './error.alert';
 import { EdaService } from './eda.service';
 
+import { SummaryData } from './summary.data';
+
 @Component({
   templateUrl: './association.html'
 })
@@ -20,7 +22,13 @@ export class Association implements OnInit {
 
   tableNames: string[] = [];
 
+  isOpen: boolean = false;
   selectedTable: string = '';
+
+  summary: SummaryData[] = [];
+  source: SummaryData | {} = {};
+  target: SummaryData | {} = {};
+
   barLayout: Layout | {} = {};
   pieLayout: Layout | {} = {};
   boxPlotLayout: Layout | {} = {};
@@ -47,5 +55,45 @@ export class Association implements OnInit {
     this.associationData2 = [];
     this.boxPlotData = [];
     this.lrData = [];
+  }
+
+  graphType: boolean = false;
+  type: number|null = null;
+
+  // only category to category case is implemented currently
+  isValid(target: SummaryData): boolean {
+    // check if this.source is empty
+    if (!('type' in this.source))
+      return false;
+    if (this.source == target)
+      return false;
+    if (this.source.type == 'categorical') {
+      if (target.type == 'numeric')
+        return false;
+    }
+    if (target.type == 'categorical')
+      if (target.unique > 20)
+        return false;
+    return true;
+  }
+
+  analyzeAssociation() {
+    if (!('type' in this.source) || !('type' in this.target))
+      return;
+    let type = 2;
+    if (this.source.type == 'numeric') {
+      if (this.target.type == 'categorical')
+        type = 1;
+    }
+    else if (this.target.type == 'numeric') {
+      console.error('this should not be exist');
+      return;
+    }
+    else
+      type = 0;
+    switch (type) {
+      case 0: case 1:
+        const data = this.edaService.getAssociation()
+    }
   }
 }

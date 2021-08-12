@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package lr;
 
-service lr {
+service Lr {
 	rpc Elasticnetcv (LrRequest) returns (LrResponse) {}
 }
 

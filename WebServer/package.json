@@ -45,7 +45,7 @@
     "@types/serve-static": "^1.13.10",
     "@types/morgan": "^1.9.3",
     "@types/multer": "^1.4.7",
-    "@types/node": "^16.4.13",
+    "@types/node": "^16.6.0",
     "@types/passport": "^1.0.7",
     "@types/passport-facebook": "^2.1.11",
     "@types/passport-google-oauth": "^1.0.42",
