@@ -23,10 +23,30 @@ const routes: Array<RouteConfig> = [
       import(/* webpackChunkName: "about" */ "../views/About.vue"),
   },
   {
-    path: "/signin",
+    path: "/login",
     name: "Signin",
     component: () =>
       import(/* webpackChunkName: "singin" */ "../views/Signin.vue"),
+  },
+  {
+    path: "/signup",
+    name: "Signup",
+    component: () =>
+      import(/* webpackChunkName: "singup" */ "../views/Signup.vue"),
+  },
+  {
+    path: "/model-suggestion",
+    name: "model-suggestion",
+    component: () =>
+      import(
+        /* webpackChunkName: "model-suggestion" */ "../views/ModelSuggestion.vue"
+      ),
+  },
+  {
+    path: "/data-manager",
+    name: "data-manager",
+    component: () =>
+      import(/* webpackChunkName: "data-manager" */ "../views/DataManager.vue"),
   },
 ];
 

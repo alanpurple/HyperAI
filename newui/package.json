@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "vue-cli-service serve --mode development",
-    "dev_build": "vue-cli-service build --mode development",
+    "dev_build": "vue-cli-service build --watch --mode development",
     "production": "vue-cli-service serve --mode production",
     "production_build": "vue-cli-service build --mode production",
     "test:unit": "vue-cli-service test:unit",
@@ -15,6 +15,7 @@
     "core-js": "^3.6.5",
     "vue": "^2.6.11",
     "vue-class-component": "^7.2.3",
+    "vue-js-modal": "^2.0.1",
     "vue-material": "^1.0.0-beta-15",
     "vue-property-decorator": "^9.1.2",
     "vue-router": "^3.2.0",
