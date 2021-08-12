@@ -26,7 +26,10 @@ router.get('/relation/:open/:name/:source/:target/:type', (req, res) => {
     const isOpen = parseInt(req.params.open);
     switch (isOpen) {
         case 0:
-            dbLocation = sequelize;
+            if (req.user['accountType'] == 'admin')
+                dbLocation = sequelizeOpen;
+            else
+                dbLocation = sequelize;
             break;
         case 1:
             dbLocation = sequelizeOpen;

@@ -22,6 +22,9 @@ export class Association implements OnInit {
 
   tableNames: string[] = [];
 
+  openTables: string[] = [];
+  myTables: string[] = [];
+
   isOpen: boolean = false;
   selectedTable: string = '';
 
@@ -46,8 +49,18 @@ export class Association implements OnInit {
 
   ngOnInit() {
     this.dataService.getDataMy().subscribe(datalist => {
-      this.tableNames = datalist.filter(data => data.type == 'structural').map(data => data.name);
-    })
+      this.tableNames = this.myTables = datalist.filter(data => data.type == 'structural').map(data => data.name);
+    });
+    this.dataService.getDataPublic().subscribe(datalist => {
+      this.openTables = datalist.filter(data => data.type == 'structural').map(data => data.name);
+    });
+  }
+
+  swapTables() {
+    if (this.isOpen)
+      this.tableNames = this.openTables;
+    else
+      this.tableNames = this.myTables;
   }
 
   resetAssociation() {
@@ -93,7 +106,7 @@ export class Association implements OnInit {
       type = 0;
     switch (type) {
       case 0: case 1:
-        const data = this.edaService.getAssociation()
+        this.edaService.getAssociation(this.isOpen, this.selectedTable, this.source.name, this.target.name, type);
     }
   }
 }
