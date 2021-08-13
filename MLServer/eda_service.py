@@ -103,5 +103,28 @@ class EdaService(eda_pb2_grpc.PreprocessServicer):
             result.append(temp)
             return eda_pb2.SummaryReply(summaries=result)
 
+    # suppose there is only one exponential base in the world ( e, Euler's number, for simplicity )
     def NormLog(self, request, context):
+        if request.location =='':
+            return eda_pb2.ProcessedReply(error=0)
+        conn, session, Base = getAll()
+        data=Base.classes[request.location]
+        q=session.query(data)
+        session.close()
+        df=pd.read_sql(q.statement,conn)
+        for label,content in df.items():
+            if not is_string_dtype(content):
+                is_signed= False
+                # check signed type
+                if np.nanpercentile(content,15) < 0:
+                    #signed data
+                    is_signed=True
+                minvalue=np.percentile(content,1)
+                maxvalue=np.percentile(content,99)
+                filtered=content[(content>minvalue)&(content<maxvalue)]
+                filtered=filtered-minvalue
+                mean=filtered.mean()
+                median=np.median(filtered)
+
+                
         return super().NormLog(request, context)
