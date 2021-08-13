@@ -7,13 +7,13 @@ import { FormsModule } from '@angular/forms';
 import { MatModule } from './mat.module';
 
 // not working ( hopefully only for now )
-/*import * as PlotlyJS from 'plotly.js-dist';
+import * as PlotlyJS from 'plotly.js-dist-min';
 import { PlotlyModule } from 'angular-plotly.js';
-PlotlyModule.plotlyjs = PlotlyJS;*/
+PlotlyModule.plotlyjs = PlotlyJS;
 
-import { PlotlyViaCDNModule } from 'angular-plotly.js';
+/*import { PlotlyViaCDNModule } from 'angular-plotly.js';
 PlotlyViaCDNModule.setPlotlyVersion('latest');
-PlotlyViaCDNModule.setPlotlyBundle('basic');
+PlotlyViaCDNModule.setPlotlyBundle('basic');*/
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -59,8 +59,8 @@ import { UserInfo, ComingSoonDialog, NickNameConfirmDialog, NickNameTakenDialog 
     BrowserAnimationsModule,
     FlexLayoutModule,
     HttpClientModule,
-    //PlotlyModule,
-    PlotlyViaCDNModule,
+    PlotlyModule,
+    //PlotlyViaCDNModule,
     MatModule
   ],
   providers: [ConfirmDialog, LoggedIn, NotLoggedIn, IsAdmin, ErrorAlert, HasNick,
