@@ -116,7 +116,7 @@ class EdaService(eda_pb2_grpc.PreprocessServicer):
             if not is_string_dtype(content):
                 is_signed= False
                 # check signed type
-                if np.nanpercentile(content,15) < 0:
+                if np.percentile(content,15) < 0:
                     #signed data
                     is_signed=True
                 minvalue=np.percentile(content,1)
