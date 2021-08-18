@@ -125,6 +125,19 @@ class EdaService(eda_pb2_grpc.PreprocessServicer):
                 filtered=filtered-minvalue
                 mean=filtered.mean()
                 median=np.median(filtered)
+                stddev=np.std(filtered)
+                #filtered-=mean
+                filtered-=minvalue
+                filtered/=stddev
+                if mean>median and median-minvalue < (mean-minvalue) * 0.6:
+                    #log applied
+                    filtered=np.log(filtered)
+                elif mean<median and maxvalue-median < (maxvalue - mean) * 0.6:
+                    filtered=1-filtered
+                    filtered=np.log(filtered)
+
+
+                
 
                 
         return super().NormLog(request, context)
