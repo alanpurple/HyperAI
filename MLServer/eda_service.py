@@ -112,20 +112,30 @@ class EdaService(eda_pb2_grpc.PreprocessServicer):
         q=session.query(data)
         session.close()
         df=pd.read_sql(q.statement,conn)
+        # nothing to normalize ( numerically )
+        if ((df.dtypes!='string')&(df.dtypes!='datetime')).sum()<1:
+            return eda_pb2.ProcessedReply(error=-1,msg=['no numeric'])
+        newdf=pd.DataFrame(df.columns)
         for label,content in df.items():
             if not is_string_dtype(content):
                 is_signed= False
                 # check signed type
-                if np.percentile(content,15) < 0:
+                if np.percentile(content,25) < 0 and np.percentile(content,75)>0:
                     #signed data
                     is_signed=True
+                if np.percentile(content,75)<0:
+                    content=-content
                 minvalue=np.percentile(content,1)
                 maxvalue=np.percentile(content,99)
                 filtered=content[(content>minvalue)&(content<maxvalue)]
-                filtered=filtered-minvalue
-                mean=filtered.mean()
-                median=np.median(filtered)
                 stddev=np.std(filtered)
+                # signed data ends here
+                if is_signed:
+                    newdf[label]=content/stddev
+                    continue
+                filtered=filtered-minvalue
+                mean=filtered.mean()    
+                median=np.median(filtered)
                 #filtered-=mean
                 filtered-=minvalue
                 filtered/=stddev
@@ -136,8 +146,12 @@ class EdaService(eda_pb2_grpc.PreprocessServicer):
                     filtered=1-filtered
                     filtered=np.log(filtered)
 
+                newdf[label]=filtered
+            else:
+                newdf[label]=content
+        
+        newtable=request.location+'_prp'
+        newdf.to_sql(newtable,conn)
 
                 
-
-                
-        return super().NormLog(request, context)
+        return eda_pb2.ProcessedReply(error=-1,msg=['normalized'],loc=newtable)

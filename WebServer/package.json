@@ -33,7 +33,7 @@
     "passport-local": "^1.0.0",
     "serve-favicon": "^2.5.0",
     "express-session": "^1.17.2",
-    "xlsx": "^0.17.0"
+    "xlsx": "^0.17.1"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.0",
@@ -44,7 +44,7 @@
     "@types/serve-static": "^1.13.10",
     "@types/morgan": "^1.9.3",
     "@types/multer": "^1.4.7",
-    "@types/node": "^16.6.1",
+    "@types/node": "^16.6.2",
     "@types/passport": "^1.0.7",
     "@types/passport-facebook": "^2.1.11",
     "@types/passport-google-oauth": "^1.0.42",
