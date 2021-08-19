@@ -2,6 +2,7 @@ import { Router, Request, Response, NextFunction } from 'express';
 import { QueryTypes } from 'sequelize';
 import { sequelize, sequelizeOpen } from '../connect-rdb';
 
+import { DataInfo, DataInfoModel } from '../models/data.info';
 const PROTO_PATH = __dirname + '/../../MLServer/eda.proto';
 import { loadPackageDefinition, credentials } from '@grpc/grpc-js';
 import { loadSync } from '@grpc/proto-loader';
@@ -97,23 +98,75 @@ router.get('/cleanse/:name', (req: Request, res: Response) => {
             res.send({
                 msg: result.msg,
                 table: result.loc
-            })
+            });
     });
-
 });
 
-router.get('/normlog/:name', async (req: Request, res: Response) => {
-    try {
-
+router.get('/normlog/:name', (req: Request, res: Response) => {
+    const name = req.params.name;
+    const user = req.user;
+    if (!(name in user['data'])) {
+        res.status(401).send('User doesn\'t have this data');
+        return;
     }
-    catch (err) {
-        res.status(500).send(err);
+    else if (!(name in user['cleanData']) && !(name in user['cleansedData'])) {
+        res.status(400).send('Data should be clean before applying preprocessor');
+        return;
     }
-})
+    client.normLog({ location: name }, (err, result) => {
+        if (err || result.error == 1) {
+            if (err)
+                console.error(err);
+            res.sendStatus(500);
+        }
+        else if (result.error == 0) {
+            res.sendStatus(400);
+        }
+        else
+            res.send({
+                msg: result.msg,
+                table: result.loc
+            });
+    });
+});
 
 router.get('/describe/:name', async (req: Request, res: Response) => {
+    const name = req.params.name;
+    let isOpen = false;
+    try {
+        let openData = await _getOpendata();
+        if (!(name in req.user['data'])) {
+            if (name in openData)
+                isOpen = true;
+            else {
+                res.status(400).send('no tables with name');
+                return;
+            }
+        }
+        client.describe({ location: name, isOpen: isOpen }, (err, result) => {
+            if (err || result.error == 1) {
+                if (err)
+                    console.error(err);
+                res.sendStatus(500);
+            }
+            else if (result.error == 0) {
+                res.sendStatus(400);
+            }
+            else
+                res.send(result.summaries);
+        });
+    }
+    catch (err) {
+        if (err)
+            res.status(500).send('err');
+    }
+});
 
-})
+async function _getOpendata() {
+    const entireData = await DataInfoModel.find().populate('owner', 'accountType');
+    const openData = entireData.filter(data => data.owner.accountType == 'admin').map(table => table._id);
+    return openData;
+}
 
 function ensureAuthenticated(req: Request, res: Response, next: NextFunction) {
     if (req.isUnauthenticated())

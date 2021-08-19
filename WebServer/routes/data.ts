@@ -32,7 +32,6 @@ router.all('*', ensureAuthenticated);
 router.get('/open', async (req: Request, res: Response) => {
     try {
         const entireData = await DataInfoModel.find().populate('owner', 'accountType');
-        entireData.forEach(data => console.dir(data.owner));
         const openData = entireData.filter(data => data.owner.accountType == 'admin');
         const result = openData.map(data => {
             return {
