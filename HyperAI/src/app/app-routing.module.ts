@@ -5,6 +5,7 @@ import { NotLoggedIn, HasNick, IsAdmin, LoggedIn, IsNotAdmin } from './check.log
 import { AdminComponent } from './admin.component';
 import { DataComponent } from './data.component';
 import { DescComponent } from './desc.component';
+import { Association } from './association';
 import { HomeComponent } from './home.component';
 import { InfoComponent } from './info.component';
 import { LoginComponent } from './login.component';
@@ -44,13 +45,20 @@ const routes: Routes = [
   {
     path: 'data-manager', component: DataComponent,
     canActivate: [LoggedIn]
-  }, {
+  },
+  {
+    path: 'association', component: Association,
+    canActivate: [LoggedIn]
+  },
+  {
     path: 'model-suggestion', component: ModelComponent,
     canActivate: [LoggedIn]
-  }, {
+  },
+  {
     path: 'train-manager', component: TrainComponent,
     canActivate: [LoggedIn]
-  }, {
+  },
+  {
     path: 'eda-manager', component: EdaComponent,
     canActivate: [IsNotAdmin]
   }, {

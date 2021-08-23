@@ -351,6 +351,12 @@
           </button>
         </mat-list-item>
         <mat-list-item>
+          <button mat-button [disabled]="!user" routerLink="/association"
+                  (click)="handleMenu(sidemenu)">
+            Association insight
+          </button>
+        </mat-list-item>
+        <mat-list-item>
           <button mat-button [disabled]="!user||isAdmin" routerLink="/eda-manager"
                   (click)="handleMenu(sidemenu)">
             EDA(Exploratory Data Analysis)

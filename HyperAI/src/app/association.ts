@@ -26,6 +26,8 @@ export class Association implements OnInit {
   myTables: string[] = [];
 
   isOpen: boolean = false;
+  gettingData: boolean = false;
+  isLoading: boolean = false;
   selectedTable: string = '';
 
   summary: SummaryData[] = [];
@@ -35,6 +37,7 @@ export class Association implements OnInit {
   barLayout: Layout | {} = {};
   pieLayout: Layout | {} = {};
   boxPlotLayout: Layout | {} = {};
+  lrLayout: Layout | {} = {};
 
 
   associationData1: PlotData[] = [];
@@ -54,6 +57,10 @@ export class Association implements OnInit {
     this.dataService.getDataPublic().subscribe(datalist => {
       this.openTables = datalist.filter(data => data.type == 'structural').map(data => data.name);
     });
+  }
+
+  getSummary() {
+
   }
 
   swapTables() {

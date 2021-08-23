@@ -28,6 +28,8 @@ import { TrainComponent } from './train.component';
 import { DataComponent } from './data.component';
 import { ModelComponent } from './model.component';
 import { EdaComponent } from './eda.component';
+import { Association } from './association';
+import { DataPreview } from './data-preview';
 
 /*import { DataService } from './data.service';
 import { EdaService } from './eda.service';
@@ -43,8 +45,8 @@ import { UserInfo, ComingSoonDialog, NickNameConfirmDialog, NickNameTakenDialog 
 @NgModule({
   declarations: [
     AppComponent, SignupComponent, LoginComponent, HomeComponent,
-    AdminComponent,InfoComponent,DescComponent,TrainComponent,
-    DataComponent, ModelComponent, EdaComponent,
+    AdminComponent, InfoComponent, DescComponent, TrainComponent,
+    DataComponent, ModelComponent, EdaComponent, Association, DataPreview,
     ErrorDialog, ConfirmDialogTemplate, ConfirmDialogTemplate2, UserInfo,
     ComingSoonDialog, NickNameTakenDialog, NickNameConfirmDialog
   ],

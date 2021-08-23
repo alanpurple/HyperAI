@@ -5,7 +5,9 @@ import { Observable } from 'rxjs';
 import { LrRequestData, LrResponseData } from './lr.data';
 
 
-@Injectable()
+@Injectable({
+  providedIn: 'root'
+})
 export class LrService {
   constructor(private http: HttpClient) { }
 

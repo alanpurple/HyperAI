@@ -93,7 +93,8 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
 app.get(['/', '/data-manager/?', '/login/?', '/signup/?', '/admin/?', '/info',
-    '/description/?', '/model-suggestion/?', '/train-manager/?', '/eda-manager/?','/user-info'],
+    '/description/?', '/model-suggestion/?', '/train-manager/?', '/eda-manager/?',
+    '/association', '/user-info'],
     (req, res) => res.sendFile(path.join(rootPath, 'index.html')));
 
 app.use(express.static(rootPath, { index: false }));
