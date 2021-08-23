@@ -45,6 +45,15 @@ router.get('/open', async (req: Request, res: Response) => {
     catch (err) {
         res.status(500).send(err);
     }
+});
+
+router.get('/bytype', async (req: Request, res: Response) => {
+    try {
+
+    }
+    catch (err) {
+
+    }
 })
 
 // users' datasets

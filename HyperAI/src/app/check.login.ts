@@ -82,6 +82,24 @@ export class IsAdmin implements CanActivate {
 }
 
 @Injectable()
+export class IsNotAdmin implements CanActivate {
+  constructor(
+    private router: Router,
+    private http: HttpClient
+  ) { }
+
+  canActivate(
+    route: ActivatedRouteSnapshot,
+    state: RouterStateSnapshot
+  ) {
+    return this.http.get('/account/notadmin', { responseType: 'text' })
+      .pipe(
+        map(res => true),
+        catchError(err => throwError(err)))
+  }
+}
+
+@Injectable()
 export class HasNick implements CanActivate {
   constructor(
     private router: Router,

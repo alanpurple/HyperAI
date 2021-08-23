@@ -23,7 +23,8 @@ export class AppComponent implements OnInit {
     }
   }
 
-  user: UserData|null = null;
+  user: UserData | null = null;
+  isAdmin: boolean = false;
 
   title = 'HyperAI';
 
@@ -42,6 +43,8 @@ export class AppComponent implements OnInit {
         user => {
           console.log(user);
           this.user = user;
+          if (user.accountType == 'admin')
+            this.isAdmin = true;
           if (!user.nickName)
             this.router.navigate(['/user-info']);
         },

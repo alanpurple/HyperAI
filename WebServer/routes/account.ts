@@ -95,6 +95,13 @@ router.get('/admin', ensureAuthenticated, (req: Request, res: Response) => {
         res.sendStatus(401);
 });
 
+router.get('/notadmin', ensureAuthenticated, (req: Request, res: Response) => {
+    if (req.user['accountType'] == 'admin')
+        res.sendStatus(401);
+    else
+        res.sendStatus(200);
+})
+
 router.get('/checkNickName/:nickName', (req: Request, res: Response) => {
     UserModel.findOne( { nickName: req.params.nickName } )
         .then(user => {

@@ -38,6 +38,7 @@ const schema = new Schema<User>({
 schema.methods.comparePassword = function(password: string, callback: any){
     const user = this;
     compare(password, user.password, function (err, result) {
+        console.log(result);
         if (err) {
             console.error(err);
             callback(null, false);
@@ -51,14 +52,17 @@ schema.methods.comparePassword = function(password: string, callback: any){
 
 schema.pre('save', { document: true, query: false }, function (next) {
     const user = this;
-    hash(user.password, NUM_ROUNDS, function (err, hashed) {
-        if (err)
-            throw err;
-        else {
-            user.password = hashed;
-            next();
-        }
-    })
+    if (user.isNew || user.isModified('password'))
+        hash(user.password, NUM_ROUNDS, function (err, hashed) {
+            if (err)
+                throw err;
+            else {
+                user.password = hashed;
+                next();
+            }
+        });
+    else
+        next();
 });
 
 schema.pre('updateOne', { document: true, query: false }, function (next) {
