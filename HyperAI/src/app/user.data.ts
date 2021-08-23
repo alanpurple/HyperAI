@@ -4,4 +4,5 @@ export class UserData {
   emailVerified?: boolean = false;
   nickName?: string = '';
   name: string = '';
+  accountType: 'admin' | 'user' = 'user';
 }

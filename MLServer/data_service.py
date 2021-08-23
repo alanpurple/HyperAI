@@ -27,7 +27,9 @@ class DataServicer(data_service_pb2_grpc.DataServicer):
         else:
             return data_service_pb2.UploadResponse(error=0)
         
-        df.to_sql(tablename,conn)
+        print('execute query')
+        df.to_sql(tablename,conn,chunksize=1000)
+        print('query finished')
 
         return data_service_pb2.UploadResponse(error=-1,tablename=tablename,numrows=df.shape[0])
 

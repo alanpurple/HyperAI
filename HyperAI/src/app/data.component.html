@@ -1,6 +1,14 @@
 <mat-tab-group>
   <mat-spinner *ngIf="isLoadingPublic"></mat-spinner>
   <mat-tab label="Open data">
+    <ng-container *ngIf="isAdmin">
+      <input type="file" (change)="onFileSelectedOpen($event)">
+      <button mat-fab color="accent" aria-label="Upload(open) button" (click)="addOpenData()"
+              [disabled]="!fileOpen">
+        <mat-icon>add</mat-icon>
+      </button>
+    </ng-container>
+    <mat-spinner *ngIf="isLoadingPublic"></mat-spinner>
     <table mat-table [dataSource]="openData" matSort>
       <ng-container matColumnDef="name">
         <th mat-header-cell *matHeaderCellDef>name</th>
@@ -19,16 +27,12 @@
       <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
     </table>
   </mat-tab>
-  <mat-tab label="My data">
-    <input type="file" (change)="onFileSelected($event)" #fileUpload>
+  <mat-tab label="My data" *ngIf="!isAdmin">
+    <input type="file" (change)="onFileSelected($event)">
     <button mat-fab color="accent" aria-label="Upload button" (click)="addData()"
             [disabled]="!file">
       <mat-icon>add</mat-icon>
     </button>
-    <!--<form action="/data" method="post" enctype="multipart/form-data">
-    <input type="file" name="data" />
-    <button color="primary" mat-button type="submit">upload data</button>
-    </form>-->
     <mat-spinner *ngIf="isLoadingMy"></mat-spinner>
     <table mat-table [dataSource]="myData" matSort>
       <ng-container matColumnDef="name">

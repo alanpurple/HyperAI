@@ -3,6 +3,7 @@ import { AfterViewInit, Component, OnInit } from '@angular/core';
 
 import { DataInfo } from './data.info';
 import { DataDatabase, DataService } from './data.service';
+import { UserService } from './user.service';
 import { ConfirmDialog } from './confirm.dialog';
 import { ErrorAlert } from './error.alert';
 
@@ -16,14 +17,17 @@ export class DataComponent implements OnInit, AfterViewInit {
   constructor(
     private _httpClient: HttpClient,
     private dataService: DataService,
+    private userService: UserService,
     private confirmDialog: ConfirmDialog,
     private errorAlert: ErrorAlert
   ) { }
 
   displayedColumns: string[] = ['name', 'type', 'numRows'];
+  isAdmin: boolean = false;
 
   ngOnInit(): void {
-    console.log('oninit');
+    this.userService.getUser().subscribe(user => { this.isAdmin = user.accountType == 'admin' },
+      err => this.errorAlert.open(err));
   }
 
   ngAfterViewInit() {
@@ -56,7 +60,8 @@ export class DataComponent implements OnInit, AfterViewInit {
   openData: DataInfo[] = [];
   myData: DataInfo[] = [];
 
-  file: File|null = null;
+  file: File | null = null;
+  fileOpen: File | null = null;
 
   isLoadingMy = true;
   isLoadingPublic = true;
@@ -64,11 +69,26 @@ export class DataComponent implements OnInit, AfterViewInit {
   addData() {
     if (!this.file)
       return;
+    this.uploading = true;
     this.dataService.uploadData(this.file).subscribe(data => {
+      this.uploading = false;
       this.file = null;
       this.loadMy();
-      this.loadOpen();
       this.confirmDialog.open('data uplodaed');
+    }, err => this.errorAlert.open(err));
+  }
+
+  uploading: boolean = false;
+
+  addOpenData() {
+    if (!this.fileOpen)
+      return;
+    this.uploading = true;
+    this.dataService.uploadData(this.fileOpen).subscribe(data => {
+      this.uploading = false;
+      this.file = null;
+      this.loadOpen();
+      this.confirmDialog.open('open data added');
     }, err => this.errorAlert.open(err));
   }
 
@@ -83,5 +103,18 @@ export class DataComponent implements OnInit, AfterViewInit {
     else
       this.file = files[0];
     
+  }
+
+  onFileSelectedOpen(event: Event) {
+    if (!event.target)
+      return;
+    if (!('files' in event.target))
+      return;
+    const files = event.target['files'];
+    if (!files)
+      this.fileOpen = null;
+    else
+      this.fileOpen = files[0];
+
   }
 }
