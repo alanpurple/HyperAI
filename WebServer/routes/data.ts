@@ -50,8 +50,14 @@ router.get('/open', async (req: Request, res: Response) => {
 // users' datasets
 router.get('/', async (req: Request, res: Response) => {
     try {
-        const UserData = await UserModel.findById(req.user['id'], 'data');
-        const result = UserData.data;
+        const userData = await DataInfoModel.find({ owner: req.user['id'] });
+        const result = userData.map(data => {
+            return {
+                name: data._id,
+                numRows: data.numRows,
+                type: data.type
+            }
+        });
         res.send(result);
     }
     catch (err) {
@@ -112,10 +118,11 @@ router.post('/', multerRead.single('data'), (req: Request, res: Response) => {
         res.status(400).send('We only support ' + AvailableExts.toString());
         return;
     }
-
+    const isAdmin = req.user['accountType'] == 'admin';
+    const userId = req.user['id'];
     client.Upload({
         location: tempName, name: name, extname: ext,
-        isadmin: req.user['accountType'] == 'admin'
+        isadmin: isAdmin
     }, async (err, result) => {
         try {
             await rm(UPLOAD_TEMP_PATH + '/' + req.file.filename);
@@ -125,13 +132,19 @@ router.post('/', multerRead.single('data'), (req: Request, res: Response) => {
                 res.sendStatus(500);
                 return;
             }
+            const tableName = result.tablename;
+            let user = await UserModel.findById(userId);
+            user.data.push(tableName);
+            await user.save();
+
             const data: DataInfo = {
                 _id: result.tablename,
                 numRows: result.numrows,
-                owner: req.user['id'],
+                owner: userId,
                 // only 'structural' is available for now
                 type: 'structural'
             };
+            
 
             const dataInfoModel = new DataInfoModel(data);
             await dataInfoModel.save();
