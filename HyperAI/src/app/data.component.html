@@ -1,5 +1,4 @@
 <mat-tab-group>
-  <mat-spinner *ngIf="isLoadingPublic"></mat-spinner>
   <mat-tab label="Open data">
     <ng-container *ngIf="isAdmin">
       <input type="file" (change)="onFileSelectedOpen($event)">
@@ -7,6 +6,7 @@
               [disabled]="!fileOpen">
         <mat-icon>add</mat-icon>
       </button>
+      <mat-spinner *ngIf="uploading"></mat-spinner>
     </ng-container>
     <mat-spinner *ngIf="isLoadingPublic"></mat-spinner>
     <table mat-table [dataSource]="openData" matSort>
@@ -33,6 +33,7 @@
             [disabled]="!file">
       <mat-icon>add</mat-icon>
     </button>
+    <mat-spinner *ngIf="uploading"></mat-spinner>
     <mat-spinner *ngIf="isLoadingMy"></mat-spinner>
     <table mat-table [dataSource]="myData" matSort>
       <ng-container matColumnDef="name">
