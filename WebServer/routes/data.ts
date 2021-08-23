@@ -49,12 +49,17 @@ router.get('/open', async (req: Request, res: Response) => {
 
 router.get('/bytype', async (req: Request, res: Response) => {
     try {
-
+        const user = req.user;
+        res.send({
+            cleanData: user['cleanData'],
+            cleansedData: user['cleansedData'],
+            preprocessedData: user['preprocessedData']
+        });
     }
     catch (err) {
-
+        res.status(500).send(err);
     }
-})
+});
 
 // users' datasets
 router.get('/', async (req: Request, res: Response) => {

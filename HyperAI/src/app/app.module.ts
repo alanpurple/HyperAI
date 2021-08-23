@@ -35,7 +35,7 @@ import { ReportService } from './report.service';
 import { TrainService } from './train.service';
 import { UserService } from './user.service';*/
 
-import { LoggedIn, NotLoggedIn, HasNick, IsAdmin } from './check.login';
+import { LoggedIn, NotLoggedIn, HasNick, IsAdmin, IsNotAdmin } from './check.login';
 import { ErrorAlert, ErrorDialog } from './error.alert';
 import { ConfirmDialog, ConfirmDialogTemplate,ConfirmDialogTemplate2 } from './confirm.dialog';
 import { UserInfo, ComingSoonDialog, NickNameConfirmDialog, NickNameTakenDialog } from './user.info';
@@ -63,7 +63,7 @@ import { UserInfo, ComingSoonDialog, NickNameConfirmDialog, NickNameTakenDialog 
     //PlotlyViaCDNModule,
     MatModule
   ],
-  providers: [ConfirmDialog, LoggedIn, NotLoggedIn, IsAdmin, ErrorAlert, HasNick,
+  providers: [ConfirmDialog, LoggedIn, NotLoggedIn, IsAdmin, IsNotAdmin, ErrorAlert, HasNick,
     { provide: MAT_DIALOG_DEFAULT_OPTIONS, useValue: { hasBackdrop: false } }],
   bootstrap: [AppComponent]
 })
