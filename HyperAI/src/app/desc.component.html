@@ -13,13 +13,11 @@
 
 <mat-spinner *ngIf="processing"></mat-spinner>
 
-<div class="test-container mat-elevation-z8">
-  <table mat-table [dataSource]="summaries">
-    <ng-container *ngFor="let prop of props" matColumnDef="{{prop}}">
-      <th mat-header-cell *matHeaderCellDef>{{prop}}</th>
-      <td mat-cell *matCellDef="let row">{{row[prop]}}</td>
-    </ng-container>
-    <tr mat-header-row *matHeaderRowDef="props"></tr>
-    <tr mat-row *matRowDef="let row; columns: props;"></tr>
-  </table>
-</div>
+<table mat-table [dataSource]="summaries" class="mat-elevation-z8">
+  <ng-container *ngFor="let prop of props" matColumnDef="{{prop}}">
+    <th mat-header-cell *matHeaderCellDef>{{prop}}</th>
+    <td mat-cell *matCellDef="let row">{{row[prop]}}</td>
+  </ng-container>
+  <tr mat-header-row *matHeaderRowDef="props"></tr>
+  <tr mat-row *matRowDef="let row; columns: props;"></tr>
+</table>
