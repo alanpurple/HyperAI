@@ -1,6 +1,6 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { UserModel } from '../models/user';
-import { authenticate } from 'passport';
+import * as passport from 'passport';
 
 const router = Router();
 
@@ -15,7 +15,7 @@ router.post('/login', (req: Request, res: Response, next: NextFunction)=> {
         res.redirect('/');
     });
 },
-    authenticate('local', { failureRedirect: '/login' }),
+    passport.authenticate('local', { failureRedirect: '/login' }),
     function (req, res) {
         // email verification not implemented for now
         /*if (!req.user['emailVerified'])
@@ -39,7 +39,7 @@ router.post('/signup', (req: Request, res: Response, next: NextFunction)=> {
         res.redirect('/');
     });
 },
-    authenticate('local', {
+    passport.authenticate('local', {
         successRedirect: '/user-info',
         failureRedirect: '/signup',
         passReqToCallback: true
