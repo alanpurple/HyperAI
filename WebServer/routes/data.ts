@@ -2,6 +2,7 @@ import { Router, Request, Response, NextFunction } from 'express';
 import { UserModel } from '../models/user';
 import { DataInfo, DataInfoModel } from '../models/data.info';
 import { sequelize, sequelizeOpen } from '../connect-rdb';
+import { QueryTypes } from 'sequelize';
 //import { extname } from 'path';
 import { rm } from 'fs/promises';
 //import * as csvParse from 'csv-parse';
@@ -45,6 +46,31 @@ router.get('/open', async (req: Request, res: Response) => {
     catch (err) {
         res.status(500).send(err);
     }
+});
+
+router.get('/compact/:isopen/:name/:attr1/:attr2', (req, res) => {
+    const database = req.params.isopen == '1' ? sequelizeOpen : sequelize;
+    database.query('SELECT ' + req.params.attr1 + ',' + req.params.attr2 +
+        ' FROM ' + req.params.name,
+        { type: QueryTypes.SELECT })
+        .then(data => {
+            if (data.length == 0)
+                res.sendStatus(404);
+            else if (data.length < 400)
+                res.send({ data: data, base: 1 });
+            else {
+                let reducer = Math.floor(data.length / 300);
+                let reduced = [];
+                data.forEach((elem, index, arr) => {
+                    if (index % reducer == 0)
+                        reduced.push(elem);
+                });
+                res.send({ data: reduced, base: reducer });
+            }
+        }).catch(err => {
+            console.error(err);
+            res.sendStatus(500);
+        });
 });
 
 router.get('/bytype', async (req: Request, res: Response) => {

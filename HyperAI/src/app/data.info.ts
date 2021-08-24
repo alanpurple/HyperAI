@@ -14,3 +14,8 @@ export interface AllData {
 export interface TableData {
   data: any[];
 }
+
+export interface CompactData {
+  data: any[];
+  base: number;
+}

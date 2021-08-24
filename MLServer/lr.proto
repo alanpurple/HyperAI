@@ -7,7 +7,7 @@ service Lr {
 }
 
 message LrRequest {
-	string isOpen = 1;
+	bool isOpen = 1;
 	string tableName = 2;
 	string sourceColumn = 3;
 	string targetColumn = 4;

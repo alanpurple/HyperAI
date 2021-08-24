@@ -23,7 +23,7 @@ export class EdaService {
     return this.http.get<SummaryData[]>('/eda/describe/' + data);
   }
 
-  getAssociation(isOpen: boolean, name: string, source: string, target: string, type: number): Observable<{}> {
-    return this.http.get<{}>('/eda/relation/' + isOpen ? '1' : '0' + '/' + name + '/' + source + '/' + target + '/' + type.toString());
+  getAssociation(isOpen: boolean, name: string, source: string, target: string, type: number): Observable<any> {
+    return this.http.get('/eda/relation/' + isOpen ? '1' : '0' + '/' + name + '/' + source + '/' + target + '/' + type.toString());
   }
 }

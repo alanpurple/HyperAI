@@ -2,7 +2,7 @@
   <mat-radio-button [value]="true">Open Data</mat-radio-button>
   <mat-radio-button [value]="false">My Data</mat-radio-button>
 </mat-radio-group>
-
+<br>
 <mat-form-field>
   <mat-select [(ngModel)]="selectedTable" placeholder="테이블 선택" (selectionChange)="getSummary()">
     <mat-option *ngFor="let table of tableNames" [value]="table">
@@ -12,6 +12,27 @@
 </mat-form-field>
 
 <mat-spinner *ngIf="gettingData"></mat-spinner>
+
+<mat-form-field *ngIf="this.summary.length">
+  <mat-select [(ngModel)]="source" placeholder="Source attribute 선택"
+              (selectionChange)="resetAssociation()">
+    <mat-option *ngFor="let column of summary" [value]="column">
+      {{column.name}}
+    </mat-option>
+  </mat-select>
+</mat-form-field>
+
+<mat-form-field *ngIf="source">
+  <mat-select [(ngModel)]="target" placeholder="Target attribute 선택" (selectionChange)="resetOnlyAsc()">
+    <mat-option *ngFor="let column of summary" [value]="column" [disabled]="!isValid(column)">
+      {{column.name}}
+    </mat-option>
+  </mat-select>
+</mat-form-field>
+
+<button mat-button color="accent" (click)="analyzeAssociation()" *ngIf="source&&target">
+  Association 분석
+</button>
 
 <ng-container *ngIf="type==0">
   <mat-slide-toggle color="primary" (change)="graphType=!graphType">
@@ -35,20 +56,20 @@
   <plotly-plot [data]="associationData2" [layout]="pieLayout"></plotly-plot>
   <!--<mat-grid-list cols="2" rowHeight="2:1" *ngIf="graphType">
     <mat-grid-tile *ngFor="let elem of associationData">-->
-      <!--<ngx-charts-pie-chart [view]="[900, 500]"
-                            [scheme]="colorScheme"
-                            [results]="elem.series"
-                            [legend]="true"
-                            [explodeSlices]="true"
-                            [labels]="true"
-                            [doughnut]="false"
-                            [gradient]="true"
-                            (select)="onSelect($event)">
-      </ngx-charts-pie-chart>-->
-      <!--<mat-grid-tile-footer>{{elem.name}}</mat-grid-tile-footer>
+  <!--<ngx-charts-pie-chart [view]="[900, 500]"
+                        [scheme]="colorScheme"
+                        [results]="elem.series"
+                        [legend]="true"
+                        [explodeSlices]="true"
+                        [labels]="true"
+                        [doughnut]="false"
+                        [gradient]="true"
+                        (select)="onSelect($event)">
+  </ngx-charts-pie-chart>-->
+  <!--<mat-grid-tile-footer>{{elem.name}}</mat-grid-tile-footer>
     </mat-grid-tile>
   </mat-grid-list>-->
 </ng-container>
 
-<plotly-plot [data]="boxPlotData" [layout]="boxPlotLayout" *ngIf="boxPlotData.length"></plotly-plot>
+<!--<plotly-plot [data]="boxPlotData" [layout]="boxPlotLayout" *ngIf="boxPlotData.length"></plotly-plot>-->
 <plotly-plot [data]="lrData" [layout]="lrLayout" *ngIf="lrData.length"></plotly-plot>

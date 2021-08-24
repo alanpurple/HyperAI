@@ -12,6 +12,6 @@ export class LrService {
   constructor(private http: HttpClient) { }
 
   elasticnetcv(data: LrRequestData): Observable<LrResponseData> {
-    return this.http.post<LrResponseData>('/lr/elesticnetcv', data);
+    return this.http.post<LrResponseData>('/lr/elasticnetcv', data);
   }
 }

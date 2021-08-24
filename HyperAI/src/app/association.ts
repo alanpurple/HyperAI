@@ -10,7 +10,8 @@ import { EdaService } from './eda.service';
 import { SummaryData } from './summary.data';
 
 @Component({
-  templateUrl: './association.html'
+  templateUrl: './association.html',
+  styleUrls: ['./association.sass']
 })
 export class Association implements OnInit {
   constructor(
@@ -31,19 +32,19 @@ export class Association implements OnInit {
   selectedTable: string = '';
 
   summary: SummaryData[] = [];
-  source: SummaryData | {} = {};
-  target: SummaryData | {} = {};
+  source: SummaryData | null = null;
+  target: SummaryData | null = null;
 
   barLayout: Layout | {} = {};
   pieLayout: Layout | {} = {};
-  boxPlotLayout: Layout | {} = {};
-  lrLayout: Layout | {} = {};
+  //boxPlotLayout: Layout | {} = {};
+  lrLayout: Layout = {} as Layout;
 
 
-  associationData1: PlotData[] = [];
+  associationData1: any[] = [];
   associationData2: PieData[] = [];
   boxPlotData: BoxPlotData[] = [];
-  lrData = [];
+  lrData: PlotData[] = [];
 
   private readonly colors: string[] = ['rgba(93, 164, 214, 0.5)', 'rgba(255, 144, 14, 0.5)',
     'rgba(44, 160, 101, 0.5)', 'rgba(255, 65, 54, 0.5)', 'rgba(207, 114, 255, 0.5)',
@@ -67,8 +68,8 @@ export class Association implements OnInit {
         this.gettingData = false;
         this.summary = data;
       }, err => this.errorAlert.open(err));
-    this.source = {};
-    this.target = {};
+    this.source = null;
+    this.target = null;
     this.resetAssociation();
   }
 
@@ -86,13 +87,17 @@ export class Association implements OnInit {
     this.lrData = [];
   }
 
+  resetOnlyAsc() {
+
+  }
+
   graphType: boolean = false;
   type: number|null = null;
 
   // only category to category case is implemented currently
   isValid(target: SummaryData): boolean {
     // check if this.source is empty
-    if (!('type' in this.source))
+    if (!this.source)
       return false;
     if (this.source == target)
       return false;
@@ -107,7 +112,7 @@ export class Association implements OnInit {
   }
 
   analyzeAssociation() {
-    if (!('type' in this.source) || !('type' in this.target))
+    if (!this.source || !this.target)
       return;
     let type = 2;
     if (this.source.type == 'numeric') {
@@ -122,7 +127,104 @@ export class Association implements OnInit {
       type = 0;
     switch (type) {
       case 0: case 1:
-        this.edaService.getAssociation(this.isOpen, this.selectedTable, this.source.name, this.target.name, type);
+        this.edaService.getAssociation(this.isOpen, this.selectedTable, this.source.name, this.target.name, type)
+          .subscribe(data => {
+            if (type == 0) {
+              this.associationData1 = [];
+              for (let prop in data) {
+                let keys = data[prop].keys();
+                let tempData = { name: prop, x: keys, y: [] as any, type: 'bar' };
+                for (let prop2 in keys)
+                  tempData.y.push(data[prop][prop2]);
+                this.associationData1.push(tempData);
+              }
+              this.type = type;
+              this.barLayout = { barmode: 'group' };
+            }
+            else if (type == 1) {
+              let i = 0;
+              this.associationData2 = [];
+              let masterKeys = data.keys();
+              for (let i = 0; i < masterKeys.length; i++) {
+                let item = data[masterKeys[i]];
+                let keys = item.keys();
+                let values = [];
+                for (let key in keys)
+                  values.push(item[key]);
+                this.associationData2.push({
+                  labels: keys,
+                  values: values,
+                  type: 'pie',
+                  name: masterKeys[i],
+                  marker: {
+                    colors: this.colors
+                  },
+                  domain: {
+                    row: i / 4,
+                    column: i % 4
+                  },
+                  hoverinfo: 'label+percent+name',
+                  textinfo: 'none'
+                } as PieData);
+              }
+              this.pieLayout = { height: 500, width: 600, grid: { rows: masterKeys.length / 4, columns: 4 } };
+            }
+            else
+              console.error('something is going totally mass');
+          });
+        break;
+      case 2:
+        this.lrService.elasticnetcv({
+          tableName: this.selectedTable,
+          sourceColumn: this.source.name,
+          targetColumn: this.target.name,
+          isOpen: this.isOpen
+        }).subscribe(data => {
+          if (!this.source || !this.target) {
+            this.errorAlert.open('something\'s wrong, source or target is null');
+            return;
+          }
+          let lineTrace: ScatterData = {} as ScatterData;
+          lineTrace.x = [this.source.min - 1, this.source.max + 1];
+          lineTrace.y = [(this.source.min - 1) * data.slope + data.intercept,
+            (this.source.max + 1) * data.slope + data.intercept];
+          lineTrace.name = 'Fitted linear regression';
+          lineTrace.mode = 'lines';
+          let scatterTrace: ScatterData = {} as ScatterData;
+          scatterTrace.type = 'scatter';
+          scatterTrace.name = 'Original Data';
+          return this.dataService.getDataCompact(
+            this.isOpen, this.selectedTable, [this.source.name, this.target.name])
+            .subscribe(original => {
+              if (!this.source || !this.target) {
+                this.errorAlert.open('something\'s wrong, source or target is null');
+                return;
+              }
+              scatterTrace.x = original.data.map(elem => {
+                if (!this.source) {
+                  this.errorAlert.open('something\'s wrong, source or target is null');
+                  return;
+                }
+                return elem[this.source.name]
+              });
+              scatterTrace.y = original.data.map(elem => {
+                if (!this.target) {
+                  this.errorAlert.open('something\'s wrong, source or target is null');
+                  return;
+                }
+                return elem[this.target.name]
+              });
+              /* newPlot(this.plot.nativeElement, [lineTrace, scatterTrace],
+                  {
+                      title: 'linear regression between '
+                      + this.source.name + ' and ' + this.target.name
+                  }); */
+              this.lrData = [lineTrace, scatterTrace];
+              this.lrLayout.title = 'linear regression between '
+                + this.source.name + ' and ' + this.target.name;
+            })
+        }, err => this.errorAlert.open(err))
+
     }
   }
 }

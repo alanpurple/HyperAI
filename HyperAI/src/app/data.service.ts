@@ -1,8 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { merge, Observable, of as observableOf } from 'rxjs';
+import { merge, Observable, of as observableOf, throwError } from 'rxjs';
 
-import { DataInfo, TableData } from './data.info';
+import { DataInfo, TableData, CompactData } from './data.info';
 
 @Injectable({
   providedIn: 'root'
@@ -29,6 +29,15 @@ export class DataService {
     let formData = new FormData();
     formData.append('data', data);
     return this._httpClient.post<DataInfo>('/data', formData);
+  }
+
+  getDataCompact(isOpen: boolean, name: string, attributes: string[]): Observable<CompactData> {
+    if (!attributes || attributes.length < 2)
+      return throwError('invalid request');
+    else if (attributes.length > 3)
+      return throwError('this api is for attributes of length less than 4');
+    else
+      return this._httpClient.get<CompactData>('data/compact/' + (isOpen ? 1 : 0) + '/' + name + '/' + attributes.join('/'));
   }
 }
 

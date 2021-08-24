@@ -19,8 +19,8 @@ class LrService(LrServicer):
             numOfFolds=request.numOfFolds
         engine, session, Base = getAllOpen() if request.isOpen else getAll()
         meta=MetaData()
-        data=Table(request.location, meta, autoload_with=engine)
-        q=session.query(data).options(load_only(request.sourceColumn,request.targetColumn))
+        data=Table(request.tableName, meta, autoload_with=engine)
+        q=session.query(data.columns[request.sourceColumn],data.columns[request.targetColumn])
         session.close()
         df=pd.read_sql(q.statement,engine)
         x=df.loc[:,request.sourceColumn]
