@@ -27,3 +27,13 @@ export class EdaService {
     return this.http.get('/eda/relation/' + isOpen ? '1' : '0' + '/' + name + '/' + source + '/' + target + '/' + type.toString());
   }
 }
+
+export class SummaryDataSource {
+  constructor(
+    private edaService: EdaService
+  ) { }
+
+  getSummary(name: string): Observable<SummaryData[]> {
+    return this.edaService.describe(name);
+  }
+}
