@@ -31,7 +31,7 @@ const schema = new Schema<User>({
     email: { type: String, required: true },
     data: [String],
     cleanData: [String],
-    cleasedData: [String],
+    cleansedData: [String],
     preprocessedData: [String],
 });
 
