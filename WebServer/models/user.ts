@@ -38,7 +38,6 @@ const schema = new Schema<User>({
 schema.methods.comparePassword = function(password: string, callback: any){
     const user = this;
     compare(password, user.password, function (err, result) {
-        console.log(result);
         if (err) {
             console.error(err);
             callback(null, false);
