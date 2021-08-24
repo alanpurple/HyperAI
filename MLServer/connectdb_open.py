@@ -14,4 +14,4 @@ def getAll():
     #engine=create_engine('mysql+pyodbc://{}:{}@{}/{}?driver={}'.format(id,pwd,server,database,parse.quote_plus(driver)))
     base = automap_base()
     base.prepare(engine,reflect=True)
-    return engine.connect(),scoped_session(sessionmaker(engine)),base
+    return engine,scoped_session(sessionmaker(engine)),base

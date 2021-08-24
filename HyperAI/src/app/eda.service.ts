@@ -19,8 +19,8 @@ export class EdaService {
     return this.http.get('/eda/normlog/' + data, { responseType: 'text' });
   }
 
-  describe(data: string): Observable<SummaryData> {
-    return this.http.get<SummaryData>('/eda/describe/' + data);
+  describe(data: string): Observable<SummaryData[]> {
+    return this.http.get<SummaryData[]>('/eda/describe/' + data);
   }
 
   getAssociation(isOpen: boolean, name: string, source: string, target: string, type: number): Observable<{}> {

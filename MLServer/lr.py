@@ -1,4 +1,5 @@
 import pandas as pd
+from sqlalchemy import Table, MetaData
 from sqlalchemy.orm import load_only
 from sklearn.linear_model import ElasticNetCV
 
@@ -16,11 +17,12 @@ class LrService(LrServicer):
         numOfFolds=5
         if request.numOfFolds>0:
             numOfFolds=request.numOfFolds
-        conn, session, Base = getAllOpen() if request.isOpen else getAll()
-        data=Base.classes[request.tableName]
+        engine, session, Base = getAllOpen() if request.isOpen else getAll()
+        meta=MetaData()
+        data=Table(request.location, meta, autoload_with=engine)
         q=session.query(data).options(load_only(request.sourceColumn,request.targetColumn))
         session.close()
-        df=pd.read_sql(q.statement,conn)
+        df=pd.read_sql(q.statement,engine)
         x=df.loc[:,request.sourceColumn]
         y=df.loc[:,request.targetColumn]
         regr=ElasticNetCV(cv=numOfFolds)

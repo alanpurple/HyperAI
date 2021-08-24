@@ -105,11 +105,11 @@ router.get('/cleanse/:name', (req: Request, res: Response) => {
 router.get('/normlog/:name', (req: Request, res: Response) => {
     const name = req.params.name;
     const user = req.user;
-    if (!(name in user['data'])) {
+    if (!user['data'].includes(name)) {
         res.status(401).send('User doesn\'t have this data');
         return;
     }
-    else if (!(name in user['cleanData']) && !(name in user['cleansedData'])) {
+    else if (!user['cleanData'].includes(name) && !user['cleansedData'].includes(name)) {
         res.status(400).send('Data should be clean before applying preprocessor');
         return;
     }
@@ -134,9 +134,9 @@ router.get('/describe/:name', async (req: Request, res: Response) => {
     const name = req.params.name;
     let isOpen = false;
     try {
-        let openData = await _getOpendata();
-        if (!(name in req.user['data'])) {
-            if (name in openData)
+        if (!req.user['data'].includes(name)) {
+            let openData = await _getOpendata();
+            if (openData.includes(name))
                 isOpen = true;
             else {
                 res.status(400).send('no tables with name');

@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 from pandas.api.types import is_string_dtype
 from datetime import date
+from sqlalchemy import Table,MetaData
 
 from connectdb import getAll
 from connectdb_open import getAll as getAllOpen
@@ -14,11 +15,12 @@ class EdaService(eda_pb2_grpc.PreprocessServicer):
         # location is just a table name (for now)
         if request.location =='':
             return eda_pb2.ProcessedReply(error=0)
-        conn, session, Base = getAllOpen() if request.isOpen else getAll()
-        data=Base.classes[request.location]
+        engine, session, Base = getAllOpen() if request.isOpen else getAll()
+        meta=MetaData()
+        data=Table(request.location, meta, autoload_with=engine)
         q=session.query(data)
         session.close()
-        df=pd.read_sql(q.statement,conn)
+        df=pd.read_sql(q.statement,engine)
         is_cleansed=False
         for label,content in df.items():
             if is_string_dtype(content):
@@ -53,23 +55,27 @@ class EdaService(eda_pb2_grpc.PreprocessServicer):
 
         if is_cleansed:
             new_tablename=request.location+'_clsd'
-            df.to_sql(new_tablename,conn)
+            df.to_sql(new_tablename,engine)
 
 
     def Describe(self, request, context):
         if request.location =='':
-            return eda_pb2.ProcessedReply
-        conn, session, Base = getAll()
-        data=Base.classes[request.location]
+            return eda_pb2.SummaryReply(error=0)
+        engine, session, Base = getAllOpen() if request.isOpen else getAll()
+        meta=MetaData()
+        data=Table(request.location, meta, autoload_with=engine)
         q=session.query(data)
         session.close()
-        df=pd.read_sql(q.statement,conn)
+        df=pd.read_sql(q.statement,engine)
         obj=df.describe(include='all').to_dict()
-        del obj['id']
+        if 'id' in obj:
+            del obj['id']
+        if 'index' in obj:
+            del obj['index']
         result=[]
         for key,data in obj.items():
             temp={'name':key, 'count':int(data['count'])}
-            currentData=df[:,key]
+            currentData=df[key]
 
             # normal categorical attribute
             if 'unique' in data and not np.isnan(data['unique']):
@@ -101,17 +107,18 @@ class EdaService(eda_pb2_grpc.PreprocessServicer):
                 temp['max']=data['max']
                 temp['std']=data['std']
             result.append(temp)
-            return eda_pb2.SummaryReply(summaries=result)
+        return eda_pb2.SummaryReply(error=-1,summaries=result)
 
     # suppose there is only one exponential base in the world ( e, Euler's number, for simplicity )
     def NormLog(self, request, context):
         if request.location =='':
             return eda_pb2.ProcessedReply(error=0)
-        conn, session, Base = getAll()
-        data=Base.classes[request.location]
+        engine, session, Base = getAll()
+        meta=MetaData()
+        data=Table(request.location, meta, autoload_with=engine)
         q=session.query(data)
         session.close()
-        df=pd.read_sql(q.statement,conn)
+        df=pd.read_sql(q.statement,engine)
         # nothing to normalize ( numerically )
         if ((df.dtypes!='string')&(df.dtypes!='datetime')).sum()<1:
             return eda_pb2.ProcessedReply(error=-1,msg=['no numeric'])
@@ -151,7 +158,7 @@ class EdaService(eda_pb2_grpc.PreprocessServicer):
                 newdf[label]=content
         
         newtable=request.location+'_prp'
-        newdf.to_sql(newtable,conn)
+        newdf.to_sql(newtable,engine)
 
                 
         return eda_pb2.ProcessedReply(error=-1,msg=['normalized'],loc=newtable)

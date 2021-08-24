@@ -79,18 +79,6 @@ router.get('/', async (req: Request, res: Response) => {
     }
 });
 
-router.get('/public', async (req: Request, res: Response) => {
-    try {
-        const admins = await UserModel.find({ accountType: 'admin' }, 'data')
-        let result = [];
-        admins.forEach(userdata => result.concat(userdata.data));
-        res.send(result);
-    }
-    catch (err) {
-        res.status(500).send(err);
-    }
-});
-
 // get actual data from rdb
 router.get('/:tablename', (req: Request, res: Response) => {
     ////////////

@@ -10,3 +10,7 @@ export interface AllData {
   numRows: number;
   isClean: boolean;
 }
+
+export interface TableData {
+  data: any[];
+}

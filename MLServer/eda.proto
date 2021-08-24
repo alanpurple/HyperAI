@@ -27,7 +27,8 @@ message ProcessedReply {
 }
 
 message SummaryReply {
-	repeated Summary summaries = 1;
+	int32 error = 1;
+	repeated Summary summaries = 2;
 }
 
 message Summary {

@@ -60,7 +60,16 @@ export class Association implements OnInit {
   }
 
   getSummary() {
-
+    this.summary = [];
+    this.gettingData = true;
+    this.edaService.describe(this.selectedTable)
+      .subscribe(data => {
+        this.gettingData = false;
+        this.summary = data;
+      }, err => this.errorAlert.open(err));
+    this.source = {};
+    this.target = {};
+    this.resetAssociation();
   }
 
   swapTables() {
@@ -106,7 +115,7 @@ export class Association implements OnInit {
         type = 1;
     }
     else if (this.target.type == 'numeric') {
-      console.error('this should not be exist');
+      console.error('this should not exist');
       return;
     }
     else
