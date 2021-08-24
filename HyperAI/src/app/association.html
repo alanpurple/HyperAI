@@ -50,5 +50,5 @@
   </mat-grid-list>-->
 </ng-container>
 
-<plotly-plot [data]="boxPlotData" [layout]="boxPlotLayout" *ngIf="boxPlotData"></plotly-plot>
-<plotly-plot [data]="lrData" [layout]="lrLayout" *ngIf="lrData"></plotly-plot>
+<plotly-plot [data]="boxPlotData" [layout]="boxPlotLayout" *ngIf="boxPlotData.length"></plotly-plot>
+<plotly-plot [data]="lrData" [layout]="lrLayout" *ngIf="lrData.length"></plotly-plot>

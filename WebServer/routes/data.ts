@@ -147,12 +147,10 @@ router.post('/', multerRead.single('data'), (req: Request, res: Response) => {
                 return;
             }
             const tableName = result.tablename;
-            let user = await UserModel.findById(userId);
-            user.data.push(tableName);
-            await user.save();
+            await UserModel.findByIdAndUpdate(userId, { $push: { data: tableName } });
 
             const data: DataInfo = {
-                _id: result.tablename,
+                _id: tableName,
                 numRows: result.numrows,
                 owner: userId,
                 // only 'structural' is available for now
