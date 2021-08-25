@@ -11,15 +11,15 @@ async function addData() {
                       WHERE table_schema = 'opendata';
                     `
     );
-    const actualNames = actualTables.map(data => data['TABLE_NAME']);
+    const actualNames = actualTables[0].map(data => data['TABLE_NAME']);
     const filtered = sampleNames.filter(name => actualNames.includes(name));
     const adminUser = await UserModel.findOne({ email: 'alan@infinov.com' });
-    const userid = adminUser.id;
-    await UserModel.findOneAndUpdate({ email: 'alan@infinov.com' }, { $push: { data: { $each: sampleNames } } });
+    const userid = adminUser._id;
+    await UserModel.findOneAndUpdate({ email: 'alan@infinov.com' }, { $push: { data: { $each: filtered } } });
     for (const sample of filtered) {
-        let numRows = actualTables.find(data => data['TABLE_NAMES'] == sample)['TABLE_ROWS'];
+        let numRows = actualTables[0].find(data => data['TABLE_NAME'] == sample)['TABLE_ROWS']
         await DataInfoModel.create({
-            id: sample,
+            _id: sample,
             numRows: numRows,
             type: 'structural',
             owner: userid

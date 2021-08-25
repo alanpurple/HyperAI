@@ -90,7 +90,7 @@ router.get('/bytype', async (req: Request, res: Response) => {
 // users' datasets
 router.get('/', async (req: Request, res: Response) => {
     try {
-        const userData = await DataInfoModel.find({ owner: req.user['id'] });
+        const userData = await DataInfoModel.find({ owner: req.user['_id'] });
         const result = userData.map(data => {
             return {
                 name: data._id,
@@ -147,7 +147,7 @@ router.post('/', multerRead.single('data'), (req: Request, res: Response) => {
         return;
     }
     const isAdmin = req.user['accountType'] == 'admin';
-    const userId = req.user['id'];
+    const userId = req.user['_id'];
     client.Upload({
         location: tempName, name: name, extname: ext,
         isadmin: isAdmin
