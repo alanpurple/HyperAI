@@ -130,15 +130,17 @@ router.get('/normlog/:name', (req: Request, res: Response) => {
     });
 });
 
-router.get('/describe/:name', async (req: Request, res: Response) => {
+router.get('/describe/:isOpen/:name', async (req: Request, res: Response) => {
     const name = req.params.name;
-    let isOpen = false;
+    let isOpen = req.params.isOpen == '1' || req.user['accountType'] == 'admin';
     try {
-        if (!req.user['data'].includes(name)) {
+        if (!isOpen && !req.user['data'].includes(name)) {
+            res.status(400).send('no tables with name');
+            return;
+        }
+        else if (isOpen) {
             let openData = await _getOpendata();
-            if (openData.includes(name))
-                isOpen = true;
-            else {
+            if (!openData.includes(name)) {
                 res.status(400).send('no tables with name');
                 return;
             }

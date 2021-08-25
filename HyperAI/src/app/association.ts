@@ -63,7 +63,7 @@ export class Association implements OnInit {
   getSummary() {
     this.summary = [];
     this.gettingData = true;
-    this.edaService.describe(this.selectedTable)
+    this.edaService.describe(this.isOpen,this.selectedTable)
       .subscribe(data => {
         this.gettingData = false;
         this.summary = data;
@@ -132,7 +132,7 @@ export class Association implements OnInit {
             if (type == 0) {
               this.associationData1 = [];
               for (let prop in data) {
-                let keys = data[prop].keys();
+                let keys = Object.keys(data[prop]);
                 let tempData = { name: prop, x: keys, y: [] as any, type: 'bar' };
                 for (let prop2 in keys)
                   tempData.y.push(data[prop][prop2]);
@@ -144,10 +144,10 @@ export class Association implements OnInit {
             else if (type == 1) {
               let i = 0;
               this.associationData2 = [];
-              let masterKeys = data.keys();
+              let masterKeys =Object.keys(data);
               for (let i = 0; i < masterKeys.length; i++) {
                 let item = data[masterKeys[i]];
-                let keys = item.keys();
+                let keys = Object.keys(item);
                 let values = [];
                 for (let key in keys)
                   values.push(item[key]);

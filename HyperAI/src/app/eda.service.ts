@@ -19,12 +19,12 @@ export class EdaService {
     return this.http.get('/eda/normlog/' + data, { responseType: 'text' });
   }
 
-  describe(data: string): Observable<SummaryData[]> {
-    return this.http.get<SummaryData[]>('/eda/describe/' + data);
+  describe(isOpen: boolean, data: string): Observable<SummaryData[]> {
+    return this.http.get<SummaryData[]>('/eda/describe/' + (isOpen ? 1 : 0) + '/' + data);
   }
 
   getAssociation(isOpen: boolean, name: string, source: string, target: string, type: number): Observable<any> {
-    return this.http.get('/eda/relation/' + isOpen ? '1' : '0' + '/' + name + '/' + source + '/' + target + '/' + type.toString());
+    return this.http.get('/eda/relation/' + (isOpen ? '1' : '0') + '/' + name + '/' + source + '/' + target + '/' + type.toString());
   }
 }
 
@@ -33,7 +33,7 @@ export class SummaryDataSource {
     private edaService: EdaService
   ) { }
 
-  getSummary(name: string): Observable<SummaryData[]> {
-    return this.edaService.describe(name);
+  getSummary(isOpen:boolean,name: string): Observable<SummaryData[]> {
+    return this.edaService.describe(isOpen,name);
   }
 }

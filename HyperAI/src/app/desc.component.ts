@@ -19,6 +19,7 @@ export class DescComponent implements OnInit {
   ) { }
 
   tables: string[] = [];
+  isOpen: boolean = false;
   summaries: SummaryData[] = [];
   selectedTable: string | null = null;
   ngOnInit(): void {
@@ -48,7 +49,7 @@ export class DescComponent implements OnInit {
       return;
     }
     this.processing = true;
-    this.summaryDataSource.getSummary(this.selectedTable)
+    this.summaryDataSource.getSummary(this.isOpen,this.selectedTable)
       .subscribe(data => {
         this.summaries = data;
         this.processing = false;
