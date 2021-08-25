@@ -45,6 +45,9 @@
     <TypeScriptCompile Include="*.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>
+    <TypeScriptCompile Include="addopensamples.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
     <TypeScriptCompile Include="models\*.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>

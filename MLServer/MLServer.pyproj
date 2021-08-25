@@ -21,8 +21,35 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="*.py" />
+    <Compile Include="connectdb.py" />
+    <Compile Include="connectdb_open.py" />
+    <Compile Include="datagen_forsvm2.py" />
+    <Compile Include="data_service.py" />
+    <Compile Include="data_service_pb2.py" />
+    <Compile Include="data_service_pb2_grpc.py" />
+    <Compile Include="dr_pb2.py" />
+    <Compile Include="dr_pb2_grpc.py" />
+    <Compile Include="dr_service.py" />
+    <Compile Include="eda_pb2.py" />
+    <Compile Include="eda_pb2_grpc.py" />
+    <Compile Include="eda_service.py" />
+    <Compile Include="eda_text.py" />
+    <Compile Include="eda_text_pb2.py" />
+    <Compile Include="eda_text_pb2_grpc.py" />
+    <Compile Include="eda_vision.py" />
+    <Compile Include="eda_vision_pb2.py" />
+    <Compile Include="eda_vision_pb2_grpc.py" />
+    <Compile Include="lr.py" />
+    <Compile Include="lr_pb2.py" />
+    <Compile Include="lr_pb2_grpc.py" />
+    <Compile Include="run_server.py" />
+    <Compile Include="train.py" />
+    <Compile Include="train_pb2.py" />
+    <Compile Include="train_pb2_grpc.py" />
     <Compile Include="*.proto" />
+    <Compile Include="datagen_forkmc.py" />
+    <Compile Include="datagen_forpca.py" />
+    <Compile Include="datagen_forsvm.py" />
     <Compile Include="dbmodel\Embedding.py">
       <SubType>Code</SubType>
     </Compile>
