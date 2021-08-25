@@ -34,11 +34,11 @@
   Association 분석
 </button>
 
-<ng-container *ngIf="type==0">
+<ng-container *ngIf="type==0||type==1">
   <mat-slide-toggle color="primary" (change)="graphType=!graphType">
     그래프 타입
   </mat-slide-toggle>
-  <plotly-plot [data]="associationData1" [layout]="barLayout"></plotly-plot>
+  <plotly-plot [data]="associationData1" *ngIf="associationData1.length" [layout]="barLayout"></plotly-plot>
   <!--<ngx-charts-bar-vertical-2d *ngIf="!graphType"
                               [view]="[900, 500]"
                               [scheme]="colorScheme"
@@ -53,7 +53,7 @@
                               [yAxisLabel]="target?.name"
                               (select)="onSelect($event)">
   </ngx-charts-bar-vertical-2d>-->
-  <plotly-plot [data]="associationData2" [layout]="pieLayout"></plotly-plot>
+  <plotly-plot [data]="associationData2" *ngIf="associationData2.length" [layout]="pieLayout"></plotly-plot>
   <!--<mat-grid-list cols="2" rowHeight="2:1" *ngIf="graphType">
     <mat-grid-tile *ngFor="let elem of associationData">-->
   <!--<ngx-charts-pie-chart [view]="[900, 500]"

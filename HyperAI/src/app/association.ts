@@ -61,6 +61,7 @@ export class Association implements OnInit {
   }
 
   getSummary() {
+    this.type = null;
     this.summary = [];
     this.gettingData = true;
     this.edaService.describe(this.isOpen,this.selectedTable)
@@ -138,8 +139,9 @@ export class Association implements OnInit {
                   tempData.y.push(data[prop][prop2]);
                 this.associationData1.push(tempData);
               }
-              this.type = type;
+              
               this.barLayout = { barmode: 'group' };
+              this.type = type;
             }
             else if (type == 1) {
               let i = 0;
@@ -168,6 +170,7 @@ export class Association implements OnInit {
                 } as PieData);
               }
               this.pieLayout = { height: 500, width: 600, grid: { rows: masterKeys.length / 4, columns: 4 } };
+              this.type = type;
             }
             else
               console.error('something is going totally mass');
@@ -222,7 +225,8 @@ export class Association implements OnInit {
               this.lrData = [lineTrace, scatterTrace];
               this.lrLayout.title = 'linear regression between '
                 + this.source.name + ' and ' + this.target.name;
-            })
+              this.type = type;
+            });
         }, err => this.errorAlert.open(err))
 
     }
