@@ -38,25 +38,24 @@ X,y=make_blobs(n_samples=1500,cluster_std=[0.8,1.0,1.5,2.5,0.7],n_features=3,cen
 X=[np.append(elem,y[idx]) for idx,elem in enumerate(X)]
 X=np.array(X)
 X_filtered = np.vstack((X[y == 0][:1200], X[y == 1][:700], X[y == 2][:480],X[y==3][:990],X[y==4]))
-
-print(X_filtered)
-
 bulk=[]
 bulkwoy=[]
 for elem in X_filtered:
     temp=Cluster1Sample()
-    temp.f1=float(elem[0])
-    temp.f2=float(elem[1])
-    temp.f3=float(elem[2])
-    bulkwoy.append(temp)
+    temp2=Cluster1woySample()
+    temp.f1=temp2.f1=float(elem[0])
+    temp.f2=temp2.f2=float(elem[1])
+    temp.f3=temp2.f3=float(elem[2])
+    bulkwoy.append(temp2)
     temp.groupIndex=int(elem[3])
     bulk.append(temp)
+
+
 
 Base.metadata.create_all(engine)
 q=session.query(Cluster1Sample).limit(10)
 if len(q.all()) == 0:
     session.bulk_save_objects(bulk)
-    session.commit()
 
 q=session.query(Cluster1woySample).limit(10)
 if len(q.all())==0:

@@ -23,7 +23,7 @@
 </mat-form-field>
 
 <mat-form-field *ngIf="source">
-  <mat-select [(ngModel)]="target" placeholder="Target attribute 선택" (selectionChange)="resetOnlyAsc()">
+  <mat-select [(ngModel)]="target" placeholder="Target attribute 선택" (selectionChange)="resetAssociation()">
     <mat-option *ngFor="let column of summary" [value]="column" [disabled]="!isValid(column)">
       {{column.name}}
     </mat-option>

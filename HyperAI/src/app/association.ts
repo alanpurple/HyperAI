@@ -79,6 +79,10 @@ export class Association implements OnInit {
       this.tableNames = this.openTables;
     else
       this.tableNames = this.myTables;
+    this.resetAssociation();
+    this.selectedTable = '';
+    this.summary = [];
+    this.source = this.target = null;
   }
 
   resetAssociation() {
@@ -86,10 +90,7 @@ export class Association implements OnInit {
     this.associationData2 = [];
     this.boxPlotData = [];
     this.lrData = [];
-  }
-
-  resetOnlyAsc() {
-
+    this.type = null;
   }
 
   graphType: boolean = false;
@@ -196,6 +197,7 @@ export class Association implements OnInit {
           let scatterTrace: ScatterData = {} as ScatterData;
           scatterTrace.type = 'scatter';
           scatterTrace.name = 'Original Data';
+          scatterTrace.mode = 'markers';
           return this.dataService.getDataCompact(
             this.isOpen, this.selectedTable, [this.source.name, this.target.name])
             .subscribe(original => {
