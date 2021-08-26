@@ -37,13 +37,13 @@ export class Association implements OnInit {
 
   barLayout: Layout | {} = {};
   pieLayout: Layout | {} = {};
-  //boxPlotLayout: Layout | {} = {};
+  boxLayout: Layout | {} = {};
   lrLayout: Layout = {} as Layout;
 
 
   associationData1: any[] = [];
   associationData2: PieData[] = [];
-  boxPlotData: BoxPlotData[] = [];
+  boxData: BoxPlotData[] = [];
   lrData: PlotData[] = [];
 
   private readonly colors: string[] = ['rgba(93, 164, 214, 0.5)', 'rgba(255, 144, 14, 0.5)',
@@ -88,7 +88,7 @@ export class Association implements OnInit {
   resetAssociation() {
     this.associationData1 = [];
     this.associationData2 = [];
-    this.boxPlotData = [];
+    this.boxData = [];
     this.lrData = [];
     this.type = null;
   }
@@ -142,12 +142,10 @@ export class Association implements OnInit {
               }
               
               this.barLayout = { barmode: 'group' };
-              this.type = type;
-            }
-            else if (type == 1) {
+
               let i = 0;
               this.associationData2 = [];
-              let masterKeys =Object.keys(data);
+              let masterKeys = Object.keys(data);
               for (let i = 0; i < masterKeys.length; i++) {
                 let item = data[masterKeys[i]];
                 let keys = Object.keys(item);
@@ -171,6 +169,32 @@ export class Association implements OnInit {
                 } as PieData);
               }
               this.pieLayout = { height: 500, width: 600, grid: { rows: masterKeys.length / 4, columns: 4 } };
+
+              this.type = type;
+            }
+            else if (type == 1) {
+              let i = 0;
+              this.boxData = [];
+              for (let prop in data) {
+                let temp: BoxPlotData = {
+                  y: data[prop],
+                  name: prop,
+                  boxpoints: 'suspectedoutliers',
+                  marker: {
+                    color: this.colors[i++ % 9],
+                    outliercolor: this.colors[(i + 2) % 9],
+                    line: {
+                      outliercolor: this.colors[(i + 4) % 9]
+                    }
+                  },
+                  type: 'box'
+                } as BoxPlotData;
+                this.boxData.push(temp);
+              }
+              this.type = type;
+              /* newPlot(this.plot.nativeElement, this.associationData,
+                  { title: 'boxplots for each target attributes' }); */
+              this.boxLayout = { title: 'boxplots for each target attributes' };
               this.type = type;
             }
             else
