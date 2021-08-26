@@ -26,6 +26,19 @@ class DataServicer(data_service_pb2_grpc.DataServicer):
             df=pd.read_excel(path)
         else:
             return data_service_pb2.UploadResponse(error=0)
+
+        columns=df.columns
+        print(df.columns)
+        renamemap={}
+        for column in columns:
+            if '-' in column or ' ' in column:
+                newcolumn=sub('[- ]','',column)
+                renamemap[column]=newcolumn
+        print(renamemap)
+        if renamemap:
+            print('rename')
+            df.rename(columns=renamemap,inplace=True)
+        print(df.columns)
         
         print('execute query')
         df.to_sql(tablename,engine,chunksize=1000)

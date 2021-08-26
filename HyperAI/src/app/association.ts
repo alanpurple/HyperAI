@@ -135,9 +135,8 @@ export class Association implements OnInit {
               this.associationData1 = [];
               for (let prop in data) {
                 let keys = Object.keys(data[prop]);
-                let tempData = { name: prop, x: keys, y: [] as any, type: 'bar' };
-                for (let prop2 in keys)
-                  tempData.y.push(data[prop][prop2]);
+                let tempData = { name: prop, x: keys, y: [] as number[], type: 'bar' };
+                keys.forEach(key => tempData.y.push(data[prop][key]))
                 this.associationData1.push(tempData);
               }
               
@@ -149,9 +148,8 @@ export class Association implements OnInit {
               for (let i = 0; i < masterKeys.length; i++) {
                 let item = data[masterKeys[i]];
                 let keys = Object.keys(item);
-                let values = [];
-                for (let key in keys)
-                  values.push(item[key]);
+                let values:number[] = [];
+                keys.forEach(key => values.push(item[key]));
                 this.associationData2.push({
                   labels: keys,
                   values: values,
