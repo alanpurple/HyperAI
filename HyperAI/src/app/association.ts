@@ -57,19 +57,19 @@ export class Association implements OnInit {
   ngOnInit() {
     this.dataService.getDataPublic().subscribe(datalist => {
       this.tableNames = this.openTables = datalist.filter(data => data.type == 'structural').map(data => data.name);
-    });
-    this.userService.getUser().subscribe(
-      user => {
-        if (user.accountType == 'admin') {
-          this.isOpen = true;
-          this.isAdmin = true;
+      this.userService.getUser().subscribe(
+        user => {
+          if (user.accountType == 'admin') {
+            this.isOpen = true;
+            this.isAdmin = true;
+          }
+          else
+            this.dataService.getDataMy().subscribe(datalist => {
+              this.tableNames = this.myTables = datalist.filter(data => data.type == 'structural').map(data => data.name);
+            });
         }
-        else
-          this.dataService.getDataMy().subscribe(datalist => {
-            this.tableNames = this.myTables = datalist.filter(data => data.type == 'structural').map(data => data.name);
-          });
-      }
-      , err => this.errorAlert.open(err));
+        , err => this.errorAlert.open(err));
+    }, err => this.errorAlert.open(err));
   }
 
   getSummary() {
