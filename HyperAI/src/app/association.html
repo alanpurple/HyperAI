@@ -1,4 +1,4 @@
-<mat-radio-group [(ngModel)]="isOpen" (change)="swapTables()">
+<mat-radio-group *ngIf="!isAdmin" [(ngModel)]="isOpen" (change)="swapTables()">
   <mat-radio-button [value]="true">Open Data</mat-radio-button>
   <mat-radio-button [value]="false">My Data</mat-radio-button>
 </mat-radio-group>

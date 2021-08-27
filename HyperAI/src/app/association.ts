@@ -6,6 +6,7 @@ import { LrService } from './lr.service';
 import { DataService } from './data.service';
 import { ErrorAlert } from './error.alert';
 import { EdaService } from './eda.service';
+import { UserService } from './user.service';
 
 import { SummaryData } from './summary.data';
 
@@ -18,7 +19,8 @@ export class Association implements OnInit {
     private lrService: LrService,
     private dataService: DataService,
     private edaService: EdaService,
-    private errorAlert: ErrorAlert
+    private errorAlert: ErrorAlert,
+    private userService: UserService
   ) { }
 
   tableNames: string[] = [];
@@ -39,6 +41,7 @@ export class Association implements OnInit {
   pieLayout: Layout | {} = {};
   boxLayout: Layout | {} = {};
   lrLayout: Layout = {} as Layout;
+  isAdmin: boolean = false;
 
 
   associationData1: any[] = [];
@@ -52,12 +55,21 @@ export class Association implements OnInit {
     'rgba(222, 223, 0, 0.5)'];
 
   ngOnInit() {
-    this.dataService.getDataMy().subscribe(datalist => {
-      this.tableNames = this.myTables = datalist.filter(data => data.type == 'structural').map(data => data.name);
-    });
     this.dataService.getDataPublic().subscribe(datalist => {
-      this.openTables = datalist.filter(data => data.type == 'structural').map(data => data.name);
+      this.tableNames = this.openTables = datalist.filter(data => data.type == 'structural').map(data => data.name);
     });
+    this.userService.getUser().subscribe(
+      user => {
+        if (user.accountType == 'admin') {
+          this.isOpen = true;
+          this.isAdmin = true;
+        }
+        else
+          this.dataService.getDataMy().subscribe(datalist => {
+            this.tableNames = this.myTables = datalist.filter(data => data.type == 'structural').map(data => data.name);
+          });
+      }
+      , err => this.errorAlert.open(err));
   }
 
   getSummary() {
