@@ -26,6 +26,8 @@ class DataServicer(data_service_pb2_grpc.DataServicer):
             df=pd.read_excel(path)
         else:
             return data_service_pb2.UploadResponse(error=0)
+        if df.shape[0]<3:
+            return data_service_pb2.UploadResponse(error=0)
 
         columns=df.columns
         print(df.columns)
