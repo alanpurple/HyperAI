@@ -24,7 +24,7 @@ const schema = new Schema<User>({
     name: { type: String, required: true },
     password: { type: String, required: true },
     // temporary default nickname
-    nickName: { type: String, default:'Tom'},
+    nickName: { type: String, unique: true, sparse: true },
     // true for now
     hasNickName: { type: Boolean, default: true },
     accountType: { type: String, enum: ['admin', 'user'] },

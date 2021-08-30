@@ -29,8 +29,8 @@ export class UserInfo implements OnInit {
       this.user = user;
       if (user.nickName) {
         this.nickName = user.nickName;
-        this.dialog.open(ComingSoonDialog).afterClosed()
-          .subscribe(() => this.router.navigate(['/']));
+        /*this.dialog.open(ComingSoonDialog).afterClosed()
+          .subscribe(() => this.router.navigate(['/']));*/
       }
     }, err => this.errorAlert.open(err.message));
   }

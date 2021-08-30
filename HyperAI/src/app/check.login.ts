@@ -43,7 +43,7 @@ export class LoggedIn implements CanActivate {
     return this.http.get<UserData>('/account/info')
       .pipe(
         map(res => {
-          if (!res.nickName) {
+          if (!res.nickName && state.url != '/user-info') {
             this.router.navigate(['/user-info']);
             return false;
           }

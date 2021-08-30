@@ -103,6 +103,7 @@ export class Association implements OnInit {
     this.boxData = [];
     this.lrData = [];
     this.type = null;
+    this.graphType = false;
   }
 
   graphType: boolean = false;

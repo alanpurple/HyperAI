@@ -1,5 +1,5 @@
 import { Router, Request, Response, NextFunction } from 'express';
-import { UserModel } from '../models/user';
+import { UserModel, User } from '../models/user';
 import * as passport from 'passport';
 
 const router = Router();
@@ -51,8 +51,20 @@ router.get('/logout', ensureAuthenticated, (req: Request, res: Response) => {
 });
 
 router.get('/info', (req: Request, res: Response) => {
-    if (req.isAuthenticated())
-        res.send(req.user);
+    if (req.isAuthenticated()) {
+        console.dir(req.user);
+        const user: User = req.user as User;
+        res.send({
+            name: user.name,
+            nickName: user.nickName,
+            hasNickName: user.hasNickName,
+            accountType: user.accountType,
+            email: user.email,
+            data: user.data,
+            cleanData: user.cleanData,
+            cleansedData: user.cleansedData
+        });
+    }
     else
         res.sendStatus(401);
 });
