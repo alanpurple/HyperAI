@@ -15,7 +15,7 @@
   "dependencies": {
     "bcrypt": "^5.0.1",
     "connect-mongo": "^4.5.0",
-    "csv-parse": "^4.16.0",
+    "csv-parse": "^4.16.2",
     "debug": "^4.3.2",
     "express": "^5.0.0-alpha.8",
     "@grpc/proto-loader": "^0.6.4",
@@ -44,7 +44,7 @@
     "@types/serve-static": "^1.13.10",
     "@types/morgan": "^1.9.3",
     "@types/multer": "^1.4.7",
-    "@types/node": "^16.7.2",
+    "@types/node": "^16.7.6",
     "@types/passport": "^1.0.7",
     "@types/passport-facebook": "^2.1.11",
     "@types/passport-google-oauth": "^1.0.42",
