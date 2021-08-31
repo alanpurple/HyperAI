@@ -1,5 +1,17 @@
-<form>
-<!--  <mat-form-field>
-    <input matInput type="te"
-  </mat-form-field>-->
-</form>
+<mat-card>
+  <mat-card-content fxLayout="column">
+    <mat-form-field>
+      <input matInput type="email" name="email" placeholder="email" [(ngModel)]="user.email" disabled>
+    </mat-form-field>
+    <mat-form-field>
+      <input matInput type="text" name="name" placeholder="name" [(ngModel)]="user.name" disabled>
+    </mat-form-field>
+    <mat-form-field *ngIf="user?.nickName">
+      <input matInput type="text" name="nickName" placeholder="nickname" [(ngModel)]="user.nickName" disabled>
+    </mat-form-field>
+    <mat-form-field *ngIf="!user?.nickName">
+      <input matInput type="text" name="newNickName" placeholder="nickname" [(ngModel)]="nickName">
+    </mat-form-field>
+    <button mat-raised-button color="warn" (click)="checkNick()" *ngIf="nickName&&!user.nickName">check availability</button>
+  </mat-card-content>
+</mat-card>

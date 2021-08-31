@@ -20,7 +20,7 @@ export class UserService {
       + encodeURI(email), { responseType: 'text' });
   }
 
-  saveUser(data: {}): Observable<string> {
+  updateUser(data: {}): Observable<string> {
     return this.http.put('/account', data, { responseType: 'text' });
   }
 

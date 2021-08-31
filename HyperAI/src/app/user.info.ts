@@ -21,17 +21,12 @@ export class UserInfo implements OnInit {
     private userService: UserService
   ) { }
 
-  user: UserData|null = null;
-  nickName: string|null = null;
+  user: UserData = new UserData();
+  nickName: string = '';
 
   ngOnInit(): void {
     this.userService.getUser().subscribe(user => {
       this.user = user;
-      if (user.nickName) {
-        this.nickName = user.nickName;
-        /*this.dialog.open(ComingSoonDialog).afterClosed()
-          .subscribe(() => this.router.navigate(['/']));*/
-      }
     }, err => this.errorAlert.open(err.message));
   }
 
@@ -46,16 +41,16 @@ export class UserInfo implements OnInit {
             .subscribe(yes => {
               console.log(yes);
               if (yes)
-                this.userService.saveUser({ nickName: this.nickName })
+                this.userService.updateUser({ nickName: this.nickName })
                   .subscribe(res => this.router.navigate(['/']),
                     err => this.errorAlert.open(err.message));
               else
-                this.nickName = null;
+                this.nickName = '';
             });
         }
         else
           this.dialog.open(NickNameTakenDialog).afterClosed()
-            .subscribe(() => this.nickName = null);
+            .subscribe(() => this.nickName = '');
       });
   }
 

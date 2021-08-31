@@ -45,6 +45,20 @@ router.post('/signup', (req: Request, res: Response, next: NextFunction)=> {
         passReqToCallback: true
     }));
 
+router.put('/', (req: Request, res: Response) => {
+    console.dir(req.body);
+    if (!('nickName' in req.body)) {
+        res.status(400).send('only nickname can be modified or created for now');
+        return;
+    }
+    UserModel.findByIdAndUpdate(req.user['_id'], { nickName: req.body['nickName'] }).then(
+        () => res.send('nickname updated')
+    ).catch(err => {
+        console.error(err);
+        res.status(500).send(err)
+    });
+});
+
 router.get('/logout', ensureAuthenticated, (req: Request, res: Response) => {
     req.logout();
     res.redirect('/');
@@ -52,7 +66,6 @@ router.get('/logout', ensureAuthenticated, (req: Request, res: Response) => {
 
 router.get('/info', (req: Request, res: Response) => {
     if (req.isAuthenticated()) {
-        console.dir(req.user);
         const user: User = req.user as User;
         res.send({
             name: user.name,
