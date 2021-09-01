@@ -6,6 +6,9 @@
     <mat-form-field>
       <input matInput type="text" name="name" placeholder="name" [(ngModel)]="user.name" disabled>
     </mat-form-field>
+    <mat-form-field>
+      <input matInput type="text" name="accountType" placeholder="account type" [(ngModel)]="user.accountType" disabled>
+    </mat-form-field>
     <mat-form-field *ngIf="user?.nickName">
       <input matInput type="text" name="nickName" placeholder="nickname" [(ngModel)]="user.nickName" disabled>
     </mat-form-field>
