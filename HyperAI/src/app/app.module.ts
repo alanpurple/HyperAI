@@ -11,6 +11,8 @@ import * as PlotlyJS from 'plotly.js-dist-min';
 import { PlotlyModule } from 'angular-plotly.js';
 PlotlyModule.plotlyjs = PlotlyJS;
 
+import { NgxChartsModule } from '@swimlane/ngx-charts';
+
 /*import { PlotlyViaCDNModule } from 'angular-plotly.js';
 PlotlyViaCDNModule.setPlotlyVersion('latest');
 PlotlyViaCDNModule.setPlotlyBundle('basic');*/
@@ -63,7 +65,8 @@ import { UserInfo, ComingSoonDialog, NickNameConfirmDialog, NickNameTakenDialog 
     HttpClientModule,
     PlotlyModule,
     //PlotlyViaCDNModule,
-    MatModule
+    MatModule,
+    NgxChartsModule
   ],
   providers: [ConfirmDialog, LoggedIn, NotLoggedIn, IsAdmin, IsNotAdmin, ErrorAlert, HasNick,
     { provide: MAT_DIALOG_DEFAULT_OPTIONS, useValue: { hasBackdrop: false } }],

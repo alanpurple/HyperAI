@@ -34,12 +34,12 @@
   Association 분석
 </button>
 
-<ng-container *ngIf="type==0">
+<ng-container *ngIf="type==0&&source&&target">
   <mat-slide-toggle color="primary" (change)="graphType=!graphType">
     그래프 타입
   </mat-slide-toggle>
-  <plotly-plot [data]="associationData1" *ngIf="!graphType" [layout]="barLayout"></plotly-plot>
-  <!--<ngx-charts-bar-vertical-2d *ngIf="!graphType"
+  <!--<plotly-plot [data]="associationData1" *ngIf="!graphType" [layout]="barLayout"></plotly-plot>-->
+  <ngx-charts-bar-vertical-2d *ngIf="!graphType"
                               [view]="[900, 500]"
                               [scheme]="colorScheme"
                               [results]="associationData"
@@ -49,14 +49,14 @@
                               [legend]="true"
                               [showXAxisLabel]="true"
                               [showYAxisLabel]="true"
-                              [xAxisLabel]="source?.name"
-                              [yAxisLabel]="target?.name"
+                              [xAxisLabel]="source.name"
+                              [yAxisLabel]="target.name"
                               (select)="onSelect($event)">
-  </ngx-charts-bar-vertical-2d>-->
-  <plotly-plot [data]="associationData2" *ngIf="graphType" [layout]="pieLayout"></plotly-plot>
-  <!--<mat-grid-list cols="2" rowHeight="2:1" *ngIf="graphType">
-    <mat-grid-tile *ngFor="let elem of associationData">-->
-  <!--<ngx-charts-pie-chart [view]="[900, 500]"
+  </ngx-charts-bar-vertical-2d>
+  <!--<plotly-plot [data]="associationData2" *ngIf="graphType" [layout]="pieLayout"></plotly-plot>-->
+  <mat-grid-list cols="2" rowHeight="2:1" *ngIf="graphType">
+    <mat-grid-tile *ngFor="let elem of associationData">
+  <ngx-charts-pie-chart [view]="[900, 500]"
                         [scheme]="colorScheme"
                         [results]="elem.series"
                         [legend]="true"
@@ -65,13 +65,12 @@
                         [doughnut]="false"
                         [gradient]="true"
                         (select)="onSelect($event)">
-  </ngx-charts-pie-chart>-->
-  <!--<mat-grid-tile-footer>{{elem.name}}</mat-grid-tile-footer>
+  </ngx-charts-pie-chart>
+  <mat-grid-tile-footer>{{elem.name}}</mat-grid-tile-footer>
     </mat-grid-tile>
-  </mat-grid-list>-->
+  </mat-grid-list>
 </ng-container>
 
 <plotly-plot [data]="boxData" [layout]="boxLayout" *ngIf="type==1"></plotly-plot>
 
-<!--<plotly-plot [data]="boxPlotData" [layout]="boxPlotLayout" *ngIf="boxPlotData.length"></plotly-plot>-->
 <plotly-plot [data]="lrData" [layout]="lrLayout" *ngIf="lrData.length"></plotly-plot>

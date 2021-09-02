@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { PieData, BoxPlotData, ScatterData, PlotData, Layout } from 'plotly.js';
+import { /*PieData,*/ BoxPlotData, ScatterData, PlotData, Layout } from 'plotly.js';
+import { Color } from '@swimlane/ngx-charts';
 
 import { LrService } from './lr.service';
 
@@ -43,9 +44,9 @@ export class Association implements OnInit {
   lrLayout: Layout = {} as Layout;
   isAdmin: boolean = false;
 
-
-  associationData1: any[] = [];
-  associationData2: PieData[] = [];
+  associationData: any[] = [];
+  //associationData1: any[] = [];
+  //associationData2: PieData[] = [];
   boxData: BoxPlotData[] = [];
   lrData: PlotData[] = [];
 
@@ -53,6 +54,10 @@ export class Association implements OnInit {
     'rgba(44, 160, 101, 0.5)', 'rgba(255, 65, 54, 0.5)', 'rgba(207, 114, 255, 0.5)',
     'rgba(127, 96, 0, 0.5)', 'rgba(255, 140, 184, 0.5)', 'rgba(79, 90, 117, 0.5)',
     'rgba(222, 223, 0, 0.5)'];
+
+  readonly colorScheme: Color = {
+    domain: ['#5AA454', '#A10A28', '#C7B42C', '#AAAAAA']
+  } as Color;
 
   ngOnInit() {
     this.dataService.getDataPublic().subscribe(datalist => {
@@ -98,8 +103,9 @@ export class Association implements OnInit {
   }
 
   resetAssociation() {
-    this.associationData1 = [];
-    this.associationData2 = [];
+    //this.associationData1 = [];
+    //this.associationData2 = [];
+    this.associationData = [];
     this.boxData = [];
     this.lrData = [];
     this.type = null;
@@ -144,7 +150,21 @@ export class Association implements OnInit {
       this.edaService.getAssociation(this.isOpen, this.selectedTable, this.source.name, this.target.name, type)
         .subscribe(data => {
           if (type == 0) {
-            this.associationData1 = [];
+
+            // graph using ngx-charts
+            this.associationData = [];
+            for (let prop in data) {
+              let tempData = { name: prop, series: [] as any[] };
+              for (let prop2 in data[prop])
+                tempData.series.push({
+                  name: prop2,
+                  value: data[prop][prop2]
+                });
+              this.associationData.push(tempData);
+            }
+
+            //graph using plotly
+            /*this.associationData1 = [];
             for (let prop in data) {
               let keys = Object.keys(data[prop]);
               let tempData = { name: prop, x: keys, y: [] as number[], type: 'bar' };
@@ -178,7 +198,7 @@ export class Association implements OnInit {
                 textinfo: 'none'
               } as PieData);
             }
-            this.pieLayout = { height: 500, width: 600, grid: { rows: masterKeys.length / 4, columns: 4 } };
+            this.pieLayout = { height: 500, width: 600, grid: { rows: masterKeys.length / 4, columns: 4 } };*/
 
             this.type = type;
           }
@@ -265,5 +285,9 @@ export class Association implements OnInit {
       }, err => this.errorAlert.open(err));
     else
       this.errorAlert.open('type should be among 0,1,and 2: current value is ' + type);
-    }
+  }
+
+  onSelect(event:any) {
+    console.log(event);
+  }
 }
