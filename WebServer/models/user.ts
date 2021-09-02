@@ -32,7 +32,7 @@ const schema = new Schema<User>({
     data: [String],
     cleanData: [String],
     cleansedData: [String],
-    preprocessedData: [String],
+    preprocessedData: [String]
 });
 
 schema.methods.comparePassword = function(password: string, callback: any){
