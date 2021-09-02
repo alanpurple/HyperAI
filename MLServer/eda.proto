@@ -34,13 +34,13 @@ message SummaryReply {
 message Summary {
 	string name = 1;
 	uint32 count = 2;
-	float mean = 3;
-	float min = 4;
-	float std = 5;
-	float q1 = 6;
-	float q2 = 7;
-	float q3 = 8;
-	float max = 9;
+	string mean = 3;
+	string min = 4;
+	string std = 5;
+	string q1 = 6;
+	string q2 = 7;
+	string q3 = 8;
+	string max = 9;
 	uint32 unique = 10;
 	string top = 11;
 	uint32 freq = 12;

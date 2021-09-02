@@ -242,9 +242,9 @@ export class Association implements OnInit {
           return;
         }
         let lineTrace: ScatterData = {} as ScatterData;
-        lineTrace.x = [this.source.min - 1, this.source.max + 1];
-        lineTrace.y = [(this.source.min - 1) * data.slope + data.intercept,
-        (this.source.max + 1) * data.slope + data.intercept];
+        lineTrace.x = [parseFloat(this.source.min) - 1, parseFloat(this.source.max) + 1];
+        lineTrace.y = [(parseFloat(this.source.min) - 1) * data.slope + data.intercept,
+          (parseFloat(this.source.max) + 1) * data.slope + data.intercept];
         lineTrace.name = 'Fitted linear regression';
         lineTrace.mode = 'lines';
         let scatterTrace: ScatterData = {} as ScatterData;

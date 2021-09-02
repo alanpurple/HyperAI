@@ -77,6 +77,32 @@ class EdaService(eda_pb2_grpc.PreprocessServicer):
             temp={'name':key, 'count':int(data['count'])}
             currentData=df[key]
 
+            def _reducePrecision(value):
+                valuestr=str(value)
+                if 'e' in valuestr:
+                    if len(valuestr)<10:
+                        return valuestr
+                    npart,exppart= valuestr.split('e')
+                    if len(npart)>6:
+                        return npart[:6]+'e'+exppart
+                    else:
+                        return valuestr
+                elif '.' in valuestr:
+                    if len(valuestr)<7:
+                        return valuestr
+                    bigpart,smallpart=valuestr.split('.')
+                    if len(smallpart)<3:
+                        return valuestr
+                    else:
+                        if len(bigpart)<4:
+                            if len(smallpart)>4:
+                                return bigpart+'.'+smallpart[:4]
+                            else:
+                                return valuestr
+                        else:
+                            return bigpart+'.'+smallpart[:2]
+                return valuestr
+
             # normal categorical attribute
             if 'unique' in data and not np.isnan(data['unique']):
                 temp['type']='categorical'
@@ -99,13 +125,14 @@ class EdaService(eda_pb2_grpc.PreprocessServicer):
             # normal numerical
             else:
                 temp['type']='numeric'
-                temp['q1']=data['25%']
-                temp['q2']=data['50%']
-                temp['q3']=data['75%']
-                temp['mean']=data['mean']
-                temp['min']=data['min']
-                temp['max']=data['max']
-                temp['std']=data['std']
+                temp['q1']=_reducePrecision(data['25%'])
+                temp['q2']=_reducePrecision(data['50%'])
+                temp['q3']=_reducePrecision(data['75%'])
+                temp['mean']=_reducePrecision(data['mean'])
+                temp['min']=_reducePrecision(data['min'])
+                temp['max']=_reducePrecision(data['max'])
+                temp['std']=_reducePrecision(data['std'])
+
             result.append(temp)
         return eda_pb2.SummaryReply(error=-1,summaries=result)
 

@@ -1,13 +1,13 @@
 export interface SummaryData {
   name: string;
   count: number;
-  mean: number;
-  min: number;
-  std: number;
-  q1: number;
-  q2: number;
-  q3: number;
-  max: number;
+  mean: string;
+  min: string;
+  std: string;
+  q1: string;
+  q2: string;
+  q3: string;
+  max: string;
   unique: number;
   top: string;
   frequency: number;
