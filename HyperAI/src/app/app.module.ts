@@ -12,10 +12,7 @@ import { PlotlyModule } from 'angular-plotly.js';
 PlotlyModule.plotlyjs = PlotlyJS;
 
 import { NgxChartsModule } from '@swimlane/ngx-charts';
-
-/*import { PlotlyViaCDNModule } from 'angular-plotly.js';
-PlotlyViaCDNModule.setPlotlyVersion('latest');
-PlotlyViaCDNModule.setPlotlyBundle('basic');*/
+import { GojsAngularModule } from 'gojs-angular';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -64,9 +61,9 @@ import { UserInfo, ComingSoonDialog, NickNameConfirmDialog, NickNameTakenDialog 
     FlexLayoutModule,
     HttpClientModule,
     PlotlyModule,
-    //PlotlyViaCDNModule,
     MatModule,
-    NgxChartsModule
+    NgxChartsModule,
+    GojsAngularModule
   ],
   providers: [ConfirmDialog, LoggedIn, NotLoggedIn, IsAdmin, IsNotAdmin, ErrorAlert, HasNick,
     { provide: MAT_DIALOG_DEFAULT_OPTIONS, useValue: { hasBackdrop: false } }],
