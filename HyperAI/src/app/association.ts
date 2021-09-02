@@ -140,132 +140,130 @@ export class Association implements OnInit {
     }
     else
       type = 0;
-    switch (type) {
-      case 0: case 1:
-        this.edaService.getAssociation(this.isOpen, this.selectedTable, this.source.name, this.target.name, type)
-          .subscribe(data => {
-            if (type == 0) {
-              this.associationData1 = [];
-              for (let prop in data) {
-                let keys = Object.keys(data[prop]);
-                let tempData = { name: prop, x: keys, y: [] as number[], type: 'bar' };
-                keys.forEach(key => tempData.y.push(data[prop][key]))
-                this.associationData1.push(tempData);
-              }
-              
-              this.barLayout = { barmode: 'group' };
-
-              let i = 0;
-              this.associationData2 = [];
-              let masterKeys = Object.keys(data);
-              for (let i = 0; i < masterKeys.length; i++) {
-                let item = data[masterKeys[i]];
-                let keys = Object.keys(item);
-                let values:number[] = [];
-                keys.forEach(key => values.push(item[key]));
-                this.associationData2.push({
-                  labels: keys,
-                  values: values,
-                  type: 'pie',
-                  name: masterKeys[i],
-                  marker: {
-                    colors: this.colors
-                  },
-                  domain: {
-                    row: i / 4,
-                    column: i % 4
-                  },
-                  hoverinfo: 'label+percent+name',
-                  textinfo: 'none'
-                } as PieData);
-              }
-              this.pieLayout = { height: 500, width: 600, grid: { rows: masterKeys.length / 4, columns: 4 } };
-
-              this.type = type;
+    if (type == 0 || type == 1)
+      this.edaService.getAssociation(this.isOpen, this.selectedTable, this.source.name, this.target.name, type)
+        .subscribe(data => {
+          if (type == 0) {
+            this.associationData1 = [];
+            for (let prop in data) {
+              let keys = Object.keys(data[prop]);
+              let tempData = { name: prop, x: keys, y: [] as number[], type: 'bar' };
+              keys.forEach(key => tempData.y.push(data[prop][key]))
+              this.associationData1.push(tempData);
             }
-            else if (type == 1) {
-              let i = 0;
-              this.boxData = [];
-              for (let prop in data) {
-                let temp: BoxPlotData = {
-                  y: data[prop],
-                  name: prop,
-                  boxpoints: 'suspectedoutliers',
-                  marker: {
-                    color: this.colors[i++ % 9],
-                    outliercolor: this.colors[(i + 2) % 9],
-                    line: {
-                      outliercolor: this.colors[(i + 4) % 9]
-                    }
-                  },
-                  type: 'box'
-                } as BoxPlotData;
-                this.boxData.push(temp);
-              }
-              this.type = type;
-              /* newPlot(this.plot.nativeElement, this.associationData,
-                  { title: 'boxplots for each target attributes' }); */
-              this.boxLayout = { title: 'boxplots for each target attributes' };
-              this.type = type;
+
+            this.barLayout = { barmode: 'group' };
+
+            let i = 0;
+            this.associationData2 = [];
+            let masterKeys = Object.keys(data);
+            for (let i = 0; i < masterKeys.length; i++) {
+              let item = data[masterKeys[i]];
+              let keys = Object.keys(item);
+              let values: number[] = [];
+              keys.forEach(key => values.push(item[key]));
+              this.associationData2.push({
+                labels: keys,
+                values: values,
+                type: 'pie',
+                name: masterKeys[i],
+                marker: {
+                  colors: this.colors
+                },
+                domain: {
+                  row: i / 4,
+                  column: i % 4
+                },
+                hoverinfo: 'label+percent+name',
+                textinfo: 'none'
+              } as PieData);
             }
-            else
-              console.error('something is going totally mass');
-          });
-        break;
-      case 2:
-        this.lrService.elasticnetcv({
-          tableName: this.selectedTable,
-          sourceColumn: this.source.name,
-          targetColumn: this.target.name,
-          isOpen: this.isOpen
-        }).subscribe(data => {
-          if (!this.source || !this.target) {
-            this.errorAlert.open('something\'s wrong, source or target is null');
-            return;
+            this.pieLayout = { height: 500, width: 600, grid: { rows: masterKeys.length / 4, columns: 4 } };
+
+            this.type = type;
           }
-          let lineTrace: ScatterData = {} as ScatterData;
-          lineTrace.x = [this.source.min - 1, this.source.max + 1];
-          lineTrace.y = [(this.source.min - 1) * data.slope + data.intercept,
-            (this.source.max + 1) * data.slope + data.intercept];
-          lineTrace.name = 'Fitted linear regression';
-          lineTrace.mode = 'lines';
-          let scatterTrace: ScatterData = {} as ScatterData;
-          scatterTrace.type = 'scatter';
-          scatterTrace.name = 'Original Data';
-          scatterTrace.mode = 'markers';
-          return this.dataService.getDataCompact(
-            this.isOpen, this.selectedTable, [this.source.name, this.target.name])
-            .subscribe(original => {
-              if (!this.source || !this.target) {
+          else if (type == 1) {
+            let i = 0;
+            this.boxData = [];
+            for (let prop in data) {
+              let temp: BoxPlotData = {
+                y: data[prop],
+                name: prop,
+                boxpoints: 'suspectedoutliers',
+                marker: {
+                  color: this.colors[i++ % 9],
+                  outliercolor: this.colors[(i + 2) % 9],
+                  line: {
+                    outliercolor: this.colors[(i + 4) % 9]
+                  }
+                },
+                type: 'box'
+              } as BoxPlotData;
+              this.boxData.push(temp);
+            }
+            this.type = type;
+            /* newPlot(this.plot.nativeElement, this.associationData,
+                { title: 'boxplots for each target attributes' }); */
+            this.boxLayout = { title: 'boxplots for each target attributes' };
+            this.type = type;
+          }
+          else
+            this.errorAlert.open('something is going totally mass');
+        }, err => this.errorAlert.open(err));
+    else if (type == 2)
+      this.lrService.elasticnetcv({
+        tableName: this.selectedTable,
+        sourceColumn: this.source.name,
+        targetColumn: this.target.name,
+        isOpen: this.isOpen
+      }).subscribe(data => {
+        if (!this.source || !this.target) {
+          this.errorAlert.open('something\'s wrong, source or target is null');
+          return;
+        }
+        let lineTrace: ScatterData = {} as ScatterData;
+        lineTrace.x = [this.source.min - 1, this.source.max + 1];
+        lineTrace.y = [(this.source.min - 1) * data.slope + data.intercept,
+        (this.source.max + 1) * data.slope + data.intercept];
+        lineTrace.name = 'Fitted linear regression';
+        lineTrace.mode = 'lines';
+        let scatterTrace: ScatterData = {} as ScatterData;
+        scatterTrace.type = 'scatter';
+        scatterTrace.name = 'Original Data';
+        scatterTrace.mode = 'markers';
+        return this.dataService.getDataCompact(
+          this.isOpen, this.selectedTable, [this.source.name, this.target.name])
+          .subscribe(original => {
+            if (!this.source || !this.target) {
+              this.errorAlert.open('something\'s wrong, source or target is null');
+              return;
+            }
+            scatterTrace.x = original.data.map(elem => {
+              if (!this.source) {
                 this.errorAlert.open('something\'s wrong, source or target is null');
                 return;
               }
-              scatterTrace.x = original.data.map(elem => {
-                if (!this.source) {
-                  this.errorAlert.open('something\'s wrong, source or target is null');
-                  return;
-                }
-                return elem[this.source.name]
-              });
-              scatterTrace.y = original.data.map(elem => {
-                if (!this.target) {
-                  this.errorAlert.open('something\'s wrong, source or target is null');
-                  return;
-                }
-                return elem[this.target.name]
-              });
-              /* newPlot(this.plot.nativeElement, [lineTrace, scatterTrace],
-                  {
-                      title: 'linear regression between '
-                      + this.source.name + ' and ' + this.target.name
-                  }); */
-              this.lrData = [lineTrace, scatterTrace];
-              this.lrLayout.title = 'linear regression between '
-                + this.source.name + ' and ' + this.target.name;
-              this.type = type;
+              return elem[this.source.name]
             });
-        }, err => this.errorAlert.open(err))
-
+            scatterTrace.y = original.data.map(elem => {
+              if (!this.target) {
+                this.errorAlert.open('something\'s wrong, source or target is null');
+                return;
+              }
+              return elem[this.target.name]
+            });
+            /* newPlot(this.plot.nativeElement, [lineTrace, scatterTrace],
+                {
+                    title: 'linear regression between '
+                    + this.source.name + ' and ' + this.target.name
+                }); */
+            this.lrData = [lineTrace, scatterTrace];
+            this.lrLayout.title = 'linear regression between '
+              + this.source.name + ' and ' + this.target.name;
+            this.type = type;
+          });
+      }, err => this.errorAlert.open(err));
+    else
+      this.errorAlert.open('type should be among 0,1,and 2: current value is ' + type);
     }
-  }
 }
