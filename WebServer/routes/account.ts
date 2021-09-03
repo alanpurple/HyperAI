@@ -46,7 +46,6 @@ router.post('/signup', (req: Request, res: Response, next: NextFunction)=> {
     }));
 
 router.put('/', (req: Request, res: Response) => {
-    console.dir(req.body);
     if (!('nickName' in req.body)) {
         res.status(400).send('only nickname can be modified or created for now');
         return;
@@ -75,7 +74,8 @@ router.get('/info', (req: Request, res: Response) => {
             email: user.email,
             data: user.data,
             cleanData: user.cleanData,
-            cleansedData: user.cleansedData
+            cleansedData: user.cleansedData,
+            preprocessedData: user.preprocessedData
         });
     }
     else

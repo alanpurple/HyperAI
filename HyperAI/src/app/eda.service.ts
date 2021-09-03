@@ -20,7 +20,6 @@ export class EdaService {
   }
 
   describe(isOpen: boolean, data: string): Observable<SummaryData[]> {
-    const props = ['mean', 'std', 'min', 'q1', 'q2', 'q3', 'max'];
     return this.http.get<SummaryData[]>('/eda/describe/' + (isOpen ? 1 : 0) + '/' + data);
   }
 

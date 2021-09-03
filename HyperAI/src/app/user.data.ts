@@ -7,4 +7,5 @@ export class UserData {
   data: string[] = [];
   cleanData: string[] = [];
   cleansedData: string[] = [];
+  preprocessedData: string[] = [];
 }
