@@ -87,11 +87,12 @@ router.get('/relation/:open/:name/:source/:target/:type', (req, res) => {
 
 router.get('/cleanse/:name', (req: Request, res: Response) => {
     const user: User = req.user as User;
+    const name = req.params.name;
     if (user.accountType == 'admin') {
         res.status(400).send('sorry, this feature is not available for admin(maybe for now)');
         return;
     }
-    client.cleanse({ location: req.params.name }, (err, result) => {
+    client.cleanse({ location: name }, async (err, result) => {
         if (err || result.error == 1) {
             if (err)
                 console.error(err);
@@ -101,29 +102,34 @@ router.get('/cleanse/:name', (req: Request, res: Response) => {
             res.sendStatus(400);
         }
         else {
-            if (result.msg == 'cleansed') {
-                if (!result.loc)
-                    res.status(500).send('no loc for cleansed');
-                else
-                    UserModel.findByIdAndUpdate(req.user['_id'], { $push: { data:result.loc, cleansedData: result.loc } }).then(
-                        () => res.send({
-                            msg: result.msg,
-                            table: result.loc
-                        })).catch(err => {
-                            console.error(err);
-                            res.status(500).send(err);
+            try {
+                const msg = result.msg;
+                if (msg == 'cleansed') {
+                    if (!result.loc)
+                        res.status(500).send('no loc for cleansed');
+                    else {
+                        const tablename = result.loc;
+                        await UserModel.findByIdAndUpdate(req.user['_id'], { $push: { data: tablename, cleansedData: tablename } });
+                        await DataInfoModel.create({ _id: tablename, type: 'structural', numRows: result.numRows });
+                        res.send({
+                            msg: msg,
+                            table: tablename
                         });
-            }
-            else if (result.msg == 'clean')
-                UserModel.findByIdAndUpdate(req.user['_id'], { $push: { data: result.loc, cleanData: result.loc } }).then(
-                    () => res.send({
-                        msg: result.msg
-                    })).catch(err => {
-                        console.error(err);
-                        res.status(500).send(err);
+                    }
+                }
+                else if (msg == 'clean') {
+                    await UserModel.findByIdAndUpdate(req.user['_id'], { $push: { data: name, cleanData: name } });
+                    res.send({
+                        msg: msg
                     });
-            else
-                res.status(500).send('unknown message');
+                }
+                else
+                    throw new Error('unknown message');
+            }
+            catch (err) {
+                console.error(err);
+                res.status(500).send(err);
+            }
         }
     });
 });
@@ -143,7 +149,7 @@ router.get('/normlog/:name', (req: Request, res: Response) => {
         res.status(400).send('Data should be clean before applying preprocessor');
         return;
     }
-    client.normLog({ location: name }, (err, result) => {
+    client.normLog({ location: name }, async (err, result) => {
         if (err || result.error == 1) {
             if (err)
                 console.error(err);
@@ -152,15 +158,20 @@ router.get('/normlog/:name', (req: Request, res: Response) => {
         else if (result.error == 0) {
             res.sendStatus(400);
         }
-        else
-            UserModel.findByIdAndUpdate(req.user['_id'], { $push: { data: result.loc, preprocessedData: result.loc } }).then(
-                () => res.send({
+        else {
+            try {
+                await UserModel.findByIdAndUpdate(req.user['_id'], { $push: { data: result.loc, preprocessedData: result.loc } });
+                await DataInfoModel.create({ _id: name, type: 'structural', numRows: result.numRows });
+                res.send({
                     msg: result.msg,
                     table: result.loc
-                })).catch(err => {
-                    console.error(err);
-                    res.status(500).send(err);
                 });
+            }
+            catch (err) {
+                console.error(err);
+                res.status(500).send(err);
+            }
+        }
     });
 });
 

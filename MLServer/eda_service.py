@@ -54,9 +54,10 @@ class EdaService(eda_pb2_grpc.PreprocessServicer):
                     is_cleansed=True
 
         if is_cleansed:
+            nRows=df.shape[0]
             new_tablename=request.location+'_clsd'
             df.to_sql(new_tablename,engine)
-            return eda_pb2.ProcessedReply(error=-1,msg=['cleansed'],loc=new_tablename)
+            return eda_pb2.ProcessedReply(error=-1,msg=['cleansed'],loc=new_tablename,numRows=nRows)
         else:
             return eda_pb2.ProcessedReply(error=-1,msg=['clean'])
 
@@ -189,6 +190,6 @@ class EdaService(eda_pb2_grpc.PreprocessServicer):
         
         newtable=request.location+'_prp'
         newdf.to_sql(newtable,engine)
-
+        nRows=newdf.shape[0]
                 
-        return eda_pb2.ProcessedReply(error=-1,msg=['normalized'],loc=newtable)
+        return eda_pb2.ProcessedReply(error=-1,msg=['normalized'],loc=newtable,numRows=nRows)

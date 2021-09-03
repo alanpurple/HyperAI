@@ -24,6 +24,7 @@ message ProcessedReply {
 	int32 error = 1;
 	repeated string msg = 2;
 	string loc = 3;
+	int32 numRows = 4;
 }
 
 message SummaryReply {
