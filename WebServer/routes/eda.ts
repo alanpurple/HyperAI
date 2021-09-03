@@ -6,6 +6,7 @@ import { DataInfo, DataInfoModel } from '../models/data.info';
 const PROTO_PATH = __dirname + '/../../MLServer/eda.proto';
 import { loadPackageDefinition, credentials } from '@grpc/grpc-js';
 import { loadSync } from '@grpc/proto-loader';
+import { User } from '../models/user';
 
 const pkgdef = loadSync(PROTO_PATH, {
     keepCase: true, longs: String, enums: String, defaults: true, oneofs: true
@@ -85,6 +86,11 @@ router.get('/relation/:open/:name/:source/:target/:type', (req, res) => {
 });
 
 router.get('/cleanse/:name', (req: Request, res: Response) => {
+    const user: User = req.user as User;
+    if (user.accountType == 'admin') {
+        res.status(400).send('sorry, this feature is not available for admin(maybe for now)');
+        return;
+    }
     client.cleanse({ location: req.params.name }, (err, result) => {
         if (err || result.error == 1) {
             if (err)
@@ -103,13 +109,17 @@ router.get('/cleanse/:name', (req: Request, res: Response) => {
 });
 
 router.get('/normlog/:name', (req: Request, res: Response) => {
+    const user: User = req.user as User;
+    if (user.accountType == 'admin') {
+        res.status(400).send('sorry, this feature is not available for admin(maybe for now)');
+        return;
+    }
     const name = req.params.name;
-    const user = req.user;
     if (!user['data'].includes(name)) {
         res.status(401).send('User doesn\'t have this data');
         return;
     }
-    else if (!user['cleanData'].includes(name) && !user['cleansedData'].includes(name)) {
+    else if (!user.cleanData.includes(name) && !user.cleansedData.includes(name)) {
         res.status(400).send('Data should be clean before applying preprocessor');
         return;
     }
