@@ -11,12 +11,12 @@ export class EdaService {
 
   constructor(private http: HttpClient) { }
 
-  cleanse(data: string): Observable<string> {
-    return this.http.get('/eda/cleanse/' + data, { responseType: 'text' });
+  cleanse(data: string): Observable<PreprocessResponse> {
+    return this.http.get<PreprocessResponse>('/eda/cleanse/' + data);
   }
 
-  normLog(data: string): Observable<string> {
-    return this.http.get('/eda/normlog/' + data, { responseType: 'text' });
+  normLog(data: string): Observable<PreprocessResponse> {
+    return this.http.get<PreprocessResponse>('/eda/normlog/' + data);
   }
 
   describe(isOpen: boolean, data: string): Observable<SummaryData[]> {
@@ -26,6 +26,11 @@ export class EdaService {
   getAssociation(isOpen: boolean, name: string, source: string, target: string, type: number): Observable<any> {
     return this.http.get('/eda/relation/' + (isOpen ? '1' : '0') + '/' + name + '/' + source + '/' + target + '/' + type.toString());
   }
+}
+
+interface PreprocessResponse {
+  msg: string[];
+  table: string;
 }
 
 export class SummaryDataSource {

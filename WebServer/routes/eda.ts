@@ -6,7 +6,7 @@ import { DataInfo, DataInfoModel } from '../models/data.info';
 const PROTO_PATH = __dirname + '/../../MLServer/eda.proto';
 import { loadPackageDefinition, credentials } from '@grpc/grpc-js';
 import { loadSync } from '@grpc/proto-loader';
-import { User } from '../models/user';
+import { User, UserModel } from '../models/user';
 
 const pkgdef = loadSync(PROTO_PATH, {
     keepCase: true, longs: String, enums: String, defaults: true, oneofs: true
@@ -105,15 +105,23 @@ router.get('/cleanse/:name', (req: Request, res: Response) => {
                 if (!result.loc)
                     res.status(500).send('no loc for cleansed');
                 else
-                    res.send({
-                        msg: result.msg,
-                        table: result.loc
-                    });
+                    UserModel.findByIdAndUpdate(req.user['_id'], { $push: { data:result.loc, cleansedData: result.loc } }).then(
+                        () => res.send({
+                            msg: result.msg,
+                            table: result.loc
+                        })).catch(err => {
+                            console.error(err);
+                            res.status(500).send(err);
+                        });
             }
             else if (result.msg == 'clean')
-                res.send({
-                    msg: result.msg
-                });
+                UserModel.findByIdAndUpdate(req.user['_id'], { $push: { data: result.loc, cleanData: result.loc } }).then(
+                    () => res.send({
+                        msg: result.msg
+                    })).catch(err => {
+                        console.error(err);
+                        res.status(500).send(err);
+                    });
             else
                 res.status(500).send('unknown message');
         }
@@ -145,10 +153,14 @@ router.get('/normlog/:name', (req: Request, res: Response) => {
             res.sendStatus(400);
         }
         else
-            res.send({
-                msg: result.msg,
-                table: result.loc
-            });
+            UserModel.findByIdAndUpdate(req.user['_id'], { $push: { data: result.loc, preprocessedData: result.loc } }).then(
+                () => res.send({
+                    msg: result.msg,
+                    table: result.loc
+                })).catch(err => {
+                    console.error(err);
+                    res.status(500).send(err);
+                });
     });
 });
 
