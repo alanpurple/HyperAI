@@ -56,6 +56,9 @@ class EdaService(eda_pb2_grpc.PreprocessServicer):
         if is_cleansed:
             new_tablename=request.location+'_clsd'
             df.to_sql(new_tablename,engine)
+            return eda_pb2.ProcessedReply(error=-1,msg=['cleansed'],loc=new_tablename)
+        else:
+            return eda_pb2.ProcessedReply(error=-1,msg=['clean'])
 
 
     def Describe(self, request, context):

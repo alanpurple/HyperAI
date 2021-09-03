@@ -100,11 +100,23 @@ router.get('/cleanse/:name', (req: Request, res: Response) => {
         else if (result.error == 0) {
             res.sendStatus(400);
         }
-        else
-            res.send({
-                msg: result.msg,
-                table: result.loc
-            });
+        else {
+            if (result.msg == 'cleansed') {
+                if (!result.loc)
+                    res.status(500).send('no loc for cleansed');
+                else
+                    res.send({
+                        msg: result.msg,
+                        table: result.loc
+                    });
+            }
+            else if (result.msg == 'clean')
+                res.send({
+                    msg: result.msg
+                });
+            else
+                res.status(500).send('unknown message');
+        }
     });
 });
 
