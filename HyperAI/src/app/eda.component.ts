@@ -1,9 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { DataService } from './data.service';
 import { UserService } from './user.service';
-import { AllData, DataInfo } from './data.info';
+import { EdaService } from './eda.service';
+import { AllData, DataBasic, EdaData } from './data.info';
 import { UserData } from './user.data';
 import { ErrorAlert } from './error.alert';
+import { ConfirmDialog } from './confirm.dialog';
 
 @Component({
   selector: 'app-eda',
@@ -14,8 +16,9 @@ export class EdaComponent implements OnInit {
 
   constructor(
     private userService: UserService,
-    private dataService: DataService,
-    private errorAlert: ErrorAlert
+    private errorAlert: ErrorAlert,
+    private edaService: EdaService,
+    private confirmDialog: ConfirmDialog
   ) { }
 
   ngOnInit(): void {
@@ -25,52 +28,93 @@ export class EdaComponent implements OnInit {
         return;
       }
       this.user = user;
-      this.dataService.getDataMy().subscribe(
-        data => {
-          this.allData = user.data.map(elem => {
-            let elemData = data.find(elem2 => elem2.name == elem);
-            if (!elemData) {
-              this.errorAlert.open('something\'s wrong, data corrupted, integration failed');
-              // this line is just a dummy line(for typescript) since erroralert cause not to reach there
-              throw Error('errror');
-            }
-            return {
-              name: elemData.name,
-              type: elemData.type,
-              numRows: elemData.numRows,
-              isClean: user.cleanData.includes(elem)
-            }
+      this.user.data.forEach((elem, index) => {
+        this.allData.push({ name: elem.name, numRows: elem.numRows, type: elem.type, status: elem.isClean ? 'clean' : 'dirty' });
+        if (elem.isClean && elem.cleansed)
+          throw new Error('marked clean and cleansed? error');
+        if (elem.isClean)
+          this.cleansedData.push({ name: elem.name, numRows: elem.numRows, parentId: index });
+        else if (elem.cleansed) {
+          this.allData.push({
+            name: elem.cleansed.name, numRows: elem.cleansed.numRows, type: elem.type,
+            status: 'cleansed'
           });
-          this.dirtyData = data.filter(elem =>
-            !user.cleanData.includes(elem.name) && !user.cleansedData.includes(elem.name)
-            && !user.preprocessedData.includes(elem.name));
-          this.cleansedData = data.filter(elem => user.cleansedData.includes(elem.name));
-          this.preprocessedData = data.filter(elem => user.preprocessedData.includes(elem.name));
+          this.cleansedData.push({ name: elem.cleansed.name, numRows: elem.cleansed.numRows, parentId: index });
         }
-      )
+        else
+          this.dirtyData.push({ name: elem.name, numRows: elem.numRows });
+        if (elem.preprocessed) {
+          this.allData.push({ name: elem.preprocessed.name, numRows: elem.preprocessed.numRows, type: elem.type, status: 'preprocessed' });
+          this.preprocessedData.push({ name: elem.preprocessed.name, numRows: elem.preprocessed.numRows, parentId: index });
+        }
+      });
     },
       err => this.errorAlert.open(err));
   }
 
   user: UserData = new UserData();
   allData: AllData[] = [];
-  dirtyData: DataInfo[] = [];
-  cleansedData: DataInfo[] = [];
-  preprocessedData: DataInfo[] = [];
+  dirtyData: DataBasic[] = [];
+  cleansedData: EdaData[] = [];
+  preprocessedData: EdaData[] = [];
 
-  displayedColumnsAll: string[] = ['name', 'type', 'numRows', 'isClean'];
+  displayedColumnsAll: string[] = ['name', 'type', 'numRows', 'status'];
   displayedColumns: string[] = ['name', 'type', 'numRows'];
   displayedColumns1: string[] = ['name', 'type', 'numRows', 'cleanse'];
   displayedColumns2: string[] = ['name', 'type', 'numRows', 'preprocess'];
 
   isLoading: boolean = false;
 
-  preprocess(name: string) {
-
+  normlog(id:number,name: string) {
+    this.edaService.normLog(name).subscribe(
+      res => {
+        if (res.msg.includes('normalized')) {
+          this.user.data[id].preprocessed = {
+            name: res.table,
+            numRows: res.numRows
+          };
+          this.allData.push({
+            name: res.table,
+            numRows: res.numRows,
+            status: 'preprocessed',
+            type: 'structural'
+          });
+          this.preprocessedData.push({
+            name: res.table,
+            numRows: res.numRows,
+            parentId: id
+          });
+        }
+        else
+          this.confirmDialog.open('not processed');
+      }
+    )
   }
 
-  cleanse(name: string) {
-
+  cleanse(id:number,name: string) {
+    this.edaService.cleanse(name).subscribe(
+      res => {
+        if (res.msg.includes('clean')) {
+          this.user.data[id].isClean = true;
+          const allId = this.allData.findIndex(elem => elem.name == name);
+          if (allId < 0)
+            throw new Error('integration failed');
+          this.allData[allId].status = 'clean';
+          const dataId = this.dirtyData.findIndex(elem => elem.name == name);
+          if (dataId < 0)
+            throw new Error('integration failed');
+          this.dirtyData.splice(dataId, 1);
+        }
+        else if (res.msg.includes('cleansed')) {
+          this.user.data[id].cleansed = { name: res.table, numRows: res.numRows };
+          this.allData.push({ name: res.table, numRows: res.numRows, status: 'cleansed', type: 'structural' });
+          this.cleansedData.push({ name: res.table, numRows: res.numRows, parentId: id });
+        }
+        else
+          throw new Error('unreachable points');
+      },
+      err => this.errorAlert.open(err)
+    )
   }
 
 }

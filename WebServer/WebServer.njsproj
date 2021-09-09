@@ -30,6 +30,9 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
+    <Content Include="tsdoc.json">
+      <SubType>Code</SubType>
+    </Content>
     <None Include="app.ts" />
     <Content Include="favicon.ico" />
     <Content Include="tsconfig.json" />

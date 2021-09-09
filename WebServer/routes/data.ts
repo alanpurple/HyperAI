@@ -1,6 +1,6 @@
 import { Router, Request, Response, NextFunction } from 'express';
-import { UserModel } from '../models/user';
-import { DataInfo, DataInfoModel } from '../models/data.info';
+import { User,UserModel } from '../models/user';
+import { DataInfo,DataBasic } from '../models/data.info';
 import { sequelize, sequelizeOpen } from '../connect-rdb';
 import { QueryTypes } from 'sequelize';
 //import { extname } from 'path';
@@ -32,13 +32,13 @@ router.all('*', ensureAuthenticated);
 // get the list of open datasets
 router.get('/open', async (req: Request, res: Response) => {
     try {
-        const entireData = await DataInfoModel.find().populate('owner', 'accountType');
-        const openData = entireData.filter(data => data.owner.accountType == 'admin');
+        const openData = await _getOpendata();
         const result = openData.map(data => {
             return {
-                name: data._id,
+                name: data.name,
                 numRows: data.numRows,
-                type: data.type
+                //temporary fixed type
+                type: 'structural'
             }
         });
         res.send(result);
@@ -73,59 +73,61 @@ router.get('/compact/:isopen/:name/:attr1/:attr2', (req, res) => {
         });
 });
 
-router.get('/bytype', async (req: Request, res: Response) => {
-    try {
-        const user = req.user;
-        res.send({
-            cleanData: user['cleanData'],
-            cleansedData: user['cleansedData'],
-            preprocessedData: user['preprocessedData']
-        });
-    }
-    catch (err) {
-        res.status(500).send(err);
-    }
-});
-
 // users' datasets
 router.get('/', async (req: Request, res: Response) => {
-    try {
-        const userData = await DataInfoModel.find({ owner: req.user['_id'] });
-        const result = userData.map(data => {
-            return {
-                name: data._id,
-                numRows: data.numRows,
-                type: data.type
-            }
-        });
-        res.send(result);
-    }
-    catch (err) {
-        res.status(500).send(err);
-    }
+    const user = req.user as User;
+    const userData = user.data.flatMap(elem => {
+        let data = [{ name: elem.name, numRows: elem.numRows }];
+        if (elem.cleansed) data.push(elem.cleansed);
+        if (elem.preprocessed) data.push(elem.preprocessed);
+        return data;
+    });
+    const result = userData.map(data => {
+        return {
+            name: data.name,
+            numRows: data.numRows,
+            // only structural is avilable in this context (hopefully for now)
+            type: 'structural'
+        }
+    });
+    res.send(result);
 });
 
 // get actual data from rdb
-router.get('/:tablename', (req: Request, res: Response) => {
+router.get('/:tablename', async (req: Request, res: Response) => {
     ////////////
     //Todo: check authentication ( actual owner )
     ////////////
+    const user = req.user as User;
     const tableName = req.params.tablename;
-    DataInfoModel.findOne({ name: tableName }).populate('owner', 'accountType').orFail()
-        .then((dataInfo: DataInfo) => {
-            const owner = dataInfo.owner.accountType;
-            if (owner == 'admin')
-                sequelizeOpen.query('SELECT * FROM `' + tableName + '`').then(data => res.send({ data: data }));
-            else if (owner == 'user')
-                sequelize.query('SELECT * FROM `' + tableName + '`').then(data => res.send({ data: data }));
-            else {
-                console.error('somethings wrong, account type is not usual: ' + owner);
-                res.sendStatus(500);
-            }
-        }).catch(err => {
-            console.error(err);
-            res.sendStatus(500);
+    let isOpen = false;
+    if (user.accountType != 'admin') {
+        const userData = user.data.flatMap(data => {
+            let nested = [data.name];
+            if (data.cleansed) nested.push(data.cleansed.name);
+            if (data.preprocessed) nested.push(data.preprocessed.name);
+            return nested;
         });
+        if (!userData.includes(tableName))
+            isOpen = true;
+    }
+    try {
+        if (isOpen) {
+            const openData = await _getOpendatalist();
+            if (!openData.includes(tableName)) {
+                res.sendStatus(400);
+                return;
+            }
+        }
+
+        const database = isOpen ? sequelizeOpen : sequelize;
+        const result = await database.query('SELECT * FROM `' + tableName + '`');
+        res.send({ data: result });
+    }
+    catch (err) {
+        console.error(err);
+        res.status(500).send(err);
+    }
 });
 
 const AvailableExts = ['csv', 'xlsx', 'tsv'];
@@ -161,20 +163,18 @@ router.post('/', multerRead.single('data'), (req: Request, res: Response) => {
                 return;
             }
             const tableName = result.tablename;
-            await UserModel.findByIdAndUpdate(userId, { $push: { data: tableName } });
+            await UserModel.findByIdAndUpdate(userId, {
+                $push: {
+                    data: {
+                        name: tableName,
+                        numRows: result.numrows,
+                        // only 'structural' is available for now
+                        type: 'structural'
+                    }
+                }
+            });
 
-            const data: DataInfo = {
-                _id: tableName,
-                numRows: result.numrows,
-                owner: userId,
-                // only 'structural' is available for now
-                type: 'structural'
-            };
-            
-
-            const dataInfoModel = new DataInfoModel(data);
-            await dataInfoModel.save();
-            res.send({ name: data._id, numRows: data.numRows, type: data.type });
+            res.send({ name: tableName, numRows: result.numRows, type: 'structural' });
         }
         catch (err) {
             console.error(err);
@@ -182,6 +182,26 @@ router.post('/', multerRead.single('data'), (req: Request, res: Response) => {
         }
     });
 });
+
+async function _getOpendatalist() {
+    const admins = await UserModel.find({ accountType: 'admin' });
+    return admins.flatMap(elem => elem.data).flatMap(data => {
+        let nested = [data.name];
+        if (data.cleansed) nested.push(data.cleansed.name);
+        if (data.preprocessed) nested.push(data.preprocessed.name);
+        return nested;
+    });
+}
+
+async function _getOpendata() {
+    const admins = await UserModel.find({ accountType: 'admin' });
+    return admins.flatMap(elem => elem.data).flatMap(data => {
+        let nested = [{ name: data.name, numRows: data.numRows }];
+        if (data.cleansed) nested.push(data.cleansed);
+        if (data.preprocessed) nested.push(data.preprocessed);
+        return nested;
+    });
+}
 
 function ensureAuthenticated(req: Request, res: Response, next: NextFunction) {
     if (req.isUnauthenticated())

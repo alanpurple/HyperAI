@@ -1,6 +1,8 @@
 import { Schema, model } from 'mongoose';
 import { hash, compare } from 'bcrypt';
 
+import { DataInfo, DataSchema } from './data.info';
+
 const NUM_ROUNDS = 10;
 
 export interface User {
@@ -10,13 +12,7 @@ export interface User {
     hasNickName: boolean;
     accountType: 'admin' | 'user';
     email: string;
-    data: string[];
-    cleanData: string[];
-    // cleansed data tables have suffix '_clsd'
-    cleansedData: string[];
-    // clean data and cleansed data can be preprocessed
-    // preprocessedData has suffix '_prpr'
-    preprocessedData: string[];
+    data: DataInfo[];
     comparePassword(password: string, callback: any);
 }
 
@@ -28,11 +24,8 @@ const schema = new Schema<User>({
     // true for now
     hasNickName: { type: Boolean, default: true },
     accountType: { type: String, enum: ['admin', 'user'] },
-    email: { type: String, required: true },
-    data: [String],
-    cleanData: [String],
-    cleansedData: [String],
-    preprocessedData: [String]
+    email: { type: String, unique: true, index: true, required: true },
+    data: [DataSchema]
 });
 
 schema.methods.comparePassword = function(password: string, callback: any){

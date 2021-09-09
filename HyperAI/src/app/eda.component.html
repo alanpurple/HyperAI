@@ -14,12 +14,9 @@
         <th mat-header-cell *matHeaderCellDef>size</th>
         <td mat-cell *matCellDef="let row">{{row.numRows}}</td>
       </ng-container>
-      <ng-container matColumnDef="isClean">
-        <th mat-header-cell *matHeaderCellDef>isClean</th>
-        <td mat-cell *matCellDef="let row">
-          <h5 *ngIf="row.isClean">Yes</h5>
-          <h5 *ngIf="!row.isClean">No</h5>
-        </td>
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef>status</th>
+        <td mat-cell *matCellDef="let row">{{row.status}}</td>
       </ng-container>
       <tr mat-header-row *matHeaderRowDef="displayedColumnsAll"></tr>
       <tr mat-row *matRowDef="let row; columns: displayedColumnsAll;"></tr>
@@ -42,7 +39,7 @@
       <ng-container matColumnDef="cleanse">
         <th mat-header-cell *matHeaderCellDef>Cleanse</th>
         <td mat-cell *matCellDef="let row">
-          <button mat-button color="accent" (click)="cleanse(row.name)">
+          <button mat-button color="accent" (click)="cleanse(row.parentId,row.name)" [disabled]="!!user.data[row.parentId].cleansed">
             Execute Cleansing
           </button>
         </td>
@@ -69,7 +66,7 @@
       <ng-container matColumnDef="preprocess">
         <th mat-header-cell *matHeaderCellDef>Preprocess</th>
         <td mat-cell *matCellDef="let row">
-          <button mat-button color="accent" (click)="preprocess(row.name)">
+          <button mat-button color="accent" (click)="normlog(row.parentId,row.name)" [disabled]="!!user.data[row.parentId].preprocessed">
             Execute Cleansing
           </button>
         </td>

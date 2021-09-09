@@ -72,10 +72,7 @@ router.get('/info', (req: Request, res: Response) => {
             hasNickName: user.hasNickName,
             accountType: user.accountType,
             email: user.email,
-            data: user.data,
-            cleanData: user.cleanData,
-            cleansedData: user.cleansedData,
-            preprocessedData: user.preprocessedData
+            data: user.data
         });
     }
     else

@@ -1,19 +1,29 @@
-import { Schema, model, Document, PopulatedDoc } from 'mongoose';
-import { User } from './user';
+import { Schema } from 'mongoose';
 
 export interface DataInfo {
-    _id: string;
+    name: string;
     type: 'structural' | 'sound' | 'text' | 'image';
     numRows: number;
-    owner: PopulatedDoc<User & Document>;
+    isClean: boolean;
+    cleansed: DataBasic;
+    preprocessed: DataBasic;
 }
 
-const schema = new Schema<DataInfo>({
-    _id: String,
+export interface DataBasic {
+    name: string;
+    numRows: number;
+}
+
+const BasicSchema = new Schema<DataBasic>({
+    name: { type: String, unique: true, required: true },
+    numRows: { type: Number, required: true }
+}, { _id: false });
+
+export const DataSchema = new Schema<DataInfo>({
+    name: String,
     type: { type: String, enum: ['structural', 'sound', 'text', 'image'] },
     numRows: { type: Number, required: true },
-    // default for open data, id 0 for admin
-    owner: { type: 'ObjectId', ref: 'User', required: true }
-});
-
-export const DataInfoModel = model<DataInfo>('DataInfo', schema);
+    isClean: Boolean,
+    cleansed: BasicSchema,
+    preprocessed: BasicSchema
+}, { _id: false });

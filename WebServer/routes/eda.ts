@@ -2,7 +2,6 @@ import { Router, Request, Response, NextFunction } from 'express';
 import { QueryTypes } from 'sequelize';
 import { sequelize, sequelizeOpen } from '../connect-rdb';
 
-import { DataInfo, DataInfoModel } from '../models/data.info';
 const PROTO_PATH = __dirname + '/../../MLServer/eda.proto';
 import { loadPackageDefinition, credentials } from '@grpc/grpc-js';
 import { loadSync } from '@grpc/proto-loader';
@@ -85,98 +84,142 @@ router.get('/relation/:open/:name/:source/:target/:type', (req, res) => {
         });
 });
 
-router.get('/cleanse/:name', (req: Request, res: Response) => {
+router.get('/cleanse/:name', async (req: Request, res: Response) => {
     const user: User = req.user as User;
     const name = req.params.name;
     if (user.accountType == 'admin') {
         res.status(400).send('sorry, this feature is not available for admin(maybe for now)');
         return;
     }
-    client.cleanse({ location: name }, async (err, result) => {
-        if (err || result.error == 1) {
-            if (err)
-                console.error(err);
-            res.sendStatus(500);
-        }
-        else if (result.error == 0) {
-            res.sendStatus(400);
-        }
-        else {
-            try {
-                const msg = result.msg;
-                if (msg == 'cleansed') {
-                    if (!result.loc)
-                        res.status(500).send('no loc for cleansed');
-                    else {
-                        const tablename = result.loc;
-                        await UserModel.findByIdAndUpdate(req.user['_id'], { $push: { data: tablename, cleansedData: tablename } });
-                        await DataInfoModel.create({ _id: tablename, type: 'structural', numRows: result.numRows });
+    let data = user.data.find(elem => elem.name == name);
+    if (!data) {
+        res.status(404).send('no data with that name');
+        return;
+    }
+    if (data.cleansed) {
+        res.status(400).send('already cleand, no need to cleanse');
+        return;
+    }
+    if (data.isClean) {
+        res.status(400).send('clean data, no need to cleanse');
+        return;
+    }
+    try {
+        client.cleanse({ location: name }, async (err, result) => {
+            if (err || result.error == 1) {
+                if (err)
+                    console.error(err);
+                res.sendStatus(500);
+            }
+            else if (result.error == 0) {
+                res.sendStatus(400);
+            }
+            else {
+                try {
+                    const msg = result.msg;
+                    if (msg == 'cleansed') {
+                        if (!result.loc)
+                            res.status(500).send('no loc for cleansed');
+                        else {
+                            const tablename = result.loc;
+                            data.cleansed = {
+                                name: tablename,
+                                numRows: result.numRows
+                            };
+                            res.send({
+                                msg: msg,
+                                table: tablename,
+                                numRows: result.numRows
+                            });
+                        }
+                    }
+                    else if (msg == 'clean') {
+                        await UserModel.findByIdAndUpdate(req.user['_id'], { $push: { data: name, cleanData: name } });
                         res.send({
-                            msg: msg,
-                            table: tablename
+                            msg: msg
                         });
                     }
+                    else
+                        throw new Error('unknown message');
                 }
-                else if (msg == 'clean') {
-                    await UserModel.findByIdAndUpdate(req.user['_id'], { $push: { data: name, cleanData: name } });
-                    res.send({
-                        msg: msg
-                    });
+                catch (err) {
+                    console.error(err);
+                    res.status(500).send(err);
                 }
-                else
-                    throw new Error('unknown message');
             }
-            catch (err) {
-                console.error(err);
-                res.status(500).send(err);
-            }
-        }
-    });
+        });
+    }
+    catch (err) {
+        console.error(err);
+        res.status(500).send(err);
+    }
 });
 
-router.get('/normlog/:name', (req: Request, res: Response) => {
+router.get('/normlog/:name', async (req: Request, res: Response) => {
     const user: User = req.user as User;
     if (user.accountType == 'admin') {
         res.status(400).send('sorry, this feature is not available for admin(maybe for now)');
         return;
     }
     const name = req.params.name;
-    if (!user['data'].includes(name)) {
-        res.status(401).send('User doesn\'t have this data');
+
+
+    let data = user.data.find(elem =>
+        elem.cleansed.name == name || (elem.name == name && elem.isClean)
+    );
+    if (!data) {
+        res.status(404).send('no data with that name');
         return;
     }
-    else if (!user.cleanData.includes(name) && !user.cleansedData.includes(name)) {
-        res.status(400).send('Data should be clean before applying preprocessor');
+    if (data.preprocessed) {
+        res.status(400).send('already preprocessed');
         return;
     }
-    client.normLog({ location: name }, async (err, result) => {
-        if (err || result.error == 1) {
-            if (err)
-                console.error(err);
-            res.sendStatus(500);
-        }
-        else if (result.error == 0) {
-            res.sendStatus(400);
-        }
-        else {
-            try {
-                await UserModel.findByIdAndUpdate(req.user['_id'], { $push: { data: result.loc, preprocessedData: result.loc } });
-                await DataInfoModel.create({ _id: name, type: 'structural', numRows: result.numRows });
-                res.send({
-                    msg: result.msg,
-                    table: result.loc
-                });
+    try {
+        client.normLog({ location: name }, async (err, result) => {
+            if (err || result.error == 1) {
+                if (err)
+                    console.error(err);
+                res.sendStatus(500);
             }
-            catch (err) {
-                console.error(err);
-                res.status(500).send(err);
+            else if (result.error == 0) {
+                res.sendStatus(400);
             }
-        }
-    });
+            else {
+                try {
+                    const userData = await UserModel.findOne({ email: user.email });
+                    let targetDataId = userData.data.findIndex(elem =>
+                        elem.cleansed.name == name || (elem.name == name && elem.isClean)
+                    );
+                    if (targetDataId < 0)
+                        throw new Error('data integration failed');
+                    userData[targetDataId].preprocessed = {
+                        name: result.loc,
+                        numRows: result.numRows
+                    };
+                    await userData.save();
+                    res.send({
+                        msg: result.msg,
+                        table: result.loc,
+                        numRows: result.numRows
+                    });
+                }
+                catch (err) {
+                    console.error(err);
+                    res.status(500).send(err);
+                }
+            }
+        });
+    }
+    catch (err) {
+        console.error(err);
+        res.status(500).send(err);
+    }
 });
 
 router.get('/describe/:isOpen/:name', async (req: Request, res: Response) => {
     const name = req.params.name;
+    const user = req.user as User;
     let isOpen = req.params.isOpen == '1' || req.user['accountType'] == 'admin';
     try {
         if (!isOpen && !req.user['data'].includes(name)) {
@@ -184,7 +227,7 @@ router.get('/describe/:isOpen/:name', async (req: Request, res: Response) => {
             return;
         }
         else if (isOpen) {
-            let openData = await _getOpendata();
+            let openData = await _getOpendatalist();
             if (!openData.includes(name)) {
                 res.status(400).send('no tables with name');
                 return;
@@ -209,10 +252,14 @@ router.get('/describe/:isOpen/:name', async (req: Request, res: Response) => {
     }
 });
 
-async function _getOpendata() {
-    const entireData = await DataInfoModel.find().populate('owner', 'accountType');
-    const openData = entireData.filter(data => data.owner.accountType == 'admin').map(table => table._id);
-    return openData;
+async function _getOpendatalist() {
+    const admins = await UserModel.find({ accountType: 'admin' });
+    return admins.flatMap(elem => elem.data).flatMap(data => {
+        let nested = [data.name];
+        if (data.cleansed) nested.push(data.cleansed.name);
+        if (data.preprocessed) nested.push(data.preprocessed.name);
+        return nested;
+    });
 }
 
 function ensureAuthenticated(req: Request, res: Response, next: NextFunction) {

@@ -31,6 +31,7 @@ export class EdaService {
 interface PreprocessResponse {
   msg: string[];
   table: string;
+  numRows: number;
 }
 
 export class SummaryDataSource {

@@ -1,5 +1,4 @@
 import { UserModel } from './models/user';
-import { DataInfoModel } from './models/data.info';
 import { sequelizeOpen } from './connect-rdb';
 import { connectDdb } from './connect-ddb';
 
@@ -15,16 +14,16 @@ async function addData() {
     const filtered = sampleNames.filter(name => actualNames.includes(name));
     const adminUser = await UserModel.findOne({ email: 'alan@infinov.com' });
     const userid = adminUser._id;
-    await UserModel.findOneAndUpdate({ email: 'alan@infinov.com' }, { $push: { data: { $each: filtered } } });
-    for (const sample of filtered) {
-        let numRows = actualTables[0].find(data => data['TABLE_NAME'] == sample)['TABLE_ROWS']
-        await DataInfoModel.create({
-            _id: sample,
+    const results = filtered.forEach(sample => {
+        let numRows = actualTables[0].find(data => data['TABLE_NAME'] == sample)['TABLE_ROWS'];
+        return {
+            name: sample,
             numRows: numRows,
-            type: 'structural',
-            owner: userid
-        });
-    }
+            type: 'structural'
+        }
+    });
+    await UserModel.findOneAndUpdate({ email: 'alan@infinov.com' }, { $push: { data: { $each: results } } });
+
     console.log('everything has been handled');
 }
 
