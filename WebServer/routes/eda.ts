@@ -221,8 +221,14 @@ router.get('/describe/:isOpen/:name', async (req: Request, res: Response) => {
     const name = req.params.name;
     const user = req.user as User;
     let isOpen = req.params.isOpen == '1' || req.user['accountType'] == 'admin';
+    const userDataList = user.data.flatMap(elem => {
+        let result = [elem.name];
+        if (elem.cleansed) result.push(elem.cleansed.name);
+        if (elem.preprocessed) result.push(elem.preprocessed.name);
+        return result;
+    });
     try {
-        if (!isOpen && !req.user['data'].includes(name)) {
+        if (!isOpen && !userDataList.includes(name)) {
             res.status(400).send('no tables with name');
             return;
         }
