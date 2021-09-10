@@ -17,13 +17,13 @@ export interface DataBasic {
 const BasicSchema = new Schema<DataBasic>({
     name: { type: String, unique: true, required: true },
     numRows: { type: Number, required: true }
-}, { _id: false });
+}, { _id: false, autoIndex: false });
 
 export const DataSchema = new Schema<DataInfo>({
-    name: String,
+    name: { type: String, unique: true, required: true },
     type: { type: String, enum: ['structural', 'sound', 'text', 'image'] },
     numRows: { type: Number, required: true },
     isClean: Boolean,
     cleansed: BasicSchema,
     preprocessed: BasicSchema
-}, { _id: false });
+}, { _id: false, autoIndex: false });
