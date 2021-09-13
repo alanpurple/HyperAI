@@ -1,5 +1,6 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { QueryTypes } from 'sequelize';
+import { QueryOptions } from 'mongoose';
 import { sequelize, sequelizeOpen } from '../connect-rdb';
 
 const PROTO_PATH = __dirname + '/../../MLServer/eda.proto';
@@ -122,10 +123,12 @@ router.get('/cleanse/:name', async (req: Request, res: Response) => {
                             res.status(500).send('no loc for cleansed');
                         else {
                             const tablename = result.loc;
-                            data.cleansed = {
-                                name: tablename,
-                                numRows: result.numRows
-                            };
+                            await UserModel.findOneAndUpdate({ email: user.email }, {
+                                'data.$[elem].cleansed': {
+                                    name: tablename,
+                                    numRows: result.numRows
+                                }
+                            }, { arrayFilters: [{ 'elem.name': name }] });
                             res.send({
                                 msg: msg,
                                 table: tablename,
@@ -134,13 +137,14 @@ router.get('/cleanse/:name', async (req: Request, res: Response) => {
                         }
                     }
                     else if (msg == 'clean') {
-                        await UserModel.findByIdAndUpdate(req.user['_id'], { $push: { data: name, cleanData: name } });
+                        await UserModel.findOneAndUpdate({ email: user.email },
+                            { 'data.$[elem].isClean': true }, { arrayFilters: [{ 'elem.name': name }] });
                         res.send({
                             msg: msg
                         });
                     }
                     else
-                        throw new Error('unknown message');
+                        throw new Error('unknown message: ' + msg);
                 }
                 catch (err) {
                     console.error(err);
