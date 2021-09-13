@@ -1,7 +1,7 @@
 <mat-spinner *ngIf="isLoading"></mat-spinner>
 <mat-tab-group>
   <mat-tab label="Entire Data">
-    <table mat-table [dataSource]="allData" matSort>
+    <table #all mat-table [dataSource]="allData" matSort>
       <ng-container matColumnDef="name">
         <th mat-header-cell *matHeaderCellDef>name</th>
         <td mat-cell *matCellDef="let row">{{row.name}}</td>
@@ -23,7 +23,7 @@
     </table>
   </mat-tab>
   <mat-tab label="Data ready for cleansing">
-    <table mat-table [dataSource]="dirtyData" matSort>
+    <table #dirty mat-table [dataSource]="dirtyData" matSort>
       <ng-container matColumnDef="name">
         <th mat-header-cell *matHeaderCellDef>name</th>
         <td mat-cell *matCellDef="let row">{{row.name}}</td>
@@ -50,7 +50,7 @@
     </table>
   </mat-tab>
   <mat-tab label="Cleansed/Clean Data">
-    <table mat-table [dataSource]="cleansedData" matSort>
+    <table #cleansed mat-table [dataSource]="cleansedData" matSort>
       <ng-container matColumnDef="name">
         <th mat-header-cell *matHeaderCellDef>name</th>
         <td mat-cell *matCellDef="let row">{{row.name}}</td>
@@ -76,7 +76,7 @@
       <tr mat-row *matRowDef="let row; columns: displayedColumns2;"></tr>
     </table>
   </mat-tab>
-  <mat-tab label="Preprocessed Data">
+  <mat-tab #p label="Preprocessed Data">
     <table mat-table [dataSource]="preprocessedData" matSort>
       <ng-container matColumnDef="name">
         <th mat-header-cell *matHeaderCellDef>name</th>

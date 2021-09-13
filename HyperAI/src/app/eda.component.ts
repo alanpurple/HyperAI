@@ -1,11 +1,17 @@
-import { Component, OnInit } from '@angular/core';
-import { DataService } from './data.service';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { UserService } from './user.service';
 import { EdaService } from './eda.service';
 import { AllData, DataBasic, EdaData } from './data.info';
 import { UserData } from './user.data';
 import { ErrorAlert } from './error.alert';
 import { ConfirmDialog } from './confirm.dialog';
+import { MatTable } from '@angular/material/table';
+
+interface DirtyData {
+  name: string;
+  numRows: number;
+  parentId: number;
+}
 
 @Component({
   selector: 'app-eda',
@@ -21,7 +27,13 @@ export class EdaComponent implements OnInit {
     private confirmDialog: ConfirmDialog
   ) { }
 
+  @ViewChild('all') allTable: MatTable<AllData> | null = null;
+  @ViewChild('dirty') dirtyTable: MatTable<DataBasic> | null = null;
+  @ViewChild('cleansed') cleansedTable: MatTable<EdaData> | null = null;
+  @ViewChild('preprocessed') preprocessedTable: MatTable<EdaData> | null = null;
+
   ngOnInit(): void {
+    this.isLoading = true;
     this.userService.getUser().subscribe(user => {
       if (user.accountType == 'admin') {
         this.errorAlert.open('this component is available for non-admin only(maybe for now)');
@@ -42,19 +54,24 @@ export class EdaComponent implements OnInit {
           this.cleansedData.push({ name: elem.cleansed.name, numRows: elem.cleansed.numRows, parentId: index });
         }
         else
-          this.dirtyData.push({ name: elem.name, numRows: elem.numRows });
+          this.dirtyData.push({ name: elem.name, numRows: elem.numRows, parentId: index });
         if (elem.preprocessed) {
           this.allData.push({ name: elem.preprocessed.name, numRows: elem.preprocessed.numRows, type: elem.type, status: 'preprocessed' });
           this.preprocessedData.push({ name: elem.preprocessed.name, numRows: elem.preprocessed.numRows, parentId: index });
         }
       });
+      this.isLoading = false;
+      this.allTable?.renderRows();
+      this.dirtyTable?.renderRows();
+      this.cleansedTable?.renderRows();
+      this.preprocessedTable?.renderRows();
     },
       err => this.errorAlert.open(err));
   }
 
   user: UserData = new UserData();
   allData: AllData[] = [];
-  dirtyData: DataBasic[] = [];
+  dirtyData: DirtyData[] = [];
   cleansedData: EdaData[] = [];
   preprocessedData: EdaData[] = [];
 
