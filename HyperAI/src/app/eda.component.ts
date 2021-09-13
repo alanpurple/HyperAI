@@ -121,11 +121,17 @@ export class EdaComponent implements OnInit {
           if (dataId < 0)
             throw new Error('integration failed');
           this.dirtyData.splice(dataId, 1);
+          this.allTable?.renderRows();
+          this.dirtyTable?.renderRows();
+          this.confirmDialog.open('this table is clean, nothing to cleanse');
         }
         else if (res.msg.includes('cleansed')) {
           this.user.data[id].cleansed = { name: res.table, numRows: res.numRows };
           this.allData.push({ name: res.table, numRows: res.numRows, status: 'cleansed', type: 'structural' });
           this.cleansedData.push({ name: res.table, numRows: res.numRows, parentId: id });
+          this.allTable?.renderRows();
+          this.cleansedTable?.renderRows();
+          this.confirmDialog.open('cleansing complete');
         }
         else
           throw new Error('unreachable points');
