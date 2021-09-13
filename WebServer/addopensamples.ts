@@ -2,7 +2,7 @@ import { UserModel } from './models/user';
 import { sequelizeOpen } from './connect-rdb';
 import { connectDdb } from './connect-ddb';
 
-const sampleNames = ['cluster1samples', 'cluster1woysamples', 'n1samples', 'blobdatas', 'moon1samples']
+const sampleNames = ['cluster1samples','circle1samples', 'cluster1woysamples', 'n1samples', 'blobdatas', 'moon1samples']
 
 async function addData() {
     await connectDdb();
@@ -12,9 +12,7 @@ async function addData() {
     );
     const actualNames = actualTables[0].map(data => data['TABLE_NAME']);
     const filtered = sampleNames.filter(name => actualNames.includes(name));
-    const adminUser = await UserModel.findOne({ email: 'alan@infinov.com' });
-    const userid = adminUser._id;
-    const results = filtered.forEach(sample => {
+    const results = filtered.map(sample => {
         let numRows = actualTables[0].find(data => data['TABLE_NAME'] == sample)['TABLE_ROWS'];
         return {
             name: sample,
