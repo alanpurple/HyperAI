@@ -1,6 +1,5 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { QueryTypes } from 'sequelize';
-import { QueryOptions } from 'mongoose';
 import { sequelize, sequelizeOpen } from '../connect-rdb';
 
 const PROTO_PATH = __dirname + '/../../MLServer/eda.proto';
