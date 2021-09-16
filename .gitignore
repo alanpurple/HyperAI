@@ -413,4 +413,4 @@ wwwroot/
 
 images/
 
-WebServer/test.*
+WebServer/test.ts
