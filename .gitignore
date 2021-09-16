@@ -412,3 +412,5 @@ wwwroot/
 # images for showcase
 
 images/
+
+WebServer/test.*
