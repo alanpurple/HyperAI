@@ -5,18 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="src\app\mat.module.ts" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Microsoft.TypeScript.MSBuild" Version="4.3.2">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <TypeScriptCompile Include="src\app\mat.module.ts" />
   </ItemGroup>
 
 </Project>
