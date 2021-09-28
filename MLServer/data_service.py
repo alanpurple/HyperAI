@@ -1,5 +1,4 @@
 import pandas as pd
-import numpy as np
 from re import sub
 
 import data_service_pb2
@@ -16,7 +15,7 @@ class DataServicer(data_service_pb2_grpc.DataServicer):
         # header should be on the first row
         path='../upload-temp/'+request.location
         ext=request.extname
-        engine, session, Base = getAllOpen() if request.isadmin else getAll()
+        engine, _,_ = getAllOpen() if request.isadmin else getAll()
         # only csv,tsv and xlsx are available for now
         if ext=='csv':
             df=pd.read_csv(path)
