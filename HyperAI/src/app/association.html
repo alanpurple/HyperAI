@@ -15,7 +15,7 @@
 
 <mat-form-field *ngIf="this.summary.length">
   <mat-select [(ngModel)]="source" placeholder="Source attribute 선택"
-              (selectionChange)="resetAssociation()">
+              (selectionChange)="resetSource()">
     <mat-option *ngFor="let column of summary" [value]="column">
       {{column.name}}
     </mat-option>

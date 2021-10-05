@@ -102,6 +102,11 @@ export class Association implements OnInit {
     this.source = this.target = null;
   }
 
+  resetSource() {
+    this.target = null;
+    this.resetAssociation();
+  }
+
   resetAssociation() {
     //this.associationData1 = [];
     //this.associationData2 = [];
@@ -122,13 +127,11 @@ export class Association implements OnInit {
       return false;
     if (this.source == target)
       return false;
-    if (this.source.type == 'categorical') {
-      if (target.type == 'numeric')
-        return false;
+    if (this.source.type == 'categorical' && target.type == 'numeric') {
+      return false;
     }
-    if (target.type == 'categorical')
-      if (target.unique > 20)
-        return false;
+    if (target.type == 'categorical' && target.unique > 20)
+      return false;
     return true;
   }
 
