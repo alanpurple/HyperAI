@@ -1,12 +1,12 @@
 import { Sequelize } from 'sequelize';
 
 export const sequelize = new Sequelize('hyperai', 'root', 'alan1234', {
-    host: 'localhost',
+    host: '192.168.0.2',
     dialect: 'mysql'
 });
 
 export const sequelizeOpen = new Sequelize('opendata', 'root', 'alan1234', {
-    host: 'localhost',
+    host: '192.168.0.2',
     dialect: 'mysql'
 });
 
