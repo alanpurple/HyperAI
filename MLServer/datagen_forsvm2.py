@@ -1,9 +1,6 @@
-import numpy as np
 from sqlalchemy import Column,Integer,Float
-from sqlalchemy.schema import Table
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
-from urllib import parse
 from sklearn.datasets import make_moons,make_circles
 
 from connectdb_open import getAll

@@ -1,9 +1,7 @@
-from sklearn.feature_extraction import DictVectorizer
 from sklearn.datasets import make_blobs
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, ForeignKey, create_engine,Float,Integer,String
-from sqlalchemy.sql.sqltypes import Boolean
-from sqlalchemy.orm import relationship, load_only, sessionmaker
+from sqlalchemy import Column,Float,Integer
+from sqlalchemy.orm import sessionmaker
 from sqlalchemy.schema import Table
 
 from connectdb_open import getAll
