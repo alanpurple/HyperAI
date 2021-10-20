@@ -1,5 +1,5 @@
 import * as express from 'express';
-import { constants } from 'fs';
+import { constants, createWriteStream } from 'fs';
 import { mkdir, access } from 'fs/promises';
 import { AddressInfo } from "net";
 import * as path from 'path';
@@ -16,6 +16,7 @@ import EdaTextRoute from './routes/eda-text';
 import EdaVisionRoute from './routes/eda-vision';
 import AccountRoute from './routes/account';
 import LrRoute from './routes/lr';
+import ProjectRoute from './routes/project';
 
 
 
@@ -88,7 +89,12 @@ access('upload-temp').then(() => console.log('temp upload directory is ok.'))
     });
 
 app.use(favicon('./favicon.ico'));
-app.use(logger('dev'));
+if (app.get("env") == "production") {
+    const accessLogStream = createWriteStream(__dirname + '/logs/' + "access.log", {flags: 'a'});
+    app.use(logger("[:date[clf]] :method :url :status :response-time ms", {stream: accessLogStream}));
+} else {
+    app.use(logger('dev'));
+}
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
@@ -105,6 +111,7 @@ app.use('/eda-text', EdaTextRoute);
 app.use('/eda-vision', EdaVisionRoute);
 app.use('/account', AccountRoute);
 app.use('/lr', LrRoute);
+app.use('/project', ProjectRoute);
 
 // error handlers
 
