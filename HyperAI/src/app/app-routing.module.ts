@@ -32,6 +32,10 @@ const routes: Routes = [
     canActivate: [NotLoggedIn]
   },
   {
+    path: 'signup/:id', component: SignupComponent,
+    canActivate: [NotLoggedIn]
+  },
+  {
     path: 'admin', component: AdminComponent,
     canActivate: [IsAdmin]
   },

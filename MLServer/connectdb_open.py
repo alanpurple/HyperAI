@@ -6,7 +6,7 @@ from urllib import parse
 server='192.168.0.2'
 database='opendata'
 driver = 'MySQL ODBC 8.0 Unicode Driver'
-id='root'
+id='hyperai'
 pwd='alan1234'
 
 def getAll():

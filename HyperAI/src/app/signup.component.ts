@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { UserService } from './user.service';
+import {ErrorAlert } from './error.alert'
 
 @Component({
   selector: 'app-signup',
@@ -12,7 +13,8 @@ export class SignupComponent {
 
   constructor(
     private router: Router,
-    private userService: UserService
+    private userService: UserService,
+    private errorAlert: ErrorAlert
   ) { }
 
   email: string = '';
@@ -30,6 +32,8 @@ export class SignupComponent {
             console.info('available email address');
             this.emailChecked = true;
           }
+          else
+            this.errorAlert.open(err);
         });
   }
 
