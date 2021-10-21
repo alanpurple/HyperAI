@@ -1,0 +1,10 @@
+tags:
+  - name: Project
+    description: Project API (CRUD)
+    externalDocs:
+      description: Find out more
+      url: https://some.domain
+  - name: User
+    description: user, just tags example
+  - name: ML
+    description: ML, just tags example

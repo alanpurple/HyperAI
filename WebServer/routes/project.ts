@@ -7,8 +7,10 @@ import {ensureAuthenticated} from "../authentication/authentication";
 const debug = Debug("project");
 const router = Router();
 
+// TODO: Filter by currently logged in user or etc.
+
 // User authentication checks before processing all project requests.
-// router.all("*", ensureAuthenticated);
+router.all("*", ensureAuthenticated);
 
 router.get("/", async (req: Request, res: Response) => {
     await ProjectModel.find().exec().then(async projects => {
@@ -55,7 +57,7 @@ router.post("/", async (req: Request, res: Response) => {
             debug("projectModel: ", projectModel);
             
             await ProjectModel.create(projectModel).then(async newProject => {
-                await res.status(StatusCodes.OK).send(newProject);
+                await res.status(StatusCodes.CREATED).send(newProject);
             });
         } else {
             res.status(StatusCodes.BAD_REQUEST).send({
@@ -97,7 +99,7 @@ router.put("/:id", async (req: Request, res: Response) => {
                     warn: "No project was modified."
                 });
             } else {
-                res.status(StatusCodes.OK).send(modProject);
+                res.status(StatusCodes.CREATED).send(modProject);
             }
         }).catch(err => {
             debug(err);

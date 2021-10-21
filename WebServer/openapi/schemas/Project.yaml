@@ -1,0 +1,175 @@
+definitions:
+  Project:
+    type: object
+    properties:
+      _id:
+        type: string
+        description: ObjectId of project
+        readOnly: true
+      name:
+        type: string
+      projectType:
+        type: string
+        enum: ['single', 'multiple', 'multiple_comparison']
+      members:
+        type: object
+        properties:
+          user:
+            type: string
+            description: Current user's ObjectId
+          role:
+            type: string
+            enum: ['owner', 'attendee', 'member']
+      task:
+        type: object
+        properties:
+          taskType:
+            type: string
+          names:
+            type: array
+            items:
+              type: string
+            uniqueItems: true
+            enum: ['classification', 'regression', 'clustering', 'object detection', 'segmentation', 'feature extraction', 'QnA', 'Translation', 'word feature extraction']
+paths:
+  /project:
+    get:
+      tags:
+        - Project
+      summary: Retrieve a list of projects
+      description: Retrieve a list of projects from db.
+      responses:
+        200:
+          description: A list of projects.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/definitions/Project'
+        404:
+          description: No project found.
+    post:
+      tags:
+        - Project
+      summary: New project
+      description: Add a new project to db.
+      produces:
+        - application/json
+      requestBody:
+        description: "Note: Property '_id' does not need"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/definitions/Project'
+      responses:
+        201:
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/Project'
+        401:
+          description: Project name already in use.
+    delete:
+      tags:
+        - Project
+      summary: Delete projects
+      description: Delete selected projects.
+      produces:
+        - application/json
+      requestBody:
+        description: \'_id\'s of selected projects
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: string
+              uniqueItems: true
+      responses:
+        200:
+          description: deletedCount
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  deletedCount:
+                    type: integer
+  /project/{id}:
+    get:
+      tags:
+        - Project
+      summary: Retrieve a project
+      description: Retrieve a project from db.
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: path parameter takes the project id
+          required: true
+          type: string
+      responses:
+        200:
+          description: A project
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/Project'
+        404:
+          description: A project with the specified ID was not found.
+    put:
+      tags:
+        - Project
+      summary: Modify a project
+      description: Modify a project.
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: path parameter takes the project id
+          required: true
+          type: string
+      requestBody:
+        description: project properties
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/definitions/Project'
+      responses:
+        200:
+          description: A modified project
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/Project'
+        404:
+          description: No project was modified. (A project with the specified ID was not found)
+    delete:
+      tags:
+        - Project
+      summary: Delete a project
+      description: Delete a project.
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: path parameter takes the project id
+          required: true
+          type: string
+      responses:
+        200:
+          description: A deleted project
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/Project'
+        404:
+          description: No project was deleted. (A project with the specified ID was not found)
