@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 
 import { UserService } from './user.service';
+import { ErrorAlert } from './error.alert';
 
 @Component({
   selector: 'app-login',
@@ -14,7 +15,8 @@ export class LoginComponent implements OnInit, OnDestroy {
   constructor(
     private router: Router,
     private route: ActivatedRoute,
-    private userService: UserService
+    private userService: UserService,
+    private errorAlert: ErrorAlert
   ) { }
 
   email: string = '';
@@ -45,9 +47,9 @@ export class LoginComponent implements OnInit, OnDestroy {
         },
         err => {
           if (err.status == 404)
-            console.info('no account');
+            this.router.navigate(['/signup', encodeURI(this.email)]);
           else
-            console.error(err);
+            this.errorAlert.open(err);
         });
   }
 
