@@ -1,6 +1,4 @@
 import * as express from 'express';
-import { constants } from 'fs';
-import { mkdir, access } from 'fs/promises';
 import { AddressInfo } from "net";
 import * as path from 'path';
 import { connectDdb } from './connect-ddb';
@@ -21,8 +19,6 @@ import LrRoute from './routes/lr';
 
 const debug = require('debug')('my express app');
 const app = express();
-
-//app.use(express.static(path.join(__dirname, 'public')));
 
 connectDdb().then(() => console.log('document db connected')).catch(err => console.error(err));
 
@@ -76,16 +72,6 @@ import passport from './passport-init';
 
 app.use(passport.initialize());
 app.use(passport.session());
-
-access('upload-temp').then(() => console.log('temp upload directory is ok.'))
-    .catch(err => {
-        if (err.code == 'ENOENT')
-            mkdir('upload-temp')
-                .then(() => console.log('temp upload directory created'))
-                .catch(err => console.error(err));
-        else
-            console.error('something\'s wrong, cannot access or create temp upload directory');
-    });
 
 app.use(favicon('./favicon.ico'));
 app.use(logger('dev'));
