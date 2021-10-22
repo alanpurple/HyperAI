@@ -19,7 +19,7 @@ const pkgDef = loadSync(PROTO_PATH, {
 
 const DataService = loadPackageDefinition(pkgDef).dataservice;
 
-const client = new DataService['Data']('localhost:50051', credentials.createInsecure());
+const client = new DataService['Data']('192.168.0.2:50051', credentials.createInsecure());
 
 const router = Router();
 
