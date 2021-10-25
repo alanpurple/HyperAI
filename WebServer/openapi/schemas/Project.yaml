@@ -52,11 +52,39 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/definitions/Project'
-        404:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  code:
+                    type: number
+                    example: 200
+                  message:
+                    type: string
+                    example: OK
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/definitions/Project'
+        204:
           description: No project found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  code:
+                    type: number
+                    example: 204
+                  message:
+                    type: string
+                    example: No project found.
+                  data:
+                    type: object
     post:
       tags:
         - Project
@@ -77,9 +105,39 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/definitions/Project'
-        401:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  code:
+                    type: number
+                    example: 201
+                  message:
+                    type: string
+                    example: Created
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/definitions/Project'
+        400:
           description: Project name already in use.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  code:
+                    type: number
+                    example: 400
+                  message:
+                    type: string
+                    example: Project name already in use.
+                  data:
+                    type: object
     delete:
       tags:
         - Project
@@ -93,10 +151,14 @@ paths:
         content:
           application/json:
             schema:
-              type: array
-              items:
-                type: string
-              uniqueItems: true
+              type: object
+              properties:
+                ids:
+                  type: array
+                  items:
+                    type: string
+                  uniqueItems: true
+                  example: ["61721bce16b8e06386ca573c", "61721bf916b8e06386ca573f", "61721bc816b8e06386ca5739"]
       responses:
         200:
           description: deletedCount
@@ -105,8 +167,39 @@ paths:
               schema:
                 type: object
                 properties:
-                  deletedCount:
-                    type: integer
+                  success:
+                    type: boolean
+                    example: true
+                  code:
+                    type: number
+                    example: 200
+                  message:
+                    type: string
+                    example: OK
+                  data:
+                    type: object
+                    properties:
+                      deletedCount:
+                        type: integer
+                        example: 3
+        404:
+          description: No project was deleted.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  code:
+                    type: number
+                    example: 404
+                  message:
+                    type: string
+                    example: No project was deleted.
+                  data:
+                    type: object
   /project/{id}:
     get:
       tags:
@@ -127,9 +220,37 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/definitions/Project'
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  code:
+                    type: number
+                    example: 200
+                  message:
+                    type: string
+                    example: OK
+                  data:
+                    $ref: '#/definitions/Project'
         404:
           description: A project with the specified ID was not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  code:
+                    type: number
+                    example: 404
+                  message:
+                    type: string
+                    example: A project with the specified ID was not found.
+                  data:
+                    type: object
     put:
       tags:
         - Project
@@ -156,9 +277,37 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/definitions/Project'
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  code:
+                    type: number
+                    example: 201
+                  message:
+                    type: string
+                    example: Created
+                  data:
+                    $ref: '#/definitions/Project'
         404:
           description: No project was modified. (A project with the specified ID was not found)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  code:
+                    type: number
+                    example: 404
+                  message:
+                    type: string
+                    example: No project was modified.
+                  data:
+                    type: object
     delete:
       tags:
         - Project
@@ -181,3 +330,19 @@ paths:
                 $ref: '#/definitions/Project'
         404:
           description: No project was deleted. (A project with the specified ID was not found)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  code:
+                    type: number
+                    example: 404
+                  message:
+                    type: string
+                    example: No project was deleted.
+                  data:
+                    type: object

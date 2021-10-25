@@ -28,7 +28,7 @@ const makeErrorResult = (error, response: Response) => {
     
     debug("############## responseData - ", responseData);
     return responseData;
-}
+};
 
 // User authentication checks before processing all project requests.
 // router.all("*", ensureAuthenticated);
@@ -41,10 +41,10 @@ router.get("/", (request: Request, response: Response) => {
             responseData.success = true;
             
             if (projects.length === 0) {
-                responseData.code = StatusCodes.NOT_FOUND;
+                responseData.code = StatusCodes.NO_CONTENT;
                 responseData.message = "No project found.";
                 
-                response.status(StatusCodes.NOT_FOUND);
+                response.status(StatusCodes.NO_CONTENT);
             } else {
                 responseData.code = StatusCodes.OK;
                 responseData.message = `Found ${projects.length} projects.`;
@@ -70,10 +70,10 @@ router.get("/:id", (request: Request, response: Response) => {
             responseData.success = true;
             
             if (!project || Object.keys(project).length === 0) {
-                responseData.code = StatusCodes.NOT_FOUND;
-                responseData.message = "The project does not exist.";
+                responseData.code = StatusCodes.NO_CONTENT;
+                responseData.message = "A project with the specified ID was not found.";
                 
-                response.status(StatusCodes.NOT_FOUND);
+                response.status(StatusCodes.NO_CONTENT);
             } else {
                 responseData.code = StatusCodes.OK;
                 responseData.message = `Found a project.`;
@@ -227,6 +227,6 @@ router.delete("/:id", (request: Request, response: Response) => {
             response.send(responseData);
             response.end();
         });
-})
+});
 
 export default router;
