@@ -414,3 +414,5 @@ wwwroot/
 images/
 
 WebServer/test.ts
+
+.yarn/
