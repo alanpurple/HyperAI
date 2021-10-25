@@ -3,7 +3,7 @@ import {Schema, model, Types} from 'mongoose';
 export interface Project {
     name: string;
     projectType: 'single' | 'multiple' | 'multiple_comparison';
-    members: [{ user: Types.ObjectId, role: 'owner' | 'attendee' | 'member' }];
+    members: [{ user: Types.ObjectId, email, role: 'owner' | 'attendee' | 'member' }];
     task: {
         taskType: 'ML' | 'Vision' | 'NLP',
         names: ['classification' | 'regression' | 'clustering' | 'object detection' | 'segmentation' | 'feature extraction' | 'QnA' | 'Translation' | 'word feature extraction']
@@ -17,6 +17,7 @@ const schema = new Schema<Project>({
         type: {
             _id: false,
             user: {type: 'ObjectId', ref: 'User', required: true},
+            email: {type: String, required: true},
             role: {type: String, enum: ['owner', 'attendee', 'member'], required: true}
         }
     }],

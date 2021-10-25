@@ -8,29 +8,37 @@ definitions:
         readOnly: true
       name:
         type: string
+        example: Example project
       projectType:
         type: string
         enum: ['single', 'multiple', 'multiple_comparison']
       members:
-        type: object
-        properties:
-          user:
-            type: string
-            description: Current user's ObjectId
-          role:
-            type: string
-            enum: ['owner', 'attendee', 'member']
+        type: array
+        items:
+          type: object
+          properties:
+            user:
+              type: string
+              description: Current user's ObjectId
+              example: 616e7f034f3bbb2ef4a87ce3
+            email:
+              type: string
+              example: example@infinov.com
+            role:
+              type: string
+              enum: ['owner', 'attendee', 'member']
       task:
         type: object
         properties:
           taskType:
             type: string
+            enum: ['ML', 'Vision', 'NLP']
           names:
             type: array
             items:
               type: string
+              enum: ['classification', 'regression', 'clustering', 'object detection', 'segmentation', 'feature extraction', 'QnA', 'Translation', 'word feature extraction']
             uniqueItems: true
-            enum: ['classification', 'regression', 'clustering', 'object detection', 'segmentation', 'feature extraction', 'QnA', 'Translation', 'word feature extraction']
 paths:
   /project:
     get:

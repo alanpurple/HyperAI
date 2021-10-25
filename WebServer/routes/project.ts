@@ -1,161 +1,232 @@
-import {Router, Request, Response, NextFunction} from 'express';
-import {Project, ProjectModel} from "../models/project";
-import {ReasonPhrases, StatusCodes, getReasonPhrase, getStatusCode,} from 'http-status-codes';
-import Debug, {skips} from "debug";
+import {Router, Request, Response} from 'express';
+import {ProjectModel} from "../models/project";
+import {ReasonPhrases, StatusCodes, } from 'http-status-codes';
+import Debug from "debug";
 import {ensureAuthenticated} from "../authentication/authentication";
+import {ResponseData} from "../interfaces/ResponseData";
 
 const debug = Debug("project");
 const router = Router();
 
-// TODO: Filter by currently logged in user or etc.
+const makeErrorResult = (error, response: Response) => {
+    debug("############## ", error.message);
+    
+    let responseData = new ResponseData();
+    
+    responseData.success = false;
+    
+    if (error.name === "ValidationError" || error.name === "CastError") {
+        response.status(StatusCodes.BAD_REQUEST);
+        responseData.code = StatusCodes.BAD_REQUEST;
+    } else {
+        response.status(StatusCodes.INTERNAL_SERVER_ERROR);
+        responseData.code = StatusCodes.INTERNAL_SERVER_ERROR;
+    }
+    
+    responseData.message = error.name;
+    responseData.data = error.message;
+    
+    debug("############## responseData - ", responseData);
+    return responseData;
+}
 
 // User authentication checks before processing all project requests.
-router.all("*", ensureAuthenticated);
+// router.all("*", ensureAuthenticated);
 
-router.get("/", async (req: Request, res: Response) => {
-    await ProjectModel.find().exec().then(async projects => {
-        if (projects.length === 0) {
-            res.status(StatusCodes.NOT_FOUND).send({
-                warn: "No project found."
-            });
-        } else {
-            res.send(projects);
-        }
-    }).catch(err => {
-        debug(err);
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-            error: getReasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR)
-        });
-    }).finally(() => {
-        res.end();
-    });
-});
-
-router.get("/:id", async (req: Request, res: Response) => {
-    await ProjectModel.findById(decodeURI(req.params.id)).exec().then(async project => {
-        if (!project || Object.keys(project).length === 0) {
-            res.status(StatusCodes.NOT_FOUND).send({
-                warn: "The project does not exist."
-            });
-        } else {
-            res.send(project);
-        }
-    }).catch(err => {
-        debug(err);
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-            error: getReasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR)
-        });
-    }).finally(() => {
-        res.end();
-    });
-});
-
-router.post("/", async (req: Request, res: Response) => {
-    await ProjectModel.findOne({name: req.body.name}).exec().then(async project => {
-        if (!project) {
-            let projectModel = new ProjectModel(req.body);
-            debug("projectModel: ", projectModel);
+router.get("/", (request: Request, response: Response) => {
+    let responseData = new ResponseData();
+    
+    ProjectModel.find({"members.email": request.user.email}).exec()
+        .then(projects => {
+            responseData.success = true;
             
-            await ProjectModel.create(projectModel).then(async newProject => {
-                await res.status(StatusCodes.CREATED).send(newProject);
-            });
-        } else {
-            res.status(StatusCodes.BAD_REQUEST).send({
-                error: "Project name already in use." // getReasonPhrase(StatusCodes.BAD_REQUEST)
-            });
-        }
-    }).catch(err => {
-        debug(err);
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-            error: getReasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR)
+            if (projects.length === 0) {
+                responseData.code = StatusCodes.NOT_FOUND;
+                responseData.message = "No project found.";
+                
+                response.status(StatusCodes.NOT_FOUND);
+            } else {
+                responseData.code = StatusCodes.OK;
+                responseData.message = `Found ${projects.length} projects.`;
+                
+                response.status(StatusCodes.OK);
+            }
+            responseData.data = projects;
+        })
+        .catch(error => {
+            responseData = makeErrorResult(error, response);
+        })
+        .finally(() => {
+            response.send(responseData);
+            response.end();
         });
-    }).finally(() => {
-        res.end();
-    });
 });
 
-router.put("/:id", async (req: Request, res: Response) => {
-    debug("req.body: ", req.body);
-    if (!req.body || Object.keys(req.body).length === 0) {
-        res.status(StatusCodes.BAD_REQUEST).send({
-            error: "Project data is empty."
+router.get("/:id", (request: Request, response: Response) => {
+    let responseData = new ResponseData();
+    
+    ProjectModel.findById(decodeURI(request.params.id)).exec()
+        .then(project => {
+            responseData.success = true;
+            
+            if (!project || Object.keys(project).length === 0) {
+                responseData.code = StatusCodes.NOT_FOUND;
+                responseData.message = "The project does not exist.";
+                
+                response.status(StatusCodes.NOT_FOUND);
+            } else {
+                responseData.code = StatusCodes.OK;
+                responseData.message = `Found a project.`;
+                
+                response.status(StatusCodes.OK);
+            }
+            
+            responseData.data = project;
+        })
+        .catch(error => {
+            responseData = makeErrorResult(error, response);
+        })
+        .finally(() => {
+            response.send(responseData);
+            response.end();
         });
+});
+
+router.post("/", (request: Request, response: Response) => {
+    let responseData = new ResponseData();
+    
+    ProjectModel.findOne({name: request.body.name}).exec()
+        .then(async project => {
+            if (!project) {
+                let projectModel = new ProjectModel(request.body);
+                debug("projectModel: ", projectModel);
+                
+                await ProjectModel.create(projectModel)
+                    .then(async newProject => {
+                        responseData.success = true;
+                        responseData.code = StatusCodes.CREATED;
+                        responseData.message = ReasonPhrases.CREATED;
+                        responseData.data = newProject;
+                        
+                        response.status(StatusCodes.CREATED);
+                    });
+            } else {
+                responseData.success = false;
+                responseData.code = StatusCodes.BAD_REQUEST;
+                responseData.message = "Project name already in use.";
+                
+                response.status(StatusCodes.BAD_REQUEST);
+            }
+        })
+        .catch(error => {
+            responseData = makeErrorResult(error, response);
+        })
+        .finally(() => {
+            response.send(responseData);
+            response.end();
+        });
+});
+
+router.put("/:id", async (request: Request, response: Response) => {
+    let responseData = new ResponseData();
+    let projectModel = new ProjectModel(request.body, null, {skipId: true});
+    
+    let error = projectModel.validateSync();
+    if ((error.errors) && (Object.keys(error.errors).length > 0)) {
+        responseData = makeErrorResult(error, response);
+        response.status(StatusCodes.BAD_REQUEST).send(responseData);
+        response.end();
     } else {
-        let projectModel = new ProjectModel(req.body, null, {skipId: true});
-        
-        // request data validation
-        let error = projectModel.validateSync();
-        if (error && Object.keys(error).length > 0 && error.hasOwnProperty("message")) {
-            res.status(StatusCodes.BAD_REQUEST).send({
-                error: "Project data is malformed.",
-                message: error.message
-            });
-        }
-        
         debug("projectModel: ", projectModel);
-        await ProjectModel.findByIdAndUpdate(decodeURI(req.params.id), projectModel, {new: true}).then(modProject => {
+        await ProjectModel.findByIdAndUpdate(decodeURI(request.params.id), projectModel, {new: true}).then(modProject => {
             if (!modProject) {
-                res.status(StatusCodes.NOT_FOUND).send({
-                    warn: "No project was modified."
-                });
+                responseData.success = false;
+                responseData.code = StatusCodes.NOT_FOUND;
+                responseData.message = "No project was modified.";
+                
+                response.status(StatusCodes.NOT_FOUND);
             } else {
-                res.status(StatusCodes.CREATED).send(modProject);
+                responseData.success = true;
+                responseData.code = StatusCodes.CREATED;
+                responseData.message = ReasonPhrases.CREATED;
+                responseData.data = modProject;
+                
+                response.status(StatusCodes.CREATED);
             }
-        }).catch(err => {
-            debug(err);
-            res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-                error: getReasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR)
-            });
+        }).catch(error => {
+            responseData = makeErrorResult(error, response);
         }).finally(() => {
-            res.end();
+            response.send(responseData);
+            response.end();
         });
     }
 });
 
-router.delete("/", (req: Request, res: Response) => {
-    let _ids: Array<string> = req.body.ids;
-    debug("_ids: ", _ids);
+router.delete("/", (request: Request, response: Response) => {
+    let responseData = new ResponseData();
+    let _ids: Array<string> = request.body.ids;
+    
     if (Array.isArray(_ids)) {
-        ProjectModel.deleteMany({_id: {$in: _ids}}).exec().then(result => {
-            if (result.deletedCount === 0) {
-                res.status(StatusCodes.NOT_FOUND).send({
-                    warn: "No project was deleted."
-                });
-            } else {
-                res.status(StatusCodes.OK).send(result);
-            }
-        }).catch(err => {
-            debug(err);
-            res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-                error: getReasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR)
+        ProjectModel.deleteMany({_id: {$in: _ids}}).exec()
+            .then(result => {
+                responseData.success = true;
+                
+                if (result.deletedCount === 0) {
+                    responseData.code = StatusCodes.NOT_FOUND;
+                    responseData.message = "No project was deleted.";
+                    
+                    response.status(StatusCodes.NOT_FOUND);
+                } else {
+                    responseData.code = StatusCodes.OK;
+                    responseData.message = ReasonPhrases.OK;
+                    responseData.data = result;
+                    
+                    response.status(StatusCodes.OK);
+                }
+            })
+            .catch(error => {
+                responseData = makeErrorResult(error, response);
+            })
+            .finally(() => {
+                response.send(responseData);
+                response.end();
             });
-        }).finally(() => {
-            res.end();
-        });
     } else {
-        res.status(StatusCodes.BAD_REQUEST).send({
-            error: "'ids' is not an array."
-        });
+        responseData.success = false;
+        responseData.code = StatusCodes.BAD_REQUEST;
+        responseData.message = "'ids' is not an array.";
+        
+        response.status(StatusCodes.BAD_REQUEST).send(responseData);
     }
 });
 
-router.delete("/:id", (req: Request, res: Response) => {
-    ProjectModel.findByIdAndDelete(decodeURI(req.params.id)).exec().then(async delProject => {
-        if (!delProject) {
-            res.status(StatusCodes.NOT_FOUND).send({
-                warn: "No project was deleted."
-            });
-        } else {
-            await res.status(StatusCodes.OK).send(delProject);
-        }
-    }).catch(err => {
-        debug(err);
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-            error: getReasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR)
+router.delete("/:id", (request: Request, response: Response) => {
+    let responseData = new ResponseData();
+    
+    ProjectModel.findByIdAndDelete(decodeURI(request.params.id)).exec()
+        .then(async delProject => {
+            responseData.success = true;
+            
+            if (!delProject) {
+                responseData.code = StatusCodes.NOT_FOUND;
+                responseData.message = "No project was deleted.";
+                
+                response.status(StatusCodes.NOT_FOUND);
+            } else {
+                responseData.code = StatusCodes.OK;
+                responseData.message = ReasonPhrases.OK;
+                responseData.data = delProject;
+                
+                response.status(StatusCodes.OK);
+            }
+        })
+        .catch(error => {
+            responseData = makeErrorResult(error, response);
+        })
+        .finally(() => {
+            response.send(responseData);
+            response.end();
         });
-    }).finally(() => {
-        res.end();
-    });
 })
 
 export default router;
