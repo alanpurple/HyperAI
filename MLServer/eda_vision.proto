@@ -5,10 +5,24 @@ package edavision;
 service Preprocess {
 	rpc Resize (dataloc) returns (PreprocessReply) {}
 	rpc Normalize (dataloc) returns (PreprocessReply) {}
+	rpc SegPreprocess(dataloc) returns (PreprocessReply) {}
 }
 
 message dataloc {
-	string loc = 1;
+	string type = 1;	// 'local', 'azure blob', 'aws s3', 'nas'
+	string name = 2;	// folder name or uri
+}
+
+message segOptions {
+	bool include_masks = 1;
+	string train_dir=2;
+	string val_dir=3;
+	string test_dir=4;
+	string train_anno=5;
+	string val_anno=6;
+	string train_cap_anno=7;
+	string val_cap_anno=8;
+	string testdev_anno=9;
 }
 
 message PreprocessReply {
@@ -16,3 +30,4 @@ message PreprocessReply {
 	string resultLoc = 2;
 	repeated string msgs =3;
 }
+

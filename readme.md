@@ -4,9 +4,9 @@ To run this solution by own local machine
 2. build frontend ( HyperAI or alternative(newly developed) )
 3. build webserver - simply type "tsc"
 4. generate every protocol buffer files we need
-	- execute "python -m grpc_tools.protoc -I. --python_out=. --grpc_python_out=. .\data_service.proto" for every .proto files in mlserver
+	- execute "python -m grpc_tools.protoc -I. --python_out=. --grpc_python_out=. ./*.proto" in mlserver
 
 5. run mlserver -  "python run_server.py" in mlserver
-6. run webserver - "node app.js" in webserver
+6. run webserver - "node app" in webserver
 
 7. web server has port 3000 by default ( if none set ), so address should be "http://localhost:3000"
