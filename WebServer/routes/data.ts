@@ -1,12 +1,8 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { User,UserModel } from '../models/user';
-import { DataInfo,DataBasic } from '../models/data.info';
 import { sequelize, sequelizeOpen } from '../connect-rdb';
 import { QueryTypes } from 'sequelize';
-//import { extname } from 'path';
 import { rm } from 'fs/promises';
-//import * as csvParse from 'csv-parse';
-//import * as XLSX from 'xlsx';
 import multer = require('multer');
 
 const UPLOAD_TEMP_PATH = '../upload-temp';
