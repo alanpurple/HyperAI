@@ -4,7 +4,7 @@ export interface Project {
     name: string;
     projectType: 'single' | 'sequential' | 'multiple_comparison';
     taskType: 'various' | 'vision' | 'text' | 'structural';
-    members: { user: Types.ObjectId, role: 'owner' | 'attendee' | 'member' };
+    members: [{ user: Types.ObjectId, role: 'owner' | 'attendee' | 'member' }]; // one and only owner, others are all attendee(for now)
     visionTasks: VisionTask[];
     textTasks: TextTask[];
 }
@@ -14,9 +14,9 @@ const schema = new Schema<Project>({
     projectType: { type: String, enum: ['single', 'sequential', 'multiple_comparison'] },
     taskType: { type: String, enum: ['varios', 'vision', 'text', 'structural'] },
     members: {
-        type: {
+        type: [{
             user: { type: 'ObjectId', ref: 'User' }, role: { type: String, enum: ['owner', 'attendee', 'member'] }
-        }
+        }]
     }
 });
 
