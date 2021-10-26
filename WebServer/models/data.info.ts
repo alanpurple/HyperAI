@@ -1,7 +1,7 @@
 import { Schema } from 'mongoose';
 
 export interface DataInfo {
-    name: string;   // URI
+    name: string;   // local folder name for local type, URI elsewhere
     locationType: 'db_uri' | 'local' | 'smb' | 'datalake' | 'aws_s3';
     type: 'structural' | 'sound' | 'text' | 'image';
     numRows: number;

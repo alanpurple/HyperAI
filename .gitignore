@@ -419,3 +419,6 @@ WebServer/test.ts
 
 # jupyterlab checkpoints
 .ipynb_checkpoints/
+
+# local dataset folder 
+datasets/
