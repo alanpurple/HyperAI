@@ -12,7 +12,7 @@ import * as session from 'express-session';
 import DataRoute from './routes/data';
 import EdaRoute from './routes/eda';
 import EdaTextRoute from './routes/eda-text';
-import EdaVisionRoute from './routes/eda-vision';
+import EdaVisionRoute from './routes/dl-vision';
 import AccountRoute from './routes/account';
 import LrRoute from './routes/lr';
 

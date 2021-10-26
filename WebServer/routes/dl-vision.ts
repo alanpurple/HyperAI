@@ -10,7 +10,7 @@ class segTrainOptions {
     no_xla: boolean = false;
 }
 class segPrepOptions {
-    storageType: 'local' | 'azure blob' | 'aws s3' | 'nas' = 'local';
+    storageType: 'local' | 'azure blob' | 'aws s3' | 'smb' = 'local';
     include_mask: boolean = false;
     train_dir: string = '';
     val_dir: string = '';
