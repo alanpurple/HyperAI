@@ -9,7 +9,7 @@ service Preprocess {
 }
 
 service ObjectSegmentation {
-	rpc RCNN (segOptions) returns (TaskReply) {}
+	rpc RCNNTrain (segTrainOptions) returns (TaskReply) {}
 }
 
 message dataloc {
@@ -29,6 +29,23 @@ message segOptions {
 	string train_cap_anno=9;
 	string val_cap_anno=10;
 	string testdev_anno=11;
+}
+
+message segTrainOptions {
+	string locationType=1;
+	string location=2;
+	bool include_masks = 3;
+	string train_dir=4;
+	string val_dir=5;
+	string test_dir=6;
+	string train_anno=7;
+	string val_anno=8;
+	string train_cap_anno=9;
+	string val_cap_anno=10;
+	string testdev_anno=11;
+	int32 batch_size=12;
+	bool no_xla=13;
+	bool use_amp=14;
 }
 
 message TaskReply {
