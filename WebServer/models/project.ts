@@ -2,18 +2,42 @@ import { Schema, model, Types } from 'mongoose';
 
 export interface Project {
     name: string;
-    projectType: 'single' | 'multiple' | 'multiple_comparison';
+    projectType: 'single' | 'sequential' | 'multiple_comparison';
+    taskType: 'various' | 'vision' | 'text' | 'structural';
     members: { user: Types.ObjectId, role: 'owner' | 'attendee' | 'member' };
+    visionTasks: VisionTask[];
+    textTasks: TextTask[];
 }
 
 const schema = new Schema<Project>({
     name: String,
-    projectType: { type: String, enum: ['single', 'multiple', 'multiple_comparison'] },
+    projectType: { type: String, enum: ['single', 'sequential', 'multiple_comparison'] },
+    taskType: { type: String, enum: ['varios', 'vision', 'text', 'structural'] },
     members: {
         type: {
             user: { type: 'ObjectId', ref: 'User' }, role: { type: String, enum: ['owner', 'attendee', 'member'] }
         }
     }
+});
+
+export interface VisionTask {
+    name: string;
+    taskType: 'preprocessing' | 'segmentation' | 'classification' | 'detection';
+    includeMask: boolean;
+}
+
+export interface TextTask {
+    name: string;
+}
+
+const VisionTaskSchema = new Schema<VisionTask>({
+    name: String,
+    taskType: { type: String, enum: ['preprocessing', 'segmentation', 'classification', 'detection'] },
+    includeMask: Boolean
+});
+
+const TextTaskSchema = new Schema<TextTask>({
+    name: String
 });
 
 export const ProjectModel = model<Project>('Project', schema);
