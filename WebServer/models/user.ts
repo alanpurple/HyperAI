@@ -47,7 +47,7 @@ schema.pre('save', { document: true, query: false }, function (next) {
     if (user.isNew || user.isModified('password'))
         hash(user.password, NUM_ROUNDS, function (err, hashed) {
             if (err)
-                throw err;
+                next(err);
             else {
                 user.password = hashed;
                 next();
@@ -62,7 +62,7 @@ schema.pre('updateOne', { document: true, query: false }, function (next) {
     if (doc.isModified('password'))
         hash(doc.password, NUM_ROUNDS, function (err, hashed) {
             if (err)
-                throw err;
+                next(err);
             else {
                 doc.password = hashed;
                 next();
