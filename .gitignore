@@ -416,3 +416,6 @@ images/
 WebServer/test.ts
 
 .yarn/
+
+# jupyterlab checkpoints
+.ipynb_checkpoints/

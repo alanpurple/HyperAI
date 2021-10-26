@@ -1,4 +1,5 @@
 import * as express from 'express';
+import { mkdir, access } from 'fs/promises';
 import { AddressInfo } from "net";
 import * as path from 'path';
 import { connectDdb } from './connect-ddb';
@@ -49,6 +50,15 @@ UserModel.findOne({ email: 'alanpurple@gmail.com'}).then(user => {
     else
         return;
 });
+
+access('../datasets').then(() => console.log('datasets directory is ok.'))
+    .catch(err => {
+        if (err.code == 'ENOENT')
+            mkdir('../datasets').then(() => console.log('datasets directory has been created.'))
+                .catch(err => console.error(err));
+        else
+            console.error('something\'s wrong, cannot access or create datasets directory');
+    });
 
 const rootPath = path.join(__dirname, '../wwwroot');
 
