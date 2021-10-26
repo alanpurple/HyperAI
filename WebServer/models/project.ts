@@ -1,34 +1,43 @@
-import {Schema, model, Types} from 'mongoose';
+import { Schema, model, Types } from 'mongoose';
 
 export interface Project {
     name: string;
-    projectType: 'single' | 'multiple' | 'multiple_comparison';
-    members: [{ user: Types.ObjectId, email, role: 'owner' | 'attendee' | 'member' }];
-    task: {
-        taskType: 'ML' | 'Vision' | 'NLP',
-        names: ['classification' | 'regression' | 'clustering' | 'object detection' | 'segmentation' | 'feature extraction' | 'QnA' | 'Translation' | 'word feature extraction']
-    };
+    projectType: 'single' | 'sequential' | 'multiple_comparison';
+    taskType: 'various' | 'vision' | 'text' | 'structural';
+    members: [{ user: Types.ObjectId, role: 'owner' | 'attendee' | 'member' }]; // one and only owner, others are all attendee(for now)
+    visionTasks: VisionTask[];
+    textTasks: TextTask[];
 }
 
 const schema = new Schema<Project>({
     name: { type: String, required: true, unique: true },
-    projectType: {type: String, enum: ['single', 'multiple', 'multiple_comparison'], required: true},
-    members: [{
-        type: {
-            _id: false,
-            user: {type: 'ObjectId', ref: 'User', required: true},
-            email: {type: String, required: true},
-            role: {type: String, enum: ['owner', 'attendee', 'member'], required: true}
-        }
-    }],
-    task: {
-        taskType: {type: String, enum: ['ML', 'Vision', 'MLP'], required: true},
-        names: [{
-            type: [String],
-            enum: ['classification', 'regression', 'clustering', 'object detection', 'segmentation', 'feature extraction', 'QnA', 'Translation', 'word feature extraction'],
-            required: true
+    projectType: { type: String, enum: ['single', 'sequential', 'multiple_comparison'], required: true },
+    taskType: { type: String, enum: ['varios', 'vision', 'text', 'structural'] },
+    members: {
+        type: [{
+            user: { type: 'ObjectId', ref: 'User', required: true }, role: { type: String, enum: ['owner', 'attendee', 'member'], required: true },  _id: false
         }]
     }
-}, {versionKey: false});
+});
+
+export interface VisionTask {
+    name: string;
+    taskType: 'preprocessing' | 'segmentation' | 'classification' | 'detection';
+    includeMask: boolean;
+}
+
+export interface TextTask {
+    name: string;
+}
+
+const VisionTaskSchema = new Schema<VisionTask>({
+    name: String,
+    taskType: { type: String, enum: ['preprocessing', 'segmentation', 'classification', 'detection'] },
+    includeMask: Boolean
+});
+
+const TextTaskSchema = new Schema<TextTask>({
+    name: String
+});
 
 export const ProjectModel = model<Project>('Project', schema);
