@@ -13,7 +13,7 @@
   },
   "main": "app.js",
   "dependencies": {
-    "@grpc/grpc-js": "^1.4.1",
+    "@grpc/grpc-js": "^1.4.2",
     "@grpc/proto-loader": "^0.6.6",
     "@mysql/xdevapi": "^8.0.27",
     "@tensorflow/tfjs-node-gpu": "^3.10.0",
