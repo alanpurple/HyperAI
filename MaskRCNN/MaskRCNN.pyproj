@@ -126,7 +126,6 @@
   <ItemGroup>
     <Folder Include="mrcnn_tf2\" />
     <Folder Include="mrcnn_tf2\dataset\" />
-    <Folder Include="mrcnn_tf2\dataset\.ipynb_checkpoints\" />
     <Folder Include="mrcnn_tf2\model\" />
     <Folder Include="mrcnn_tf2\model\models\" />
     <Folder Include="mrcnn_tf2\model\models\resnet50\" />
