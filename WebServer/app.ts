@@ -1,5 +1,5 @@
 import * as express from 'express';
-import { createWriteStream } from 'fs';
+import { mkdir, access } from 'fs/promises';
 import { AddressInfo } from "net";
 import * as path from 'path';
 import { connectDdb } from './connect-ddb';
@@ -12,7 +12,7 @@ import * as session from 'express-session';
 import DataRoute from './routes/data';
 import EdaRoute from './routes/eda';
 import EdaTextRoute from './routes/eda-text';
-import EdaVisionRoute from './routes/eda-vision';
+import EdaVisionRoute from './routes/dl-vision';
 import AccountRoute from './routes/account';
 import LrRoute from './routes/lr';
 import ProjectRoute from './routes/project';
@@ -55,6 +55,15 @@ UserModel.findOne({ email: 'alanpurple@gmail.com'}).then(user => {
         return;
 });
 
+access('../datasets').then(() => console.log('datasets directory is ok.'))
+    .catch(err => {
+        if (err.code == 'ENOENT')
+            mkdir('../datasets').then(() => console.log('datasets directory has been created.'))
+                .catch(err => console.error(err));
+        else
+            console.error('something\'s wrong, cannot access or create datasets directory');
+    });
+
 const rootPath = path.join(__dirname, '../wwwroot');
 
 // no authentication for mongodb currently, need to be updated
@@ -79,12 +88,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use(favicon('./favicon.ico'));
-if (app.get("env") == "production") {
-    const accessLogStream = createWriteStream(__dirname + '/logs/' + "access.log", {flags: 'a'});
-    app.use(logger("[:date[clf]] :method :url :status :response-time ms", {stream: accessLogStream}));
-} else {
-    app.use(logger('dev'));
-}
+app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 

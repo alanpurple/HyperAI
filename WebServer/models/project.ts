@@ -15,8 +15,10 @@ export interface Project {
 
 const VisionTaskSchema = new Schema<VisionTask>({
     name: String,
-    taskType: { type: String, enum: ['preprocessing', 'segmentation', 'classification', 'detection'] },
-    includeMask: Boolean
+    taskType: { type: String, enum: ['preprocessing', 'segmentation', 'classification', 'detection'], required:true },
+    includeMask: Boolean,
+    completed: Boolean,
+    preprocessed: String // output folder, only for preprocessing task
 }, { _id: false });
 
 const TextTaskSchema = new Schema<TextTask>({
@@ -25,7 +27,7 @@ const TextTaskSchema = new Schema<TextTask>({
 
 const StructuralTaskSchema = new Schema<StructuralTask>({
     name: String,
-    taskType: { type: String, enum: ['recommendation', 'clustering', 'classification', 'regression'] }
+    taskType: { type: String, enum: ['recommendation', 'clustering', 'classification', 'regression'], required: true }
 }, { _id: false });
 
 const schema = new Schema<Project>({
@@ -36,7 +38,7 @@ const schema = new Schema<Project>({
     owner: {type:'ObjectId',ref:'User',required:true},
     members: {
         type: [{
-            user: { type: 'ObjectId', ref: 'User' }, role: { type: String, enum: ['attendee', 'member'] }
+            user: { type: 'ObjectId', ref: 'User' }, role: { type: String, enum: ['attendee', 'member'], required: true }
         }]
     },
     visionTasks: {
@@ -112,6 +114,8 @@ export interface VisionTask {
     name: string;
     taskType: 'preprocessing' | 'segmentation' | 'classification' | 'detection';
     includeMask: boolean;
+    completed: boolean;
+    preprocessed: string; // preprocessed output folder, only for preprocessing task
 }
 
 export interface TextTask {

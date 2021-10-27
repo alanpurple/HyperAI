@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+package dlvision;
+
+service Preprocess {
+	rpc Resize (dataloc) returns (TaskReply) {}
+	rpc Normalize (dataloc) returns (TaskReply) {}
+	rpc SegPreprocess(segOptions) returns (TaskReply) {}
+}
+
+service ObjectSegmentation {
+	rpc RCNNTrain (segTrainOptions) returns (TaskReply) {}
+}
+
+message dataloc {
+	string type = 1;	// 'local', 'azure blob', 'aws s3', 'smb'
+	string name = 2;	// folder name or uri
+}
+
+message segOptions {
+	string locationType=1;
+	string location=2;
+	bool include_masks = 3;
+	string train_dir=4;
+	string val_dir=5;
+	string test_dir=6;
+	string train_anno=7;
+	string val_anno=8;
+	string train_cap_anno=9;
+	string val_cap_anno=10;
+	string testdev_anno=11;
+}
+
+message segTrainOptions {
+	string locationType=1;
+	string location=2;
+	bool include_masks = 3;
+	string train_dir=4;
+	string val_dir=5;
+	string test_dir=6;
+	string train_anno=7;
+	string val_anno=8;
+	string train_cap_anno=9;
+	string val_cap_anno=10;
+	string testdev_anno=11;
+	int32 batch_size=12;
+	bool no_xla=13;
+	bool use_amp=14;
+}
+
+message TaskReply {
+	int32 error = 1;
+	string resultLoc = 2;
+	repeated string msgs =3;
+}
+

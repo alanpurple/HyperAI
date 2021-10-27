@@ -22,13 +22,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="*.py" />
-    <Compile Include="*.proto" />
-    <Compile Include="datagen_forkmc.py" />
-    <Compile Include="datagen_forpca.py" />
-    <Compile Include="datagen_forsvm.py" />
-    <Compile Include="dbmodel\Embedding.py">
-      <SubType>Code</SubType>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="dbmodel\" />
