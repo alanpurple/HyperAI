@@ -31,7 +31,7 @@ const StructuralTaskSchema = new Schema<StructuralTask>({
 }, { _id: false });
 
 const schema = new Schema<Project>({
-    name: { type: String, required: true },
+    name: { type: String,unique:true, required: true },
     dataURI: { type: String, required:true },
     projectType: { type: String, enum: ['single', 'sequential', 'multiple_comparison'] },
     taskType: { type: String, enum: ['various', 'vision', 'text', 'structural'] },
@@ -74,7 +74,7 @@ const schema = new Schema<Project>({
             return this.projectType == 'structural';
         }
     }
-});
+}, { timestamps:true });
 
 schema.pre('save', { document: true, query: false }, async function (next) {
     const project = this;
