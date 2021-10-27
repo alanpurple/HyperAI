@@ -13,9 +13,7 @@ from mrcnn_tf2.runtime.weights_mapping import WEIGHTS_MAPPING
 
 def run_training(dataset, params):
     setup(params)
-
-    #tf.compat.v1.disable_eager_execution()
-
+    
     #strategy = tf.distribute.MirroredStrategy()
     #params.replicas = strategy.num_replicas_in_sync
     params.global_train_batch_size = params.train_batch_size #* params.replicas
