@@ -45,7 +45,7 @@ const schema = new Schema<Project>({
         type: [VisionTaskSchema],
         validate: {
             validator: function (tasks) {
-                return !tasks || this.taksType == 'vision' || this.taskType == 'various';
+                return !tasks || this.taskType == 'vision' || this.taskType == 'various';
             }
         },
         required: function () {
@@ -56,7 +56,7 @@ const schema = new Schema<Project>({
         type: [TextTaskSchema],
         validate: {
             validator: function (tasks) {
-                return !tasks || this.taksType == 'text' || this.taskType == 'various';
+                return !tasks || this.taskType == 'text' || this.taskType == 'various';
             }
         },
         required: function () {
@@ -67,7 +67,7 @@ const schema = new Schema<Project>({
         type: [StructuralTaskSchema],
         validate: {
             validator: function (tasks) {
-                return !tasks || this.taksType == 'structural' || this.taskType == 'various';
+                return !tasks || this.taskType == 'structural' || this.taskType == 'various';
             }
         },
         required: function () {
