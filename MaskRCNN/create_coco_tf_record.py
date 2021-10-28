@@ -310,7 +310,7 @@ def main(_):
         tf.io.gfile.makedirs(FLAGS.output_dir)
     train_output_path = os.path.join(FLAGS.output_dir, 'train')
     val_output_path = os.path.join(FLAGS.output_dir, 'val')
-    testdev_output_path = os.path.join(FLAGS.output_dir, 'test-dev')
+    #testdev_output_path = os.path.join(FLAGS.output_dir, 'test-dev')
 
     _create_tf_record_from_coco_annotations(
         FLAGS.train_object_annotations_file,
