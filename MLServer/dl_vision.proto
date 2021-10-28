@@ -21,7 +21,7 @@ message segOptions {
 	string locationType=1;
 	string location=2;
 	bool include_masks = 3;
-	string train_dir=4;
+	string train_dir=4;		// output directories and files
 	string val_dir=5;
 	string test_dir=6;
 	string train_anno=7;
@@ -35,7 +35,7 @@ message segTrainOptions {
 	string locationType=1;
 	string location=2;
 	bool include_masks = 3;
-	string train_dir=4;
+	string train_dir=4;		// input directories and files
 	string val_dir=5;
 	string test_dir=6;
 	string train_anno=7;
@@ -46,7 +46,13 @@ message segTrainOptions {
 	int32 batch_size=12;
 	bool no_xla=13;
 	bool use_amp=14;
+	int32 image_width=15;
+	int32 image_height=16;
+	int32 num_classes=17;
+	bool skip_crowd=18;
+	bool use_category=19;
 }
+// so many hyper-parameters... so let's pause for a while
 
 message TaskReply {
 	int32 error = 1;
