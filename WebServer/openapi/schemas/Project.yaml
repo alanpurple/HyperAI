@@ -1,4 +1,38 @@
 definitions:
+  VisionTask:
+    description: use only when taskType is 'vision'
+    type: object
+    properties:
+      name:
+        type: string
+        example: Vision task name
+      taskType:
+        type: string
+        enum: ['preprocessing', 'segmentation', 'classification', 'detection' ]
+        required: true
+      includeMask:
+        type: boolean
+      completed:
+        type: boolean
+      preprocessed:
+        description: output folder, only for preprocessing task
+        type: string
+        example: /preprocessing/output/folder
+  TextTask:
+    description: use only when taskType is 'text'
+    type: object
+    properties:
+      name:
+        type: string
+  StructuralTask:
+    type: object
+    properties:
+      name:
+        type: string
+      taskType:
+        type: string
+        enum: [ 'recommendation', 'clustering', 'classification', 'regression' ]
+        required: true
   Project:
     type: object
     properties:
@@ -9,10 +43,22 @@ definitions:
       name:
         type: string
         example: Example project
+        required: true
+      dataURI:
+        type: string
+        required: true
       projectType:
         type: string
         enum: ['single', 'multiple', 'multiple_comparison']
+      taskType:
+        type: string
+        enum: ['various', 'vision', 'text', 'structural']
+      owner:
+        type: string
+        description: ObjectId of project owner
+        required: true
       members:
+        description: one and only owner, others are all attendee(for now)
         type: array
         items:
           type: object
@@ -21,24 +67,30 @@ definitions:
               type: string
               description: Current user's ObjectId
               example: 616e7f034f3bbb2ef4a87ce3
-            email:
-              type: string
-              example: example@infinov.com
             role:
               type: string
-              enum: ['owner', 'attendee', 'member']
-      task:
-        type: object
-        properties:
-          taskType:
-            type: string
-            enum: ['ML', 'Vision', 'NLP']
-          names:
-            type: array
-            items:
-              type: string
-              enum: ['classification', 'regression', 'clustering', 'object detection', 'segmentation', 'feature extraction', 'QnA', 'Translation', 'word feature extraction']
-            uniqueItems: true
+              enum: ['attendee', 'member']
+          required: true
+      visionTasks:
+        type: array
+        items:
+          $ref: '#/definitions/VisionTask'
+      textTasks:
+        type: array
+        items:
+          $ref: '#/definitions/TextTask'
+      structuralTasks:
+        type: array
+        items:
+          $ref: '#/definitions/StructuralTask'
+      createdAt:
+        type: date-time
+        readOnly: true
+        example: "2021-10-27T07:14:57.087Z"
+      updatedAt:
+        type: date-time
+        readOnly: true
+        example: "2021-10-27T07:14:57.087Z"
 paths:
   /project:
     get:
@@ -146,19 +198,19 @@ paths:
       produces:
         - application/json
       requestBody:
-        description: \'_id\'s of selected projects
+        description: \'name\'s of selected projects
         required: true
         content:
           application/json:
             schema:
               type: object
               properties:
-                ids:
+                names:
                   type: array
                   items:
                     type: string
                   uniqueItems: true
-                  example: ["61721bce16b8e06386ca573c", "61721bf916b8e06386ca573f", "61721bc816b8e06386ca5739"]
+                  example: ["My Project 01", "My Project 02", "My Project 03"]
       responses:
         200:
           description: deletedCount
@@ -200,7 +252,7 @@ paths:
                     example: No project was deleted.
                   data:
                     type: object
-  /project/{id}:
+  /project/{name}:
     get:
       tags:
         - Project
@@ -209,9 +261,9 @@ paths:
       produces:
         - application/json
       parameters:
-        - name: id
+        - name: name
           in: path
-          description: path parameter takes the project id
+          description: path parameter takes the project name
           required: true
           type: string
       responses:
@@ -234,7 +286,7 @@ paths:
                   data:
                     $ref: '#/definitions/Project'
         404:
-          description: A project with the specified ID was not found.
+          description: A project with the specified name was not found.
           content:
             application/json:
               schema:
@@ -259,9 +311,9 @@ paths:
       produces:
         - application/json
       parameters:
-        - name: id
+        - name: name
           in: path
-          description: path parameter takes the project id
+          description: path parameter takes the project name
           required: true
           type: string
       requestBody:
@@ -316,9 +368,9 @@ paths:
       produces:
         - application/json
       parameters:
-        - name: id
+        - name: name
           in: path
-          description: path parameter takes the project id
+          description: path parameter takes the project name
           required: true
           type: string
       responses:
@@ -329,7 +381,7 @@ paths:
               schema:
                 $ref: '#/definitions/Project'
         404:
-          description: No project was deleted. (A project with the specified ID was not found)
+          description: No project was deleted. (A project with the specified name was not found)
           content:
             application/json:
               schema:

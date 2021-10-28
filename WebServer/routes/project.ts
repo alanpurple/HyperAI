@@ -1,6 +1,6 @@
-import {Router, Request, Response} from 'express';
+import {Router, Request, Response, NextFunction} from 'express';
 import {ProjectModel} from "../models/project";
-import {ReasonPhrases, StatusCodes, } from 'http-status-codes';
+import {ReasonPhrases, StatusCodes,} from 'http-status-codes';
 import Debug from "debug";
 import {ensureAuthenticated} from "../authentication/authentication";
 import {ResponseData} from "../interfaces/ResponseData";
@@ -31,57 +31,72 @@ const makeErrorResult = (error, response: Response) => {
 };
 
 // User authentication checks before processing all project requests.
+// Temporary comments for testing
 // router.all("*", ensureAuthenticated);
 
 router.get("/", (request: Request, response: Response) => {
     let responseData = new ResponseData();
+    debug(request.user);
     
-    ProjectModel.find({"members.email": request.user.email}).exec()
+    ProjectModel.find({
+        // Temporary comments for testing
+        // "owner": request.user['_id']
+    }).exec()
         .then(projects => {
             responseData.success = true;
             
             if (projects.length === 0) {
-                responseData.code = StatusCodes.NO_CONTENT;
+                responseData.code = StatusCodes.NOT_FOUND;
                 responseData.message = "No project found.";
                 
-                response.status(StatusCodes.NO_CONTENT);
+                response.status(StatusCodes.NOT_FOUND);
             } else {
                 responseData.code = StatusCodes.OK;
                 responseData.message = `Found ${projects.length} projects.`;
                 
+                // todo: remove property _id
+                responseData.data = projects;
+                
                 response.status(StatusCodes.OK);
             }
-            responseData.data = projects;
         })
         .catch(error => {
             responseData = makeErrorResult(error, response);
         })
         .finally(() => {
+            debug("############## responseData -", responseData);
             response.send(responseData);
             response.end();
         });
 });
 
-router.get("/:id", (request: Request, response: Response) => {
+router.get("/:name", (request: Request, response: Response) => {
     let responseData = new ResponseData();
     
-    ProjectModel.findById(decodeURI(request.params.id)).exec()
+    ProjectModel.findOne({
+        name: decodeURI(request.params.name)
+        // Temporary comments for testing
+        // , "owner": request.user['_id']
+    }).exec()
         .then(project => {
             responseData.success = true;
             
             if (!project || Object.keys(project).length === 0) {
-                responseData.code = StatusCodes.NO_CONTENT;
-                responseData.message = "A project with the specified ID was not found.";
+                responseData.code = StatusCodes.NOT_FOUND;
+                responseData.message = "A project with the specified name was not found.";
                 
-                response.status(StatusCodes.NO_CONTENT);
+                response.status(StatusCodes.NOT_FOUND);
             } else {
                 responseData.code = StatusCodes.OK;
                 responseData.message = `Found a project.`;
                 
+                // project.set("_id", null);
+                let projectData = project.toObject();
+                delete projectData._id || delete projectData["_id"];
+                responseData.data = projectData;
+                
                 response.status(StatusCodes.OK);
             }
-            
-            responseData.data = project;
         })
         .catch(error => {
             responseData = makeErrorResult(error, response);
@@ -127,18 +142,18 @@ router.post("/", (request: Request, response: Response) => {
         });
 });
 
-router.put("/:id", async (request: Request, response: Response) => {
+router.put("/:name", async (request: Request, response: Response, next: NextFunction) => {
     let responseData = new ResponseData();
     let projectModel = new ProjectModel(request.body, null, {skipId: true});
     
-    let error = projectModel.validateSync();
-    if ((error.errors) && (Object.keys(error.errors).length > 0)) {
-        responseData = makeErrorResult(error, response);
-        response.status(StatusCodes.BAD_REQUEST).send(responseData);
-        response.end();
-    } else {
-        debug("projectModel: ", projectModel);
-        await ProjectModel.findByIdAndUpdate(decodeURI(request.params.id), projectModel, {new: true}).then(modProject => {
+    let error = projectModel.validateSync(); // ValidationError: there are errors, undefined: there is no error
+    if ((error) && (Object.keys(error.errors).length > 0)) {
+        return next(error);
+    }
+    
+    debug("projectModel: ", projectModel);
+    await ProjectModel.findOneAndUpdate({name: decodeURI(request.params.name)}, projectModel, {returnOriginal: false})
+        .then(modProject => {
             if (!modProject) {
                 responseData.success = false;
                 responseData.code = StatusCodes.NOT_FOUND;
@@ -153,21 +168,22 @@ router.put("/:id", async (request: Request, response: Response) => {
                 
                 response.status(StatusCodes.CREATED);
             }
-        }).catch(error => {
+        })
+        .catch(error => {
             responseData = makeErrorResult(error, response);
-        }).finally(() => {
+        })
+        .finally(() => {
             response.send(responseData);
             response.end();
         });
-    }
 });
 
-router.delete("/", (request: Request, response: Response) => {
+router.delete("/", async (request: Request, response: Response) => {
     let responseData = new ResponseData();
-    let _ids: Array<string> = request.body.ids;
+    let names: Array<string> = request.body.names || [];
     
-    if (Array.isArray(_ids)) {
-        ProjectModel.deleteMany({_id: {$in: _ids}}).exec()
+    if (Array.isArray(names) && (names.length > 0)) {
+        await ProjectModel.deleteMany({name: {$in: names}}).exec()
             .then(result => {
                 responseData.success = true;
                 
@@ -194,17 +210,17 @@ router.delete("/", (request: Request, response: Response) => {
     } else {
         responseData.success = false;
         responseData.code = StatusCodes.BAD_REQUEST;
-        responseData.message = "'ids' is not an array.";
+        responseData.message = "'names' is not an array or empty.";
         
         response.status(StatusCodes.BAD_REQUEST).send(responseData);
     }
 });
 
-router.delete("/:id", (request: Request, response: Response) => {
+router.delete("/:name", async (request: Request, response: Response) => {
     let responseData = new ResponseData();
     
-    ProjectModel.findByIdAndDelete(decodeURI(request.params.id)).exec()
-        .then(async delProject => {
+    await ProjectModel.findOneAndDelete({name: decodeURI(request.params.name)}).exec()
+        .then(delProject => {
             responseData.success = true;
             
             if (!delProject) {
