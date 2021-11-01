@@ -37,25 +37,25 @@ from urllib.request import build_opener
 import PIL.Image
 import numpy as np
 import tensorflow as tf
-from absl import app, flags
+#from absl import app, flags
 from pycocotools import mask
 from research.object_detection.utils import dataset_util, label_map_util
 
-flags.DEFINE_boolean('include_masks', True,
-                     'Whether to include instance segmentations masks '
-                     '(PNG encoded) in the result. default: True.')
-flags.DEFINE_string('train_image_dir', 'smb://alan:Infi1234@192.168.0.10/dataset/coco/train2017/', 'Training image directory.')
-flags.DEFINE_string('val_image_dir', 'smb://alan:Infi1234@192.168.0.10/dataset/coco/val2017/', 'Validation image directory.')
-flags.DEFINE_string('test_image_dir', 'smb://alan:Infi1234@infinas.local/dataset/coco/test2017/', 'Test image directory.')
-flags.DEFINE_string('train_object_annotations_file', 'smb://alan:Infi1234@infinas.local/dataset/coco/annotations/instances_train2017.json', '')
-flags.DEFINE_string('val_object_annotations_file', 'smb://alan:Infi1234@infinas.local/dataset/coco/annotations/instances_val2017.json', '')
-flags.DEFINE_string('train_caption_annotations_file', 'smb://alan:Infi1234@infinas.local/dataset/coco/annotations/captions_train2017.json', '')
-flags.DEFINE_string('val_caption_annotations_file', 'smb://alan:Infi1234@infinas.local/dataset/coco/annotations/captions_val2017.json', '')
-flags.DEFINE_string('testdev_annotations_file', 'smb://alan:Infi1234@infinas.local/dataset/coco/annotations/image_info_test-dev2017.json',
-                    'Test-dev annotations JSON file.')
-flags.DEFINE_string('output_dir', './output', 'Output data directory.')
+#flags.DEFINE_boolean('include_masks', True,
+#                     'Whether to include instance segmentations masks '
+#                     '(PNG encoded) in the result. default: True.')
+#flags.DEFINE_string('train_image_dir', 'smb://alan:Infi1234@192.168.0.10/dataset/coco/train2017/', 'Training image directory.')
+#flags.DEFINE_string('val_image_dir', 'smb://alan:Infi1234@192.168.0.10/dataset/coco/val2017/', 'Validation image directory.')
+#flags.DEFINE_string('test_image_dir', 'smb://alan:Infi1234@infinas.local/dataset/coco/test2017/', 'Test image directory.')
+#flags.DEFINE_string('train_object_annotations_file', 'smb://alan:Infi1234@infinas.local/dataset/coco/annotations/instances_train2017.json', '')
+#flags.DEFINE_string('val_object_annotations_file', 'smb://alan:Infi1234@infinas.local/dataset/coco/annotations/instances_val2017.json', '')
+#flags.DEFINE_string('train_caption_annotations_file', 'smb://alan:Infi1234@infinas.local/dataset/coco/annotations/captions_train2017.json', '')
+#flags.DEFINE_string('val_caption_annotations_file', 'smb://alan:Infi1234@infinas.local/dataset/coco/annotations/captions_val2017.json', '')
+#flags.DEFINE_string('testdev_annotations_file', 'smb://alan:Infi1234@infinas.local/dataset/coco/annotations/image_info_test-dev2017.json',
+#                    'Test-dev annotations JSON file.')
+#flags.DEFINE_string('output_dir', './output', 'Output data directory.')
 
-FLAGS = flags.FLAGS
+#FLAGS = flags.FLAGS
 
 
 def create_tf_example(image,
@@ -247,7 +247,7 @@ def _load_caption_annotations(caption_annotations_file):
     return img_to_caption_annotation
 
 
-def _create_tf_record_from_coco_annotations(
+def coco_preprocess(
         object_annotations_file,
         caption_annotations_file,
         image_dir, output_path, include_masks, num_shards):
@@ -310,7 +310,7 @@ def main(_):
         tf.io.gfile.makedirs(FLAGS.output_dir)
     train_output_path = os.path.join(FLAGS.output_dir, 'train')
     val_output_path = os.path.join(FLAGS.output_dir, 'val')
-    testdev_output_path = os.path.join(FLAGS.output_dir, 'test-dev')
+    #testdev_output_path = os.path.join(FLAGS.output_dir, 'test-dev')
 
     _create_tf_record_from_coco_annotations(
         FLAGS.train_object_annotations_file,
