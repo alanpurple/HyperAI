@@ -30,7 +30,7 @@ import io
 import json
 import logging
 import multiprocessing
-import os
+#import os
 from smb.SMBHandler import SMBHandler
 from urllib.request import build_opener
 
@@ -247,10 +247,10 @@ def _load_caption_annotations(caption_annotations_file):
     return img_to_caption_annotation
 
 
-def coco_preprocess(
+async def coco_preprocess(
         object_annotations_file,
         caption_annotations_file,
-        image_dir, output_path, include_masks, num_shards):
+        image_dir, output_path, include_masks):
     """Loads COCO annotation json files and converts to tf.Record format.
 
     Args:
@@ -262,6 +262,9 @@ def coco_preprocess(
         (PNG encoded) in the result. default: False.
       num_shards: Number of output files to create.
     """
+
+    # this is too deep for client, hardware-related, so defaults to 256 for now
+    num_shards=256
 
     logging.info('writing to output path: %s', output_path)
     writers = [
@@ -301,32 +304,32 @@ def coco_preprocess(
                  total_num_annotations_skipped)
 
 
-def main(_):
-    assert FLAGS.train_image_dir, '`train_image_dir` missing.'
-    assert FLAGS.val_image_dir, '`val_image_dir` missing.'
-    assert FLAGS.test_image_dir, '`test_image_dir` missing.'
+#def main(_):
+#    assert FLAGS.train_image_dir, '`train_image_dir` missing.'
+#    assert FLAGS.val_image_dir, '`val_image_dir` missing.'
+#    assert FLAGS.test_image_dir, '`test_image_dir` missing.'
 
-    if not tf.io.gfile.isdir(FLAGS.output_dir):
-        tf.io.gfile.makedirs(FLAGS.output_dir)
-    train_output_path = os.path.join(FLAGS.output_dir, 'train')
-    val_output_path = os.path.join(FLAGS.output_dir, 'val')
-    #testdev_output_path = os.path.join(FLAGS.output_dir, 'test-dev')
+#    if not tf.io.gfile.isdir(FLAGS.output_dir):
+#        tf.io.gfile.makedirs(FLAGS.output_dir)
+#    train_output_path = os.path.join(FLAGS.output_dir, 'train')
+#    val_output_path = os.path.join(FLAGS.output_dir, 'val')
+#    #testdev_output_path = os.path.join(FLAGS.output_dir, 'test-dev')
 
-    _create_tf_record_from_coco_annotations(
-        FLAGS.train_object_annotations_file,
-        FLAGS.train_caption_annotations_file,
-        FLAGS.train_image_dir,
-        train_output_path,
-        FLAGS.include_masks,
-        num_shards=256)
-    _create_tf_record_from_coco_annotations(
-        FLAGS.val_object_annotations_file,
-        FLAGS.val_caption_annotations_file,
-        FLAGS.val_image_dir,
-        val_output_path,
-        FLAGS.include_masks,
-        num_shards=32)
+#    _create_tf_record_from_coco_annotations(
+#        FLAGS.train_object_annotations_file,
+#        FLAGS.train_caption_annotations_file,
+#        FLAGS.train_image_dir,
+#        train_output_path,
+#        FLAGS.include_masks,
+#        num_shards=256)
+#    _create_tf_record_from_coco_annotations(
+#        FLAGS.val_object_annotations_file,
+#        FLAGS.val_caption_annotations_file,
+#        FLAGS.val_image_dir,
+#        val_output_path,
+#        FLAGS.include_masks,
+#        num_shards=32)
 
 
-if __name__ == '__main__':
-    app.run(main)
+#if __name__ == '__main__':
+#    app.run(main)

@@ -11,7 +11,7 @@ from mrcnn_tf2.runtime.learning_rate import PiecewiseConstantWithWarmupSchedule
 from mrcnn_tf2.runtime.weights_mapping import WEIGHTS_MAPPING
 
 
-def run_training(dataset, params):
+async def run_training(dataset, params):
     setup(params)
     
     #strategy = tf.distribute.MirroredStrategy()
