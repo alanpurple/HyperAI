@@ -7,6 +7,7 @@ from mrcnn_tf2.model.models.heads import RPNHead, BoxHead, MaskHead
 from mrcnn_tf2.model.models.resnet50 import ResNet50
 from mrcnn_tf2.ops import roi_ops, spatial_transform_ops, postprocess_ops, training_ops
 
+aspect_ratios=[(1.0, 1.0), (1.4, 0.7), (0.7, 1.4)]
 
 class MaskRCNN(tf.keras.Model):
 
@@ -24,7 +25,7 @@ class MaskRCNN(tf.keras.Model):
 
         self.rpn_head = RPNHead(
             name="rpn_head",
-            num_anchors=len(self._params.aspect_ratios * self._params.num_scales),
+            num_anchors=len(aspect_ratios * self._params.num_scales),
             trainable=trainable
         )
 

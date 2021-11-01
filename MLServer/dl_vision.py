@@ -43,4 +43,19 @@ class DlVisionPreprocess(dl_vision_pb2_grpc.PreprocessServicer):
 
 class ObjectSegmentation(dl_vision_pb2_grpc.ObjectSegmentationServicer):
     def RCNNTrain(self, request, context):
-        return super().RCNN(request, context)
+        locType=request.locationType
+        if locType!='local' and locType!='smb':
+            return dl_vision_pb2.PrepReply(error=0,msgs=['currently only local and smb type is supported for location type.'])
+        if request.location=='':
+            return dl_vision_pb2.PrepReply(error=0,msgs=['location not found'])
+        loc=request.location
+        if locType=='local':
+            loc_prefix=loc+'/'
+        elif locType=='smb':
+            loc_prefix='smb://'+loc+'/'
+        else:
+            return dl_vision_pb2.PrepReply(error=0,msgs=['unsupported location type'])
+
+        train_task=asyncio.create_task(
+            run_training()
+            )

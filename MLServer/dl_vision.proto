@@ -70,4 +70,20 @@ message TrainReply {
 	int32 error = 1;
 	string msg = 2;
 	string ckpt = 3;	// checkpoint folder
+	string model_dir = 4;
+}
+
+message ModelParams {
+	int32 min_level = 1;
+	int32 max_level = 2;
+	int32 num_scales = 3;
+	int32 num_classes = 4;
+	int32 fast_rcnn_mlp_head_dim = 5;
+	int32 mrcnn_resolution = 6;
+}
+
+message CallbackParams {
+	bool log_every = 1;
+	int32 log_warmup_steps = 2;
+	string backbone_checkpoints = 3;
 }
