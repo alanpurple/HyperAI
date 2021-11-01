@@ -40,6 +40,8 @@
     <Content Include="README.md" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="authentication\" />
+    <Folder Include="interfaces\" />
     <Folder Include="models\" />
     <Folder Include="upload-temp\" />
     <Folder Include="routes\" />
@@ -52,6 +54,12 @@
       <SubType>Code</SubType>
     </TypeScriptCompile>
     <TypeScriptCompile Include="routes\*.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="authentication\*.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="interfaces\*.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>
   </ItemGroup>
