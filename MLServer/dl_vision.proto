@@ -5,11 +5,11 @@ package dlvision;
 service Preprocess {
 	rpc Resize (dataloc) returns (TaskReply) {}
 	rpc Normalize (dataloc) returns (TaskReply) {}
-	rpc SegPreprocess(segOptions) returns (TaskReply) {}
+	rpc SegPreprocess(prepOptions) returns (PrepReply) {}
 }
 
 service ObjectSegmentation {
-	rpc RCNNTrain (segTrainOptions) returns (TaskReply) {}
+	rpc RCNNTrain (segTrainOptions) returns (TrainReply) {}
 }
 
 message dataloc {
@@ -17,7 +17,7 @@ message dataloc {
 	string name = 2;	// folder name or uri
 }
 
-message segOptions {
+message prepOptions {
 	string locationType=1;
 	string location=2;
 	bool include_masks = 3;
@@ -35,24 +35,24 @@ message segTrainOptions {
 	string locationType=1;
 	string location=2;
 	bool include_masks = 3;
-	string train_dir=4;		// input directories and files
-	string val_dir=5;
-	string test_dir=6;
-	string train_anno=7;
-	string val_anno=8;
-	string train_cap_anno=9;
-	string val_cap_anno=10;
-	string testdev_anno=11;
-	int32 batch_size=12;
-	bool no_xla=13;
-	bool use_amp=14;
-	int32 image_width=15;
-	int32 image_height=16;
-	int32 num_classes=17;
-	bool skip_crowd=18;
-	bool use_category=19;
+	//string train_dir=4;	// assume ./train, ./val, ./test
+	//string val_dir=5;
+	//string test_dir=6;
+	string train_anno=4;
+	string val_anno=5;
+	string train_cap_anno=6;
+	string val_cap_anno=7;
+	string testdev_anno=8;
+	int32 batch_size=9;
+	bool no_xla=10;
+	bool use_amp=11;
+	int32 image_width=12;
+	int32 image_height=13;
+	int32 num_classes=14;
+	bool skip_crowd=15;
+	bool use_category=16;
 }
-// so many hyper-parameters... so let's pause for a while
+// so many hyper-parameters... so let's pause for now
 
 message TaskReply {
 	int32 error = 1;
@@ -60,3 +60,14 @@ message TaskReply {
 	repeated string msgs =3;
 }
 
+message PrepReply {
+	int32 error = 1;
+	string msg = 2;
+	string location = 3;	// train folder is train, validation folder is val, test is test
+}
+
+message TrainReply {
+	int32 error = 1;
+	string msg = 2;
+	string ckpt = 3;	// checkpoint folder
+}

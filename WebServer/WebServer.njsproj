@@ -51,22 +51,7 @@
     <TypeScriptCompile Include="models\*.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>
-    <TypeScriptCompile Include="routes\account.ts">
-      <SubType>Code</SubType>
-    </TypeScriptCompile>
-    <TypeScriptCompile Include="routes\data.ts">
-      <SubType>Code</SubType>
-    </TypeScriptCompile>
-    <TypeScriptCompile Include="routes\eda-text.ts">
-      <SubType>Code</SubType>
-    </TypeScriptCompile>
-    <TypeScriptCompile Include="routes\dl-vision.ts">
-      <SubType>Code</SubType>
-    </TypeScriptCompile>
-    <TypeScriptCompile Include="routes\eda.ts">
-      <SubType>Code</SubType>
-    </TypeScriptCompile>
-    <TypeScriptCompile Include="routes\lr.ts">
+    <TypeScriptCompile Include="routes\*.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>
   </ItemGroup>
