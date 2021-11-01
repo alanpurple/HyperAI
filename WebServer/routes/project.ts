@@ -30,18 +30,27 @@ const makeErrorResult = (error, response: Response) => {
     return responseData;
 };
 
+const pathParamError = (name: string) => {
+    return (!decodeURI(name) || decodeURI(name).trim().length === 0)
+};
+
 // User authentication checks before processing all project requests.
 // Temporary comments for testing
 // router.all("*", ensureAuthenticated);
 
-router.get("/", (request: Request, response: Response) => {
+router.get("/", async (request: Request, response: Response) => {
     let responseData = new ResponseData();
     debug(request.user);
     
-    ProjectModel.find({
-        // Temporary comments for testing
-        // "owner": request.user['_id']
-    }).exec()
+    await ProjectModel.find({
+            // Temporary comments for testing
+            // "owner": request.user['_id']
+        },
+        {_id: 0}
+    )
+        .populate({path: 'owner', select: 'email -_id'})
+        .populate({path: 'members.user', select: 'email -_id'})
+        .exec()
         .then(projects => {
             responseData.success = true;
             
@@ -53,8 +62,6 @@ router.get("/", (request: Request, response: Response) => {
             } else {
                 responseData.code = StatusCodes.OK;
                 responseData.message = `Found ${projects.length} projects.`;
-                
-                // todo: remove property _id
                 responseData.data = projects;
                 
                 response.status(StatusCodes.OK);
@@ -64,20 +71,30 @@ router.get("/", (request: Request, response: Response) => {
             responseData = makeErrorResult(error, response);
         })
         .finally(() => {
-            debug("############## responseData -", responseData);
+            // debug("############## responseData -", responseData);
             response.send(responseData);
             response.end();
         });
 });
 
-router.get("/:name", (request: Request, response: Response) => {
+router.get("/:name", async (request: Request, response: Response, next: NextFunction) => {
     let responseData = new ResponseData();
     
-    ProjectModel.findOne({
-        name: decodeURI(request.params.name)
-        // Temporary comments for testing
-        // , "owner": request.user['_id']
-    }).exec()
+    if (pathParamError(request.params.name)) {
+        return next(new Error("Project name error."));
+    }
+    
+    await ProjectModel.findOne(
+        {
+            name: decodeURI(request.params.name)
+            // Temporary comments for testing
+            // , "owner": request.user['_id']
+        },
+        {_id: 0}
+    )
+        .populate({path: 'owner', select: 'email -_id'})
+        .populate({path: 'members.user', select: 'email -_id'})
+        .exec()
         .then(project => {
             responseData.success = true;
             
@@ -89,11 +106,7 @@ router.get("/:name", (request: Request, response: Response) => {
             } else {
                 responseData.code = StatusCodes.OK;
                 responseData.message = `Found a project.`;
-                
-                // project.set("_id", null);
-                let projectData = project.toObject();
-                delete projectData._id || delete projectData["_id"];
-                responseData.data = projectData;
+                responseData.data = project;
                 
                 response.status(StatusCodes.OK);
             }
@@ -121,7 +134,13 @@ router.post("/", (request: Request, response: Response) => {
                         responseData.success = true;
                         responseData.code = StatusCodes.CREATED;
                         responseData.message = ReasonPhrases.CREATED;
-                        responseData.data = newProject;
+                        
+                        await newProject.populate({path: 'owner', select: 'email -_id'});
+                        await newProject.populate({path: 'members.user', select: 'email -_id'});
+                        
+                        let projectData = newProject.toObject();
+                        delete projectData._id || delete projectData["_id"];
+                        responseData.data = projectData;
                         
                         response.status(StatusCodes.CREATED);
                     });
@@ -144,6 +163,11 @@ router.post("/", (request: Request, response: Response) => {
 
 router.put("/:name", async (request: Request, response: Response, next: NextFunction) => {
     let responseData = new ResponseData();
+    
+    if (pathParamError(request.params.name)) {
+        return next(new Error("Project name error."));
+    }
+    
     let projectModel = new ProjectModel(request.body, null, {skipId: true});
     
     let error = projectModel.validateSync(); // ValidationError: there are errors, undefined: there is no error
@@ -153,7 +177,8 @@ router.put("/:name", async (request: Request, response: Response, next: NextFunc
     
     debug("projectModel: ", projectModel);
     await ProjectModel.findOneAndUpdate({name: decodeURI(request.params.name)}, projectModel, {returnOriginal: false})
-        .then(modProject => {
+        .exec()
+        .then(async modProject => {
             if (!modProject) {
                 responseData.success = false;
                 responseData.code = StatusCodes.NOT_FOUND;
@@ -164,7 +189,14 @@ router.put("/:name", async (request: Request, response: Response, next: NextFunc
                 responseData.success = true;
                 responseData.code = StatusCodes.CREATED;
                 responseData.message = ReasonPhrases.CREATED;
-                responseData.data = modProject;
+                // responseData.data = modProject;
+                
+                await modProject.populate({path: 'owner', select: 'email -_id'});
+                await modProject.populate({path: 'members.user', select: 'email -_id'});
+                
+                let projectData = modProject.toObject();
+                delete projectData._id || delete projectData["_id"];
+                responseData.data = projectData;
                 
                 response.status(StatusCodes.CREATED);
             }
@@ -178,49 +210,49 @@ router.put("/:name", async (request: Request, response: Response, next: NextFunc
         });
 });
 
-router.delete("/", async (request: Request, response: Response) => {
+router.delete("/", async (request: Request, response: Response, next: NextFunction) => {
     let responseData = new ResponseData();
     let names: Array<string> = request.body.names || [];
     
-    if (Array.isArray(names) && (names.length > 0)) {
-        await ProjectModel.deleteMany({name: {$in: names}}).exec()
-            .then(result => {
-                responseData.success = true;
-                
-                if (result.deletedCount === 0) {
-                    responseData.code = StatusCodes.NOT_FOUND;
-                    responseData.message = "No project was deleted.";
-                    
-                    response.status(StatusCodes.NOT_FOUND);
-                } else {
-                    responseData.code = StatusCodes.OK;
-                    responseData.message = ReasonPhrases.OK;
-                    responseData.data = result;
-                    
-                    response.status(StatusCodes.OK);
-                }
-            })
-            .catch(error => {
-                responseData = makeErrorResult(error, response);
-            })
-            .finally(() => {
-                response.send(responseData);
-                response.end();
-            });
-    } else {
-        responseData.success = false;
-        responseData.code = StatusCodes.BAD_REQUEST;
-        responseData.message = "'names' is not an array or empty.";
-        
-        response.status(StatusCodes.BAD_REQUEST).send(responseData);
+    if (!Array.isArray(names) || (names.length === 0)) {
+        return next(new Error("'names' is not an array or empty."));
     }
+    
+    await ProjectModel.deleteMany({name: {$in: names}}).exec()
+        .then(result => {
+            responseData.success = true;
+            
+            if (result.deletedCount === 0) {
+                responseData.code = StatusCodes.NOT_FOUND;
+                responseData.message = "No project was deleted.";
+                
+                response.status(StatusCodes.NOT_FOUND);
+            } else {
+                responseData.code = StatusCodes.OK;
+                responseData.message = ReasonPhrases.OK;
+                responseData.data = result;
+                
+                response.status(StatusCodes.OK);
+            }
+        })
+        .catch(error => {
+            responseData = makeErrorResult(error, response);
+        })
+        .finally(() => {
+            response.send(responseData);
+            response.end();
+        });
 });
 
-router.delete("/:name", async (request: Request, response: Response) => {
+router.delete("/:name", async (request: Request, response: Response, next: NextFunction) => {
     let responseData = new ResponseData();
     
+    if (pathParamError(request.params.name)) {
+        return next(new Error("Project name error."));
+    }
+    
     await ProjectModel.findOneAndDelete({name: decodeURI(request.params.name)}).exec()
-        .then(delProject => {
+        .then(async delProject => {
             responseData.success = true;
             
             if (!delProject) {
@@ -231,7 +263,13 @@ router.delete("/:name", async (request: Request, response: Response) => {
             } else {
                 responseData.code = StatusCodes.OK;
                 responseData.message = ReasonPhrases.OK;
-                responseData.data = delProject;
+                
+                await delProject.populate({path: 'owner', select: 'email -_id'});
+                await delProject.populate({path: 'members.user', select: 'email -_id'});
+                
+                let projectData = delProject.toObject();
+                delete projectData._id || delete projectData["_id"];
+                responseData.data = projectData;
                 
                 response.status(StatusCodes.OK);
             }
