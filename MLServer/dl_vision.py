@@ -1,3 +1,4 @@
+import asyncio
 import dl_vision_pb2
 import dl_vision_pb2_grpc
 from ...MaskRCNN.create_coco_tf_record import coco_preprocess
@@ -18,18 +19,27 @@ class DlVisionPreprocess(dl_vision_pb2_grpc.PreprocessServicer):
             return dl_vision_pb2.PrepReply(error=0,msgs=['location not found'])
         loc=request.location
         if locType=='local':
-            train_data=loc + '/' +request.train_dir
-            val_data=loc + '/' + request.val_dir
-            test_data=loc + '/' + request.test_dir
+            loc_prefix=loc+'/'
         elif locType=='smb':
-            train_data='smb://'+loc+'/'+request.train_dir
-            val_Data='smb://'+loc + '/' + request.val_dir
-            test_data='smb://'+loc + '/' + request.test_dir
-        train_params={
+            loc_prefix='smb://'+loc+'/'
+        else:
+            return dl_vision_pb2.PrepReply(error=0,msgs=['unsupported location type'])
+
+        train_data= loc_prefix + request.train_dir
+        val_data= loc_prefix + request.val_dir
+        test_data= loc_prefix + request.test_dir
+        object_file = loc_prefix + request.train_anno
+        caption_file= loc_prefix + request.train_cap_anno
+        prep_params={
             'train_data':train_data,
             'val_data':val_data,
             'test_data':test_data
         }
+        prep_task=asyncio.create_task(
+            coco_preprocess(object_file,caption_file,train_data,request.include_mask)
+            )
+        return dl_vision_pb2.PrepReply(error=-1,msgs=['coco data preprocessing started'])
+
 
 class ObjectSegmentation(dl_vision_pb2_grpc.ObjectSegmentationServicer):
     def RCNNTrain(self, request, context):
