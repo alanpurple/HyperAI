@@ -51,6 +51,8 @@ message segTrainOptions {
 	int32 num_classes=14;
 	bool skip_crowd=15;
 	bool use_category=16;
+	ModelParams model_params = 17;
+	CallbackParams callback_params = 18;
 }
 // so many hyper-parameters... so let's pause for now
 
@@ -83,7 +85,7 @@ message ModelParams {
 }
 
 message CallbackParams {
-	bool log_every = 1;
-	int32 log_warmup_steps = 2;
-	string backbone_checkpoints = 3;
+	//int32 log_every = 1;
+	int32 log_warmup_steps = 1;
+	string backbone_checkpoints = 2;
 }

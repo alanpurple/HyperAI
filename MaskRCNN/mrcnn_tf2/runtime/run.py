@@ -147,7 +147,8 @@ def create_model(trainable,model_dir,params):
 def create_callbacks(train_batch_size,eval_batch_size,model_dir,callback_params):
     yield DLLoggerMetricsCallback(
         dllogger=dllogger,
-        log_every=callback_params.log_every
+        #log_every=callback_params.log_every
+        log_every=100
     )
 
     yield DLLoggerPerfCallback(
