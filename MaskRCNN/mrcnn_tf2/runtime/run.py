@@ -147,7 +147,6 @@ def create_model(trainable,model_dir,params):
 def create_callbacks(train_batch_size,eval_batch_size,model_dir,callback_params):
     yield DLLoggerMetricsCallback(
         dllogger=dllogger,
-        #log_every=callback_params.log_every
         log_every=100
     )
 
@@ -158,15 +157,14 @@ def create_callbacks(train_batch_size,eval_batch_size,model_dir,callback_params)
             'test': eval_batch_size,
             'predict': eval_batch_size
         },
-        warmup_steps=callback_params.log_warmup_steps,
-        log_every=callback_params.log_every
+        warmup_steps=100,
+        log_every=100
     )
-
-    if callback_params.backbone_checkpoint:
-        yield PretrainedWeightsLoadingCallback(
-            checkpoint_path=callback_params.backbone_checkpoint,
-            mapping=lambda name: WEIGHTS_MAPPING.get(name.replace(':0', ''), name)
-        )
+    
+    yield PretrainedWeightsLoadingCallback(
+        checkpoint_path='../../weights/rn50_tf_amp_ckpt_v20.06.0/nvidia_rn50_tf_amp',
+        mapping=lambda name: WEIGHTS_MAPPING.get(name.replace(':0', ''), name)
+    )
 
     yield tf.keras.callbacks.ModelCheckpoint(
         filepath=os.path.join(model_dir, callback_params.checkpoint_name_format),
