@@ -25,6 +25,7 @@ from mrcnn_tf2.model import anchors
 from mrcnn_tf2.object_detection import tf_example_decoder
 from mrcnn_tf2.ops import preprocess_ops
 from mrcnn_tf2.utils import coco_utils
+from mrcnn_tf2.config import CONFIG
 
 MAX_NUM_INSTANCES = 100
 MAX_NUM_VERTICES_PER_INSTANCE = 1500
@@ -121,7 +122,7 @@ def dataset_parser(value, mode, params, use_instance_mask, seed=None, regenerate
                     image,
                     boxes=None,
                     instance_masks=None,
-                    image_size=params.image_size,
+                    image_size=(params.image_width,params.image_height),
                     max_level=params.max_level,
                     augment_input_data=False,
                     seed=seed
@@ -146,7 +147,7 @@ def dataset_parser(value, mode, params, use_instance_mask, seed=None, regenerate
                     image,
                     boxes=boxes,
                     instance_masks=instance_masks,
-                    image_size=params.image_size,
+                    image_size=(params.image_width,params.image_height),
                     max_level=params.max_level,
                     augment_input_data=params.augment_input_data,
                     seed=seed
@@ -401,10 +402,10 @@ def process_targets_for_training(padded_image_size, boxes, classes, params):
     anchor_labeler = anchors.AnchorLabeler(
         input_anchors,
         params.num_classes,
-        params.rpn_positive_overlap,
-        params.rpn_negative_overlap,
-        params.rpn_batch_size_per_im,
-        params.rpn_fg_fraction
+        CONFIG.rpn_positive_overlap,
+        CONFIG.rpn_negative_overlap,
+        CONFIG.rpn_batch_size_per_im,
+        CONFIG.rpn_fg_fraction
     )
 
     return anchor_labeler.label_anchors(boxes, classes), input_anchors

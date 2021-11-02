@@ -67,9 +67,6 @@ class Dataset:
 
         data = data.batch(batch_size=batch_size, drop_remainder=True)
 
-        if self._params.use_synthetic_data:
-            self._logger.info("Using fake dataset loop")
-            data = data.take(1).cache().repeat()
 
         data = data.prefetch(buffer_size=tf.data.AUTOTUNE)
         data = data.with_options(self._data_options)
@@ -100,11 +97,6 @@ class Dataset:
 
         data = data.batch(batch_size=batch_size, drop_remainder=True)
 
-        if self._params.use_synthetic_data:
-            self._logger.info("Using fake dataset loop")
-            data = data.take(1).cache().repeat()
-            data = data.take(5000 // batch_size)
-
         data = data.prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
 
         # FIXME: This is a walkaround for a bug and should be removed as soon as the fix is merged
@@ -127,10 +119,5 @@ class Dataset:
         data_options.experimental_slack = True
         data_options.threading.max_intra_op_parallelism = 1
         data_options.experimental_optimization.map_parallelization = True
-
-        """ map_vectorization_options = tf.data.experimental.MapVectorizationOptions()
-        map_vectorization_options.enabled = True
-        map_vectorization_options.use_choose_fastest = True
-        data_options.experimental_optimization.map_vectorization = map_vectorization_options """
 
         return data_options
