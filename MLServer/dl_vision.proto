@@ -46,11 +46,7 @@ message segTrainOptions {
 	int32 batch_size=9;
 	bool no_xla=10;
 	bool use_amp=11;
-	int32 image_width=12;
-	int32 image_height=13;
 	int32 num_classes=14;
-	bool skip_crowd=15;
-	bool use_category=16;
 	ModelParams model_params = 17;
 }
 // so many hyper-parameters... so let's pause for now
@@ -81,4 +77,10 @@ message ModelParams {
 	int32 num_classes = 4;
 	int32 fast_rcnn_mlp_head_dim = 5;
 	int32 mrcnn_resolution = 6;
+	int32 image_width=7;
+	int32 image_height=8;
+	bool skip_crowd=9;
+	bool use_category=10;
+	bool augment_input_data=11;
+	//int32 gt_mast_size=12;
 }

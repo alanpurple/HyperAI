@@ -181,12 +181,6 @@ HYPER_GROUP.add_argument(
 )
 
 HYPER_GROUP.add_argument(
-    '--use_synthetic_data',
-    action='store_true',
-    help='Use synthetic input data, meant for testing only'
-)
-
-HYPER_GROUP.add_argument(
     '--xla',
     action='store_true',
     help='Enable XLA JIT Compiler'

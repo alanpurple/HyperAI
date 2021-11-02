@@ -11,9 +11,9 @@ from mrcnn_tf2.runtime.learning_rate import PiecewiseConstantWithWarmupSchedule
 from mrcnn_tf2.runtime.weights_mapping import WEIGHTS_MAPPING
 
 
-async def run_training(dataset, train_batch_size,init_learning_rate,
+async def run_training(dataset, train_batch_size,eval_batch_size,init_learning_rate,
                        learning_rate_boundaries,learning_rate_values,momentum,
-                       epochs,steps_per_epoch,xla,amp,model_dir,model_params,callback_params):
+                       epochs,steps_per_epoch,xla,amp,model_dir,model_params):
     setup(xla,amp)
     
     #strategy = tf.distribute.MirroredStrategy()
@@ -58,12 +58,12 @@ async def run_training(dataset, train_batch_size,init_learning_rate,
         x=train_data,
         epochs=epochs,
         steps_per_epoch=steps_per_epoch or (dataset.train_size //train_batch_size),
-        callbacks=list(create_callbacks(train_batch_size,eval_batch_size, model_dir,callback_params)),
+        callbacks=list(create_callbacks(train_batch_size,eval_batch_size, model_dir)),
         verbose=0
     )
 
 
-def run_evaluation(dataset,train_batch_size, eval_batch_size,eval_file,include_mask,xla,amp,model_dir,model_params,callback_params):
+def run_evaluation(dataset,train_batch_size, eval_batch_size,eval_file,include_mask,xla,amp,model_dir,model_params):
     setup(xla,amp)
 
     mask_rcnn_model = create_model(False,model_dir,model_params)
@@ -74,7 +74,7 @@ def run_evaluation(dataset,train_batch_size, eval_batch_size,eval_file,include_m
 
     predictions = mask_rcnn_model.predict(
         x=dataset.eval_fn(eval_batch_size),
-        callbacks=list(create_callbacks(train_batch_size,eval_batch_size,callback_params))
+        callbacks=list(create_callbacks(train_batch_size,eval_batch_size))
     )
 
     eval_results = evaluate(
@@ -89,7 +89,7 @@ def run_evaluation(dataset,train_batch_size, eval_batch_size,eval_file,include_m
     )
 
 
-def run_inference(dataset,train_batch_size,eval_batch_size,xla,amp,model_dir, model_params,callback_params):
+def run_inference(dataset,train_batch_size,eval_batch_size,xla,amp,model_dir, model_params):
     setup(xla,amp)
 
     mask_rcnn_model = create_model(False,model_dir,model_params)
@@ -100,7 +100,7 @@ def run_inference(dataset,train_batch_size,eval_batch_size,xla,amp,model_dir, mo
 
     mask_rcnn_model.predict(
         x=dataset.eval_fn(eval_batch_size),
-        callbacks=list(create_callbacks(train_batch_size,eval_batch_size,callback_params))
+        callbacks=list(create_callbacks(train_batch_size,eval_batch_size))
     )
 
 
@@ -144,7 +144,7 @@ def create_model(trainable,model_dir,params):
     return model
 
 
-def create_callbacks(train_batch_size,eval_batch_size,model_dir,callback_params):
+def create_callbacks(train_batch_size,eval_batch_size,model_dir):
     yield DLLoggerMetricsCallback(
         dllogger=dllogger,
         log_every=100
@@ -167,15 +167,10 @@ def create_callbacks(train_batch_size,eval_batch_size,model_dir,callback_params)
     )
 
     yield tf.keras.callbacks.ModelCheckpoint(
-        filepath=os.path.join(model_dir, callback_params.checkpoint_name_format),
+        filepath=os.path.join(model_dir, 'mrcnn.ckpt'),
         verbose=1
     )
 
-    #if callback_params.log_tensorboard:
-    #    yield tf.keras.callbacks.TensorBoard(
-    #        log_dir=callback_params.log_tensorboard,
-    #        update_freq='batch'
-    #    )
     yield tf.keras.callbacks.TensorBoard(
         log_dir=model_dir+'/tblog',
         update_freq='batch'

@@ -56,6 +56,15 @@ class ObjectSegmentation(dl_vision_pb2_grpc.ObjectSegmentationServicer):
         else:
             return dl_vision_pb2.PrepReply(error=0,msgs=['unsupported location type'])
 
+        params=request.model_params
+
+        if params.min_level<1:
+            params.min_level=2
+        if params.max_level<1:
+            params.max_level=6
+        if params.num_scales<1:
+            params.num_scales=1
+
         train_task=asyncio.create_task(
             run_training()
             )
