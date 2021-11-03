@@ -422,3 +422,6 @@ WebServer/test.ts
 
 # local dataset folder 
 datasets/
+
+# angular-build-related
+.angular/
