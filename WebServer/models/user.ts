@@ -5,6 +5,12 @@ import { DataInfo, DataSchema } from './data.info';
 
 const NUM_ROUNDS = 10;
 
+interface RunningTasks {
+    project: string,
+    taskType: 'vision' | 'text' | 'structural',
+    taskName: string
+}
+
 export interface User {
     name: string;
     password: string;
@@ -14,7 +20,14 @@ export interface User {
     email: string;
     data: DataInfo[];
     comparePassword(password: string, callback: any);
+    runningTasks: RunningTasks[];
 }
+
+const runningTaskSchema = new Schema<RunningTasks>({
+    project: String,
+    taskType: { type: String, enum: ['vision', 'text', 'structural'] },
+    taskName: String
+}, { _id: false });
 
 const schema = new Schema<User>({
     name: { type: String, required: true },
@@ -25,7 +38,8 @@ const schema = new Schema<User>({
     hasNickName: { type: Boolean, default: true },
     accountType: { type: String, enum: ['admin', 'user'] },
     email: { type: String, unique: true, index: true, required: true },
-    data: [DataSchema]
+    data: [DataSchema],
+    runningTasks: [runningTaskSchema]
 });
 
 schema.methods.comparePassword = function(password: string, callback: any){
