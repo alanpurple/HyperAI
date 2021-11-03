@@ -1,4 +1,6 @@
 import * as express from 'express';
+import { Server } from 'socket.io';
+import { createServer } from 'http';
 import { mkdir, access } from 'fs/promises';
 import { AddressInfo } from "net";
 import * as path from 'path';
@@ -24,6 +26,10 @@ import {swaggerOptions} from "./openapi/swagger";
 
 const debug = require('debug')('my express app');
 const app = express();
+const socketServer = createServer(app);
+const io = new Server(socketServer);
+
+
 
 connectDdb().then(() => console.log('document db connected')).catch(err => console.error(err));
 
@@ -92,10 +98,20 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
+io.on('connection', socket =>
+    socket.broadcast.emit('socket connected')
+);
+
 app.get(['/', '/data-manager/?', '/login/?', '/signup/?', '/admin/?', '/info',
     '/description/?', '/model-suggestion/?', '/train-manager/?', '/eda-manager/?',
     '/association', '/user-info'],
-    (req, res) => res.sendFile(path.join(rootPath, 'index.html')));
+    (req, res) => {
+        res.sendFile(path.join(rootPath, 'index.html'));
+        if (req.isAuthenticated()){
+            //TODO: retrieve runningTasks list from mlserver and compare with db data
+            // io.emit( blahblah )
+        }
+    });
 
 app.use(express.static(rootPath, { index: false }));
 
