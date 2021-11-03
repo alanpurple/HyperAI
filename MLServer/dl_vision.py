@@ -12,6 +12,8 @@ class DlVisionPreprocess(dl_vision_pb2_grpc.PreprocessServicer):
         return super().Resize(request, context)
 
     def SegPreprocess(self, request, context):
+        if request.name=='':
+            return dl_vision_pb2.PrepReply(error=0,msgs=['task name not found'])
         locType=request.locationType
         if locType!='local' and locType!='smb':
             return dl_vision_pb2.PrepReply(error=0,msgs=['currently only local and smb type is supported for location type.'])
@@ -36,13 +38,16 @@ class DlVisionPreprocess(dl_vision_pb2_grpc.PreprocessServicer):
             'test_data':test_data
         }
         prep_task=asyncio.create_task(
-            coco_preprocess(object_file,caption_file,train_data,request.include_mask)
+            coco_preprocess(object_file,caption_file,train_data,request.include_mask),
+            name=request.name
             )
         return dl_vision_pb2.PrepReply(error=-1,msgs=['coco data preprocessing started'])
 
 
 class ObjectSegmentation(dl_vision_pb2_grpc.ObjectSegmentationServicer):
     def RCNNTrain(self, request, context):
+        if request.name=='':
+            return dl_vision_pb2.TrainReply(error=0,msgs=['task name not found'])
         locType=request.locationType
         if locType!='local' and locType!='smb':
             return dl_vision_pb2.PrepReply(error=0,msgs=['currently only local and smb type is supported for location type.'])
@@ -66,5 +71,7 @@ class ObjectSegmentation(dl_vision_pb2_grpc.ObjectSegmentationServicer):
             params.num_scales=1
 
         train_task=asyncio.create_task(
-            run_training()
+            run_training(),
+            name=request.name
             )
+        return dl_vision_pb2.TrainReply(error=-1,msgs=['train started'])

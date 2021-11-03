@@ -18,36 +18,38 @@ message dataloc {
 }
 
 message prepOptions {
-	string locationType=1;
-	string location=2;
-	bool include_masks = 3;
-	string train_dir=4;		// output directories and files
-	string val_dir=5;
-	string test_dir=6;
-	string train_anno=7;
-	string val_anno=8;
-	string train_cap_anno=9;
-	string val_cap_anno=10;
-	string testdev_anno=11;
+	string name = 1;
+	string locationType=2;
+	string location=3;
+	bool include_masks = 4;
+	string train_dir=5;		// output directories and files
+	string val_dir=6;
+	string test_dir=7;
+	string train_anno=8;
+	string val_anno=9;
+	string train_cap_anno=10;
+	string val_cap_anno=11;
+	string testdev_anno=12;
 }
 
 message segTrainOptions {
-	string locationType=1;
-	string location=2;
-	bool include_masks = 3;
+	string name = 1;
+	string locationType=2;
+	string location=3;
+	bool include_masks = 4;
 	//string train_dir=4;	// assume ./train, ./val, ./test
 	//string val_dir=5;
 	//string test_dir=6;
-	string train_anno=4;
-	string val_anno=5;
-	string train_cap_anno=6;
-	string val_cap_anno=7;
-	string testdev_anno=8;
-	int32 batch_size=9;
-	bool no_xla=10;
-	bool use_amp=11;
-	int32 num_classes=14;
-	ModelParams model_params = 17;
+	string train_anno=5;
+	string val_anno=6;
+	string train_cap_anno=7;
+	string val_cap_anno=8;
+	string testdev_anno=9;
+	int32 batch_size=10;
+	bool no_xla=11;
+	bool use_amp=12;
+	int32 num_classes=13;
+	ModelParams model_params = 14;
 }
 // so many hyper-parameters... so let's pause for now
 
