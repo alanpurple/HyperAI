@@ -20,7 +20,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { SignupComponent } from './signup.component';
 import { LoginComponent } from './login.component';
 import { HomeComponent } from './home.component';
-import { AdminComponent } from './admin.component';
+import { AdminConsole } from './admin.console';
 import { InfoComponent } from './info.component';
 import { DescComponent } from './desc.component';
 import { TrainComponent } from './train.component';
@@ -44,7 +44,7 @@ import { UserInfo, ComingSoonDialog, NickNameConfirmDialog, NickNameTakenDialog 
 @NgModule({
   declarations: [
     AppComponent, SignupComponent, LoginComponent, HomeComponent,
-    AdminComponent, InfoComponent, DescComponent, TrainComponent,
+    AdminConsole, InfoComponent, DescComponent, TrainComponent,
     DataComponent, ModelComponent, EdaComponent, Association, DataPreview,
     ErrorDialog, ConfirmDialogTemplate, ConfirmDialogTemplate2, UserInfo,
     ComingSoonDialog, NickNameTakenDialog, NickNameConfirmDialog

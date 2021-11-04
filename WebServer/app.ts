@@ -102,7 +102,7 @@ io.on('connection', socket =>
     socket.broadcast.emit('socket connected')
 );
 
-app.get(['/', '/data-manager/?', '/login/?', '/signup/?', '/admin/?', '/info',
+app.get(['/', '/data-manager/?', '/login/?', '/signup/?', '/admin-console/?', '/info',
     '/description/?', '/model-suggestion/?', '/train-manager/?', '/eda-manager/?',
     '/association', '/user-info'],
     (req, res) => {

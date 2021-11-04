@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { NotLoggedIn, HasNick, IsAdmin, LoggedIn, IsNotAdmin } from './check.login';
 
-import { AdminComponent } from './admin.component';
+import { AdminConsole } from './admin.console';
 import { DataComponent } from './data.component';
 import { DescComponent } from './desc.component';
 import { Association } from './association';
@@ -36,7 +36,7 @@ const routes: Routes = [
     canActivate: [NotLoggedIn]
   },
   {
-    path: 'admin', component: AdminComponent,
+    path: 'admin-console', component: AdminConsole,
     canActivate: [IsAdmin]
   },
   {
@@ -65,9 +65,6 @@ const routes: Routes = [
   {
     path: 'eda-manager', component: EdaComponent,
     canActivate: [IsNotAdmin]
-  }, {
-    path: 'admin', component: AdminComponent,
-    canActivate: [IsAdmin]
   }, {
     path: 'user-info', component: UserInfo,
     canActivate: [LoggedIn]
