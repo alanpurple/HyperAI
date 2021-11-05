@@ -18,6 +18,7 @@ import EdaVisionRoute from './routes/dl-vision';
 import AccountRoute from './routes/account';
 import LrRoute from './routes/lr';
 import ProjectRoute from './routes/project';
+import AdminRoute from './routes/admin';
 
 import * as swaggerUi from 'swagger-ui-express';
 import * as swaggerJSDoc from 'swagger-jsdoc';
@@ -122,6 +123,7 @@ app.use('/eda-vision', EdaVisionRoute);
 app.use('/account', AccountRoute);
 app.use('/lr', LrRoute);
 app.use('/project', ProjectRoute);
+app.use('/admin', AdminRoute);
 
 const specs = swaggerJSDoc(swaggerOptions);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {explorer: true}));

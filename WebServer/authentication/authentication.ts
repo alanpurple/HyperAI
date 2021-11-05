@@ -10,3 +10,19 @@ export function ensureAuthenticated(req: Request, res: Response, next: NextFunct
         next();
     }
 }
+
+export function ensureAdminAuthenticated(req: Request, res: Response, next: NextFunction) {
+    if (req.isUnauthenticated() || !req.user) {
+        res.status(StatusCodes.UNAUTHORIZED).send({
+            error: "User authentication failed."
+        });
+    } else {
+        if (req.isAuthenticated() && (req.user["accountType"] === "admin")) {
+            next();
+        } else {
+            res.status(StatusCodes.FORBIDDEN).send({
+                error: "Access is denied for an unauthorized account."
+            });
+        }
+    }
+}
