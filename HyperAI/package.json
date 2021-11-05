@@ -23,15 +23,15 @@
     "angular-plotly.js": "^4.0.4",
     "gojs": "^2.1.52",
     "gojs-angular": "^2.0.4",
-    "plotly.js-dist-min": "^2.6.0",
+    "plotly.js-dist-min": "^2.6.1",
     "rxjs": "~7.4.0",
     "socket.io": "^4.3.1",
     "tslib": "^2.3.1",
     "zone.js": "~0.11.4"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "~13.0.0",
-    "@angular/cli": "~13.0.0",
+    "@angular-devkit/build-angular": "~13.0.1",
+    "@angular/cli": "~13.0.1",
     "@angular/compiler-cli": "~13.0.0",
     "@types/jasmine": "~3.10.2",
     "@types/node": "^16.11.6",
