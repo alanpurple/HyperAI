@@ -1,8 +1,8 @@
-import asyncio
+import threading
 import dl_vision_pb2
 import dl_vision_pb2_grpc
-from ...MaskRCNN.create_coco_tf_record import coco_preprocess
-from ...MaskRCNN.mrcnn_tf2.runtime.run import run_training
+from MaskRCNN.create_coco_tf_record import coco_preprocess
+from MaskRCNN.mrcnn_tf2.runtime.run import run_training
 
 class DlVisionPreprocess(dl_vision_pb2_grpc.PreprocessServicer):
     def Normalize(self, request, context):
@@ -37,10 +37,11 @@ class DlVisionPreprocess(dl_vision_pb2_grpc.PreprocessServicer):
             'val_data':val_data,
             'test_data':test_data
         }
-        prep_task=asyncio.create_task(
-            coco_preprocess(object_file,caption_file,train_data,request.include_mask),
+        threading.Thread(
+            target=coco_preprocess(
+                object_file,caption_file,train_data,request.include_mask),
             name=request.name
-            )
+            ).start()
         return dl_vision_pb2.PrepReply(error=-1,msgs=['coco data preprocessing started'])
 
 
@@ -70,8 +71,6 @@ class ObjectSegmentation(dl_vision_pb2_grpc.ObjectSegmentationServicer):
         if params.num_scales<1:
             params.num_scales=1
 
-        train_task=asyncio.create_task(
-            run_training(),
-            name=request.name
-            )
+        threading.Thread(target=run_training(),name=request.name).start()
+
         return dl_vision_pb2.TrainReply(error=-1,msgs=['train started'])
