@@ -11,6 +11,7 @@
     <OutputPath>.</OutputPath>
     <Name>MLServer</Name>
     <RootNamespace>MLServer</RootNamespace>
+    <TestFramework>Pytest</TestFramework>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -501,6 +502,7 @@
     <Folder Include="MaskRCNN\mrcnn_tf2\ops\" />
     <Folder Include="MaskRCNN\mrcnn_tf2\runtime\" />
     <Folder Include="MaskRCNN\mrcnn_tf2\utils\" />
+    <Folder Include="tblogs\" />
     <Folder Include="research\" />
     <Folder Include="research\object_detection\" />
     <Folder Include="research\object_detection\anchor_generators\" />

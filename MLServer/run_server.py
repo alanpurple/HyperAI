@@ -10,6 +10,7 @@ from dr_service import PcaService, LdaService
 from eda_text import EdaTextService
 from dl_vision import DlVisionPreprocess
 from train import TrainService
+from pm import PmService
 from data_service_pb2_grpc import add_DataServicer_to_server
 from dr_pb2_grpc import add_LdaServicer_to_server,add_PcaServicer_to_server
 from lr_pb2_grpc import add_LrServicer_to_server
@@ -17,6 +18,7 @@ from eda_pb2_grpc import add_PreprocessServicer_to_server as edas
 from eda_text_pb2_grpc import add_PreprocessServicer_to_server as edat
 from dl_vision_pb2_grpc import add_PreprocessServicer_to_server as dlv
 from train_pb2_grpc import add_TrainerServicer_to_server
+from pm_pb2_grpc import add_pmServicer_to_server
 _ONE_DAY_IN_SECONDS = 60 * 60 * 24
 
 server=grpc.server(futures.ThreadPoolExecutor(max_workers=10))
@@ -28,6 +30,7 @@ dlv(DlVisionPreprocess(),server)
 add_TrainerServicer_to_server(TrainService(),server)
 add_DataServicer_to_server(DataServicer(),server)
 add_LrServicer_to_server(LrService(),server)
+add_pmServicer_to_server(PmService(),server)
 
 server.add_insecure_port('[::]:50051')
 server.start()

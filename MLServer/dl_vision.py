@@ -1,4 +1,5 @@
 import threading
+import os
 import dl_vision_pb2
 import dl_vision_pb2_grpc
 from MaskRCNN.create_coco_tf_record import coco_preprocess
@@ -71,6 +72,14 @@ class ObjectSegmentation(dl_vision_pb2_grpc.ObjectSegmentationServicer):
         if params.num_scales<1:
             params.num_scales=1
 
+        tbrun_str='tensorboard --bind_all'
+        if request.tb_port>0:
+            # optional tensorboard port, defaults to 6006 if none
+            tbrun_str+=' --port '+str(request.tb_port)
+        def run_tb():
+            os.system(tbrun_str+' --logdir tblogs/'+request.name)
+
         threading.Thread(target=run_training(),name=request.name).start()
+        threading.Thread(target=run_tb(),name=request.name+'_tb').start()
 
         return dl_vision_pb2.TrainReply(error=-1,msgs=['train started'])

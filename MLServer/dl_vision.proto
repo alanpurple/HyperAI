@@ -50,6 +50,7 @@ message segTrainOptions {
 	bool use_amp=12;
 	int32 num_classes=13;
 	ModelParams model_params = 14;
+	int32 tb_port = 15;
 }
 // so many hyper-parameters... so let's pause for now
 

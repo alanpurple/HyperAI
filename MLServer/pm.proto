@@ -1,0 +1,32 @@
+syntax= "proto3";
+
+package pmservice;
+
+service pm {
+	rpc GetPmStatus (PmRequest) returns (PmResponse) {}
+	rpc TerminateTb (TbRequest) returns (TbResponse) {}
+}
+
+message PmRequest {
+	repeated string processes = 1;
+}
+
+message PmStat {
+	string name = 1;
+	bool status = 2;
+}
+
+message PmResponse {
+	int32 error = 1;
+	repeated PmStat stats = 2;
+	repeated string msgs = 3;
+}
+
+message TbRequest {
+	string taskname = 1;
+}
+
+
+message TbResponse {
+	int32 error = 1;	// -1:success, 0: not found ( no request or no thread found )
+}
