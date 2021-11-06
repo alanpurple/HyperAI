@@ -1,7 +1,7 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot } from "@angular/router";
-import { Observable, throwError } from 'rxjs';
+import { Observable, throwError, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
 import { UserData } from './user.data';
@@ -77,7 +77,13 @@ export class IsAdmin implements CanActivate {
     return this.http.get('/account/admin', { responseType: 'text' })
       .pipe(
         map(res => true),
-        catchError(err => throwError(err)))
+        catchError(err => {
+          if (err.status != 401) {
+            console.error(err._body);
+            return throwError(err);
+          }
+          return of(false);
+        }))
   }
 }
 
@@ -95,7 +101,13 @@ export class IsNotAdmin implements CanActivate {
     return this.http.get('/account/notadmin', { responseType: 'text' })
       .pipe(
         map(res => true),
-        catchError(err => throwError(err)))
+        catchError(err => {
+          if (err.status != 401) {
+            console.error(err._body);
+            return throwError(err);
+          }
+          return of(false);
+        }))
   }
 }
 

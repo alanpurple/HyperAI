@@ -14,6 +14,8 @@ import { ModelComponent } from './model.component';
 import { TrainComponent } from './train.component';
 import { EdaComponent } from './eda.component';
 import { UserInfo } from './user.info';
+import { ProjectComponent } from './project.component';
+import { ProjectDetailComponent } from './project-detail.component';
 
 const routes: Routes = [
   {
@@ -64,10 +66,16 @@ const routes: Routes = [
   },
   {
     path: 'eda-manager', component: EdaComponent,
-    canActivate: [IsNotAdmin]
+    canActivate: [LoggedIn, IsNotAdmin]
   }, {
     path: 'user-info', component: UserInfo,
     canActivate: [LoggedIn]
+  }, {
+    path: 'project-manager', component: ProjectComponent,
+    canActivate: [LoggedIn, IsNotAdmin]
+  }, {
+    path: 'prject-manager/:id', component: ProjectDetailComponent,
+    canActivate: [LoggedIn, IsNotAdmin]
   }
 ];
 

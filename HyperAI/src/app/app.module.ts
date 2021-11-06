@@ -40,6 +40,8 @@ import { LoggedIn, NotLoggedIn, HasNick, IsAdmin, IsNotAdmin } from './check.log
 import { ErrorAlert, ErrorDialog } from './error.alert';
 import { ConfirmDialog, ConfirmDialogTemplate,ConfirmDialogTemplate2 } from './confirm.dialog';
 import { UserInfo, ComingSoonDialog, NickNameConfirmDialog, NickNameTakenDialog } from './user.info';
+import { ProjectComponent } from './project.component';
+import { ProjectDetailComponent } from './project-detail.component';
 
 @NgModule({
   declarations: [
@@ -47,7 +49,7 @@ import { UserInfo, ComingSoonDialog, NickNameConfirmDialog, NickNameTakenDialog 
     AdminConsole, InfoComponent, DescComponent, TrainComponent,
     DataComponent, ModelComponent, EdaComponent, Association, DataPreview,
     ErrorDialog, ConfirmDialogTemplate, ConfirmDialogTemplate2, UserInfo,
-    ComingSoonDialog, NickNameTakenDialog, NickNameConfirmDialog
+    ComingSoonDialog, NickNameTakenDialog, NickNameConfirmDialog, ProjectComponent, ProjectDetailComponent
   ],
   entryComponents: [
     ConfirmDialogTemplate, ConfirmDialogTemplate2, ErrorDialog, ComingSoonDialog,
