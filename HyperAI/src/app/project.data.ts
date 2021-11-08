@@ -26,3 +26,8 @@ export interface StructuralTask {
   name: string;
   taskType: 'recommendation' | 'clustering' | 'classification' | 'regression';
 }
+
+export interface EditMember {
+  inMember: string[];
+  outMember: string[];
+}

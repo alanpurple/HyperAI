@@ -17,4 +17,11 @@ export class ProjectComponent implements OnInit {
   ngOnInit(): void {
   }
 
+  createProject() {
+
+  }
+
+  editProject(name: string) {
+
+  }
 }

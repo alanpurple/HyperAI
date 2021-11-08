@@ -1,4 +1,8 @@
 import { Component, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+
+import { StructuralTask, TextTask, VisionTask } from './project.data';
+import { StructuralTaskDialog, TextTaskDialog, VisionTaskDialog } from './task.dialog';
 
 @Component({
   selector: 'app-project-detail',
@@ -7,9 +11,19 @@ import { Component, OnInit } from '@angular/core';
 })
 export class ProjectDetailComponent implements OnInit {
 
-  constructor() { }
+  constructor(
+    public taskDialog: MatDialog
+  ) { }
 
   ngOnInit(): void {
+  }
+
+  addTask() {
+
+  }
+
+  editTask(name:string) {
+
   }
 
 }
