@@ -5,11 +5,11 @@ export interface Project {
     name: string;
     dataURI: string;
     projectType: 'single' | 'sequential' | 'multiple_comparison';
-    taskType: 'various' | 'vision' | 'text' | 'structural';
+    category: 'various' | 'vision' | 'text' | 'structural';
     owner: Types.ObjectId;
     members: [{ user: Types.ObjectId, role: 'attendee' | 'member' }]; // one and only owner, others are all attendee(for now)
-    visionTasks: VisionTask[];  // use only when taskType is 'vision'
-    textTasks: TextTask[];  // use only when taskType is 'text'
+    visionTasks: VisionTask[];  // use only when category is 'vision'
+    textTasks: TextTask[];  // use only when category is 'text'
     structuralTasks: StructuralTask[];
 }
 
@@ -34,7 +34,7 @@ const schema = new Schema<Project>({
     name: { type: String,unique:true, required: true },
     dataURI: { type: String, required:true },
     projectType: { type: String, enum: ['single', 'sequential', 'multiple_comparison'] },
-    taskType: { type: String, enum: ['various', 'vision', 'text', 'structural'] },
+    category: { type: String, enum: ['various', 'vision', 'text', 'structural'] },
     owner: {type:'ObjectId',ref:'User',required:true},
     members: {
         type: [{
@@ -45,7 +45,7 @@ const schema = new Schema<Project>({
         type: [VisionTaskSchema],
         validate: {
             validator: function (tasks) {
-                return !(tasks?.length) || this.taskType == 'vision' || this.taskType == 'various';
+                return !(tasks?.length) || this.category == 'vision' || this.category == 'various';
             }
         },
         required: function () {
@@ -56,7 +56,7 @@ const schema = new Schema<Project>({
         type: [TextTaskSchema],
         validate: {
             validator: function (tasks) {
-                return !(tasks?.length) || this.taskType == 'text' || this.taskType == 'various';
+                return !(tasks?.length) || this.category == 'text' || this.category == 'various';
             }
         },
         required: function () {
@@ -67,7 +67,7 @@ const schema = new Schema<Project>({
         type: [StructuralTaskSchema],
         validate: {
             validator: function (tasks) {
-                return !(tasks?.length) || this.taskType == 'structural' || this.taskType == 'various';
+                return !(tasks?.length) || this.category == 'structural' || this.category == 'various';
             }
         },
         required: function () {
