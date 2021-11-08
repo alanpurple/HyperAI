@@ -298,4 +298,10 @@ router.delete("/:name", async (request: Request, response: Response, next: NextF
     }
 });
 
+interface EditMember {
+    inMember: string[];
+    outMember: string[];
+}
+
+
 export default router;
