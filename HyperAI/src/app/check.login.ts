@@ -22,7 +22,7 @@ export class NotLoggedIn implements CanActivate {
         map(res => true)
         , catchError(err => {
           if (err.status == 400)
-            return throwError('logged in');
+            return of(false);
           else
             return throwError(err);
         }));
