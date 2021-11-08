@@ -2,7 +2,7 @@ export interface Project {
   name: string;
   dataURI: string;
   projectType: 'single' | 'sequential' | 'multiple_comparison';
-  taskType: 'various' | 'vision' | 'text' | 'structural';
+  category: 'various' | 'vision' | 'text' | 'structural';
   owner: string;  // self for user, email for admin
   members: [{ user: string /*email*/, role: 'attendee' | 'member' }]; // one and only owner, others are all attendee(for now)
   visionTasks: VisionTask[];  // use only when taskType is 'vision'
