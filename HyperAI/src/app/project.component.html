@@ -1,4 +1,28 @@
 <button mat-fab color="accent" aria-label="create project button"
-        (click)="createProject()">
+        (click)="createProject()" *ngIf="!isMaking">
   <mat-icon>add</mat-icon>
 </button>
+
+<mat-stepper *ngIf="isMaking">
+  <mat-step>
+    <form>
+      <ng-template matStepLabel>Project Name</ng-template>
+      <mat-form-field apperance="fill">
+        <mat-label>Name</mat-label>
+        <input matInput placeholder="project name" required>
+      </mat-form-field>
+    </form>
+  </mat-step>
+  <mat-step>
+    <form>
+      <mat-form-field apperance="fill">
+        <mat-label>Members</mat-label>
+        <mat-chip-list>
+          <mat-chip>
+
+          </mat-chip>
+        </mat-chip-list>
+      </mat-form-field>
+    </form>
+  </mat-step>
+</mat-stepper>
