@@ -3,7 +3,7 @@
   <mat-icon>add</mat-icon>
 </button>
 
-<mat-stepper *ngIf="isMaking">
+<mat-stepper *ngIf="isMaking" linear>
   <mat-step>
     <form>
       <ng-template matStepLabel>Project Name</ng-template>
@@ -17,11 +17,28 @@
     <form>
       <mat-form-field apperance="fill">
         <mat-label>Members</mat-label>
-        <mat-chip-list>
-          <mat-chip>
-
+        <mat-chip-list #memberList aria-label="project members" multiple>
+          <mat-chip *ngFor="let member of project.members"
+                    [selected]="member" [value]="member"
+                    (removed)="removeMember(member)">
+            {{member}}
           </mat-chip>
+          <input placeholder="new member..."
+                 [matChipInputFor]="memberList"
+                 (matChipInputTokenEnd)="addMemberFromInput($event)">
         </mat-chip-list>
+      </mat-form-field>
+    </form>
+  </mat-step>
+  <mat-step>
+    <form>
+      <mat-form-field appearance="fill">
+        <mat-label>Project Category</mat-label>
+        <mat-select [(ngModel)]="project.category" name="category">
+          <mat-option *ngFor="category of categories" [value]="category">
+            {{category}}
+          </mat-option>
+        </mat-select>
       </mat-form-field>
     </form>
   </mat-step>
