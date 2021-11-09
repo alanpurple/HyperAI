@@ -14,7 +14,7 @@
   },
   "main": "app.js",
   "dependencies": {
-    "@grpc/grpc-js": "^1.4.3",
+    "@grpc/grpc-js": "^1.4.4",
     "@grpc/proto-loader": "^0.6.6",
     "@mysql/xdevapi": "^8.0.27",
     "@tensorflow/tfjs-node-gpu": "^3.11.0",
@@ -50,7 +50,7 @@
     "@types/mime": "^2.0.3",
     "@types/morgan": "^1.9.3",
     "@types/multer": "^1.4.7",
-    "@types/node": "^16.11.6",
+    "@types/node": "^16.11.7",
     "@types/passport": "^1.0.7",
     "@types/passport-facebook": "^2.1.11",
     "@types/passport-google-oauth": "^1.0.42",
