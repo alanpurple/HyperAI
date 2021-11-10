@@ -16,7 +16,7 @@ export class ProjectService {
   }
 
   getProject(name: string): Observable<Project> {
-    return this.http.get<Project>('/project');
+    return this.http.get<Project>('/project/' + name);
   }
 
   createProject(project: Project): Observable<string> {
