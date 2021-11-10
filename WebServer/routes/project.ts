@@ -299,7 +299,7 @@ router.delete("/:name", async (request: Request, response: Response, next: NextF
 });
 
 interface EditMember {
-    inMember: string[];
+    inMember: { user: string, role: 'member' | 'attendee' }[];
     outMember: string[];
 }
 
