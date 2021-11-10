@@ -10,8 +10,18 @@ import { Project } from "./project.data";
 export class ProjectDialog {
   constructor(
     public dialogRef: MatDialogRef<ProjectDialog>,
-    @Inject(MAT_DIALOG_DATA) public project: Project,
-    @Inject(MAT_DIALOG_DATA) public isNew: boolean
-  ) { }
+    @Inject(MAT_DIALOG_DATA) public data: { project: Project, isNew: boolean }
+  ) {
+    this.originalData = this.data.project;
+  }
 
+  originalData: Project = {} as Project;
+
+  cancel() {
+    this.dialogRef.close();
+  }
+
+  reset() {
+    this.data.project = this.originalData;
+  }
 }

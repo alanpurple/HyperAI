@@ -3,12 +3,12 @@
   <form>
     <mat-form-field>
       <mat-label>Project Name</mat-label>
-      <input matInput maxlength="15" placeholder="Name" [(ngModel)]="project.name">
+      <input matInput maxlength="15" placeholder="Name" [(ngModel)]="data.project.name">
     </mat-form-field>
   </form>
 </div>
 <div mat-dialog-actions>
-  <button mat-button [mat-dilog-close]="project">Save</button>
+  <button mat-button [mat-dilog-close]="data.project">Save</button>
   <button mat-button (click)="cancel()">Cancel</button>
   <button mat-button (click)="reset()">Reset</button>
 </div>

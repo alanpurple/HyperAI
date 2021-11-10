@@ -28,6 +28,6 @@ export interface StructuralTask {
 }
 
 export interface EditMember {
-  inMember: string[];
+  inMember: { user: string, role: 'attendee' | 'member'}[];
   outMember: string[];
 }
