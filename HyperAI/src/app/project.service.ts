@@ -11,6 +11,14 @@ import { Project, EditMember, StructuralTask, VisionTask, TextTask } from './pro
 export class ProjectService {
   constructor(private http: HttpClient) { }
 
+  getProjects(): Observable<Project[]> {
+    return this.http.get<Project[]>('/project');
+  }
+
+  getProject(name: string): Observable<Project> {
+    return this.http.get<Project>('/project');
+  }
+
   createProject(project: Project): Observable<string> {
     return this.http.post('/project', project, { responseType: 'text' });
   }

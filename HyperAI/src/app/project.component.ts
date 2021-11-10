@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 
 import { ProjectDialog } from './project.dialog';
+import { ProjectService } from './project.service';
 
 @Component({
   selector: 'app-project',
@@ -11,7 +12,8 @@ import { ProjectDialog } from './project.dialog';
 export class ProjectComponent implements OnInit {
 
   constructor(
-    public projectDialog: MatDialog
+    public projectDialog: MatDialog,
+    private projectService: ProjectService
   ) { }
 
   ngOnInit(): void {
