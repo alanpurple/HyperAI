@@ -83,55 +83,74 @@ const makeProjectResponse = (isAdmin: boolean, project: Document<any, any, Proje
     };
 };
 
-const addMember = async (inMembers: { user: string, role: 'member' | 'attendee' }[], project: Document<any, any, Project> & Project & { _id: Types.ObjectId }) => {
-    let result = { success: true, message: "success" };
+const addMember = async (responseData: ResponseData, inMembers: { user: string, role: 'member' | 'attendee' }[], project: Document<any, any, Project> & Project & { _id: Types.ObjectId }) => {
+    responseData.success = true;
+    responseData.code = StatusCodes.CREATED;
     
     try {
         for (let member of inMembers) {
             let user = await UserModel.findOne({ email: member.user }).exec();
             
-            project.updateOne({
-                $push: { "members": { user: user._id, role: member.role } }
-            }, (error) => {
-                if (error) {
-                    console.error(error);
-                    result = { success: false, message: error };
-                }
-            });
+            if (project.members.findIndex(elem => elem.user.equals(user._id)) < 0) {
+                project.updateOne({
+                    $push: { "members": { user: user._id, role: member.role } }
+                }, (error) => {
+                    if (error) {
+                        console.error(error);
+                        responseData.success = false;
+                        responseData.code = StatusCodes.INTERNAL_SERVER_ERROR;
+                        responseData.message = error;
+                    }
+                });
+            } else {
+                responseData.success = false;
+                responseData.code = StatusCodes.BAD_REQUEST;
+                responseData.message = `The member ${ member.user } already exists.`;
+            }
             
-            if (!result.success) break;
+            if (!responseData.success) break;
         }
     } catch (error) {
         console.error(error);
-        result = { success: false, message: error };
+        responseData.success = false;
+        responseData.code = StatusCodes.INTERNAL_SERVER_ERROR;
+        responseData.message = error;
     }
-    
-    return result;
 };
 
-const removeMember = async (outMembers: string[], project: Document<any, any, Project> & Project & { _id: Types.ObjectId }) => {
-    let result = { success: true, message: "success" };
+const removeMember = async (responseData: ResponseData, outMembers: string[], project: Document<any, any, Project> & Project & { _id: Types.ObjectId }) => {
+    responseData.success = true;
+    responseData.code = StatusCodes.CREATED;
+    const MIN_REMOVABLE_LENGTH = 2;
     
     try {
         for (let member of outMembers) {
-            let user = await UserModel.findOne({ email: member }).exec();
-            project.updateOne({
-                $pull: { "members": { user: user._id } }
-            }, (error) => {
-                if (error) {
-                    console.log(error);
-                    result = { success: false, message: error };
-                }
-            });
+            if (project.members.length < MIN_REMOVABLE_LENGTH) {
+                responseData.success = false;
+                responseData.code = StatusCodes.BAD_REQUEST;
+                responseData.message = "The member could not be deleted. A project member must have at least one user.";
+            } else {
+                let user = await UserModel.findOne({ email: member }).exec();
+                project.updateOne({
+                    $pull: { "members": { user: user._id } }
+                }, (error) => {
+                    if (error) {
+                        console.log(error);
+                        responseData.success = false;
+                        responseData.code = StatusCodes.INTERNAL_SERVER_ERROR;
+                        responseData.message = error;
+                    }
+                });
+            }
             
-            if (!result.success) break;
+            if (!responseData.success) break;
         }
     } catch (error) {
         console.error(error);
-        result = { success: false, message: error };
+        responseData.success = false;
+        responseData.code = StatusCodes.INTERNAL_SERVER_ERROR;
+        responseData.message = error;
     }
-    
-    return result;
 };
 
 const addTask = async (responseData: ResponseData, task: TaskBody, project: Document<any, any, Project> & Project & { _id: Types.ObjectId }) => {
@@ -446,24 +465,10 @@ router.put("/:name/members", async (request: Request, response: Response, next: 
         let modProject = await ProjectModel.findOne({ name: decodeURI(request.params.name) }).exec();
         
         if (modProject) {
-            let result: { success: boolean; message: string };
+            if (reqMembers.inMember.length > 0) await addMember(responseData, reqMembers.inMember, modProject);
+            if (reqMembers.outMember.length > 0) await removeMember(responseData, reqMembers.outMember, modProject);
             
-            if (reqMembers.inMember.length > 0) result = await addMember(reqMembers.inMember, modProject);
-            if (reqMembers.outMember.length > 0) result = await removeMember(reqMembers.outMember, modProject);
-            
-            if (result.success) {
-                responseData.success = true;
-                responseData.code = StatusCodes.CREATED;
-                responseData.message = ReasonPhrases.CREATED;
-                
-                response.status(StatusCodes.CREATED);
-            } else {
-                responseData.success = false;
-                responseData.code = StatusCodes.INTERNAL_SERVER_ERROR;
-                responseData.message = result.message;
-                
-                response.status(StatusCodes.INTERNAL_SERVER_ERROR);
-            }
+            response.status(responseData.code);
         } else {
             responseData.success = false;
             responseData.code = StatusCodes.NOT_FOUND;
