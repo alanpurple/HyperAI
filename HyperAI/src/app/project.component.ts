@@ -25,6 +25,8 @@ export class ProjectComponent implements OnInit {
   projects: Project[] = [];
   newProject: Project = {} as Project;
 
+  roles = ['member', 'attendee'];
+
   ngOnInit(): void {
     this.projectService.getProjects().subscribe(
       projects => this.projects = projects,
