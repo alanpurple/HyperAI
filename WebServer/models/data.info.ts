@@ -4,7 +4,7 @@ export interface DataInfo {
     name: string;   // local folder name for local type, URI elsewhere
     createdAt: Date;
     locationType: 'db uri' | 'local' | 'smb' | 'datalake' | 'aws s3';
-    type: 'structural' | 'sound' | 'text' | 'image';
+    type: 'structural' | 'sound' | 'text' | 'vision';
     numRows: number;
     isClean: boolean;
     cleansed: DataBasic;
@@ -27,7 +27,7 @@ export const DataSchema = new Schema<DataInfo>({
     name: { type: String, unique: true, required: true },
     locationType: { type: String, enum: ['db uri', 'local', 'smb', 'datalake', 'aws s3'], required: true },
     createdAt: Date,
-    type: { type: String, enum: ['structural', 'sound', 'text', 'image'], required: true },
+    type: { type: String, enum: ['structural', 'sound', 'text', 'vision'], required: true },
     numRows: { type: Number, required: true },
     isClean: Boolean,
     cleansed: BasicSchema,
