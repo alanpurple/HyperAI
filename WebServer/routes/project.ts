@@ -84,6 +84,57 @@ const makeProjectResponse = (isAdmin: boolean, project: Document<any, any, Proje
     };
 };
 
+const addMember = async (inMembers: { user: string, role: 'member' | 'attendee' }[], project: Document<any, any, Project> & Project & { _id: Types.ObjectId }) => {
+    let result = { success: true, message: "success" };
+    
+    try {
+        for (let member of inMembers) {
+            let user = await UserModel.findOne({ email: member.user }).exec();
+            
+            project.updateOne({
+                $push: { "members": { user: user._id, role: member.role } }
+            }, (error) => {
+                if (error) {
+                    console.error(error);
+                    result = { success: false, message: error };
+                }
+            });
+            
+            if (!result.success) break;
+        }
+    } catch (error) {
+        console.error(error);
+        result = { success: false, message: error };
+    }
+    
+    return result;
+};
+
+const removeMember = async (outMembers: string[], project: Document<any, any, Project> & Project & { _id: Types.ObjectId }) => {
+    let result = { success: true, message: "success" };
+    
+    try {
+        for (let member of outMembers) {
+            let user = await UserModel.findOne({ email: member }).exec();
+            project.updateOne({
+                $pull: { "members": { user: user._id } }
+            }, (error) => {
+                if (error) {
+                    console.log(error);
+                    result = { success: false, message: error };
+                }
+            });
+            
+            if (!result.success) break;
+        }
+    } catch (error) {
+        console.error(error);
+        result = { success: false, message: error };
+    }
+    
+    return result;
+};
+
 // User authentication checks before processing all project requests.
 // Temporary comments for testing
 // router.all("*", ensureAuthenticated);
@@ -91,6 +142,9 @@ const makeProjectResponse = (isAdmin: boolean, project: Document<any, any, Proje
 router.get("/", async (request: Request, response: Response) => {
     let responseData = new ResponseData();
     debug(request.user);
+    
+    request.user = { accountType: "admin" }; // todo: should be removed after testing
+    let isAdmin = request.user["accountType"] === "admin";
     
     try {
         let projects = await ProjectModel
@@ -101,17 +155,21 @@ router.get("/", async (request: Request, response: Response) => {
         
         responseData.success = true;
         
-        if (projects.length === 0) {
-            responseData.code = StatusCodes.NOT_FOUND;
-            responseData.message = "No project found.";
-            
-            response.status(StatusCodes.NOT_FOUND);
-        } else {
+        if (projects.length > 0) {
             responseData.code = StatusCodes.OK;
-            responseData.message = `Found ${projects.length} projects.`;
-            responseData.data = projects;
+            responseData.message = ReasonPhrases.OK;
+            responseData.count = projects.length;
+            
+            let projectArray = [];
+            projects.forEach(project => projectArray.push(makeProjectResponse(isAdmin, project)));
+            responseData.data = projectArray;
             
             response.status(StatusCodes.OK);
+        } else {
+            responseData.code = StatusCodes.NOT_FOUND;
+            responseData.message = ReasonPhrases.NOT_FOUND;
+            
+            response.status(StatusCodes.NOT_FOUND);
         }
     } catch (error) {
         responseData = makeErrorResult(error, response);
@@ -129,6 +187,9 @@ router.get("/:name", async (request: Request, response: Response, next: NextFunc
         return next(new Error("Project name error."));
     }
     
+    request.user = { accountType: "admin" }; // todo: should be removed after testing
+    let isAdmin = request.user["accountType"] === "admin";
+    
     try {
         let project = await ProjectModel
             .findOne({ name: decodeURI(request.params.name)/*, "owner": request.user['_id']*/ }, { _id: 0 })
@@ -138,17 +199,17 @@ router.get("/:name", async (request: Request, response: Response, next: NextFunc
         
         responseData.success = true;
         
-        if (!project || Object.keys(project).length === 0) {
-            responseData.code = StatusCodes.NOT_FOUND;
-            responseData.message = "A project with the specified name was not found.";
-            
-            response.status(StatusCodes.NOT_FOUND);
-        } else {
+        if (project && Object.keys(project).length > 0) {
             responseData.code = StatusCodes.OK;
-            responseData.message = `Found a project.`;
-            responseData.data = project;
+            responseData.message = ReasonPhrases.OK;
+            responseData.data = makeProjectResponse(isAdmin, project);
             
             response.status(StatusCodes.OK);
+        } else {
+            responseData.code = StatusCodes.NOT_FOUND;
+            responseData.message = ReasonPhrases.NOT_FOUND;
+            
+            response.status(StatusCodes.NOT_FOUND);
         }
     } catch (error) {
         responseData = makeErrorResult(error, response);
@@ -179,13 +240,6 @@ router.post("/", async (request: Request, response: Response, next: NextFunction
             responseData.code = StatusCodes.CREATED;
             responseData.message = ReasonPhrases.CREATED;
             
-            await newProject.populate({path: 'owner', select: 'email -_id'});
-            await newProject.populate({path: 'members.user', select: 'email -_id'});
-            
-            let projectData = newProject.toObject();
-            delete projectData._id || delete projectData["_id"];
-            responseData.data = projectData;
-            
             response.status(StatusCodes.CREATED);
         } else {
             responseData.success = false;
@@ -202,48 +256,43 @@ router.post("/", async (request: Request, response: Response, next: NextFunction
     }
 });
 
-router.put("/:name", async (request: Request, response: Response, next: NextFunction) => {
+router.put("/:name/members", async (request: Request, response: Response, next: NextFunction) => {
     let responseData = new ResponseData();
     
     if (pathParamError(request.params.name)) {
         return next(new Error("Project name error."));
     }
     
-    let projectModel = new ProjectModel(request.body, null, {skipId: true});
-    debug("projectModel: ", projectModel);
-    
-    let validation = modelValidationError(projectModel);
-    if (validation.withError) {
-        return next(validation.error);
-    }
-    
-    // todo: 프로젝트 이름 변경 시 기존 이름과 중복 오류를 따로 처리할 지..?
+    let reqMembers: EditMember = request.body;
     
     try {
-        let modProject = await ProjectModel
-            .findOneAndUpdate({name: decodeURI(request.params.name)}, projectModel, {returnOriginal: false})
-            .exec();
+        let modProject = await ProjectModel.findOne({ name: decodeURI(request.params.name) }).exec();
         
-        if (!modProject) {
+        if (modProject) {
+            let result: { success: boolean; message: string };
+            
+            if (reqMembers.inMember.length > 0) result = await addMember(reqMembers.inMember, modProject);
+            if (reqMembers.outMember.length > 0) result = await removeMember(reqMembers.outMember, modProject);
+            
+            if (result.success) {
+                responseData.success = true;
+                responseData.code = StatusCodes.CREATED;
+                responseData.message = ReasonPhrases.CREATED;
+    
+                response.status(StatusCodes.CREATED);
+            } else {
+                responseData.success = false;
+                responseData.code = StatusCodes.INTERNAL_SERVER_ERROR;
+                responseData.message = result.message;
+                
+                response.status(StatusCodes.INTERNAL_SERVER_ERROR);
+            }
+        } else {
             responseData.success = false;
             responseData.code = StatusCodes.NOT_FOUND;
             responseData.message = "No project was modified.";
             
             response.status(StatusCodes.NOT_FOUND);
-        } else {
-            responseData.success = true;
-            responseData.code = StatusCodes.CREATED;
-            responseData.message = ReasonPhrases.CREATED;
-            // responseData.data = modProject;
-            
-            await modProject.populate({path: 'owner', select: 'email -_id'});
-            await modProject.populate({path: 'members.user', select: 'email -_id'});
-            
-            let projectData = modProject.toObject();
-            delete projectData._id || delete projectData["_id"];
-            responseData.data = projectData;
-            
-            response.status(StatusCodes.CREATED);
         }
     } catch (error) {
         responseData = makeErrorResult(error, response);
@@ -266,17 +315,17 @@ router.delete("/", async (request: Request, response: Response, next: NextFuncti
         
         responseData.success = true;
         
-        if (result.deletedCount === 0) {
-            responseData.code = StatusCodes.NOT_FOUND;
-            responseData.message = "No project was deleted.";
-            
-            response.status(StatusCodes.NOT_FOUND);
-        } else {
+        if (result.deletedCount > 0) {
             responseData.code = StatusCodes.OK;
             responseData.message = ReasonPhrases.OK;
             responseData.data = result;
             
             response.status(StatusCodes.OK);
+        } else {
+            responseData.code = StatusCodes.NOT_FOUND;
+            responseData.message = "No project was deleted.";
+            
+            response.status(StatusCodes.NOT_FOUND);
         }
     } catch (error) {
         responseData = makeErrorResult(error, response);
@@ -298,23 +347,16 @@ router.delete("/:name", async (request: Request, response: Response, next: NextF
         
         responseData.success = true;
         
-        if (!delProject) {
+        if (delProject) {
+            responseData.code = StatusCodes.OK;
+            responseData.message = ReasonPhrases.OK;
+            
+            response.status(StatusCodes.OK);
+        } else {
             responseData.code = StatusCodes.NOT_FOUND;
             responseData.message = "No project was deleted.";
             
             response.status(StatusCodes.NOT_FOUND);
-        } else {
-            responseData.code = StatusCodes.OK;
-            responseData.message = ReasonPhrases.OK;
-            
-            await delProject.populate({path: 'owner', select: 'email -_id'});
-            await delProject.populate({path: 'members.user', select: 'email -_id'});
-            
-            let projectData = delProject.toObject();
-            delete projectData._id || delete projectData["_id"];
-            responseData.data = projectData;
-            
-            response.status(StatusCodes.OK);
         }
     } catch (error) {
         responseData = makeErrorResult(error, response);
