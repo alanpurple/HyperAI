@@ -1,10 +1,11 @@
-import {Router, Request, Response, NextFunction} from 'express';
-import {Project, ProjectModel} from "../models/project";
-import {ReasonPhrases, StatusCodes,} from 'http-status-codes';
+import { Router, Request, Response, NextFunction } from 'express';
+import { Project, ProjectModel } from "../models/project";
+import { ReasonPhrases, StatusCodes, } from 'http-status-codes';
 import Debug from "debug";
-import {ensureAuthenticated} from "../authentication/authentication";
-import {ResponseData} from "../interfaces/ResponseData";
-import {Document, Types} from 'mongoose';
+import { ensureAuthenticated } from "../authentication/authentication";
+import { ResponseData } from "../interfaces/ResponseData";
+import { Document, Schema, Types, ObjectId } from 'mongoose';
+import { UserModel } from "../models/user";
 
 const debug = Debug("project");
 const router = Router();
@@ -17,6 +18,7 @@ const router = Router();
  */
 const makeErrorResult = (error, response: Response) => {
     debug("############## ", error.message);
+    console.error(error);
     
     let responseData = new ResponseData();
     
@@ -33,7 +35,6 @@ const makeErrorResult = (error, response: Response) => {
     responseData.message = error.name;
     responseData.data = error.message;
     
-    debug("############## responseData - ", responseData);
     return responseData;
 };
 
@@ -58,6 +59,31 @@ const modelValidationError = (model: Document<any, any, Project> & Project & { _
     };
 }
 
+const makeProjectResponse = (isAdmin: boolean, project: Document<any, any, Project> & Project & { _id: Types.ObjectId; }) => {
+    let projectMemberArray = [];
+    project.members.forEach(elem => {
+        let member = {
+            user: elem.user["email"],
+            role: elem.role
+        }
+        projectMemberArray.push(member);
+    });
+    
+    return {
+        name: project.name,
+        dataURI: project.dataURI,
+        projectType: project.projectType,
+        category: project.category,
+        owner: isAdmin ? project.owner["email"] : "self",
+        members: projectMemberArray,
+        visionTasks: project.visionTasks,
+        textTasks: project.textTasks,
+        structuralTasks: project.structuralTasks,
+        createdAt: project["createdAt"],
+        updatedAt: project["updatedAt"]
+    };
+};
+
 // User authentication checks before processing all project requests.
 // Temporary comments for testing
 // router.all("*", ensureAuthenticated);
@@ -68,9 +94,9 @@ router.get("/", async (request: Request, response: Response) => {
     
     try {
         let projects = await ProjectModel
-            .find({/*"owner": request.user['_id']*/}, {_id: 0})
-            .populate({path: 'owner', select: 'email -_id'})
-            .populate({path: 'members.user', select: 'email -_id'})
+            .find({ /*"owner": request.user['_id']*/ }, { _id: false, __v: false })
+            .populate({ path: 'owner', select: 'email -_id' })
+            .populate({ path: 'members.user', select: 'email -_id' })
             .exec();
         
         responseData.success = true;
@@ -105,9 +131,9 @@ router.get("/:name", async (request: Request, response: Response, next: NextFunc
     
     try {
         let project = await ProjectModel
-            .findOne({name: decodeURI(request.params.name)/*, "owner": request.user['_id']*/}, {_id: 0})
-            .populate({path: 'owner', select: 'email -_id'})
-            .populate({path: 'members.user', select: 'email -_id'})
+            .findOne({ name: decodeURI(request.params.name)/*, "owner": request.user['_id']*/ }, { _id: 0 })
+            .populate({ path: 'owner', select: 'email -_id' })
+            .populate({ path: 'members.user', select: 'email -_id' })
             .exec();
         
         responseData.success = true;
@@ -144,7 +170,7 @@ router.post("/", async (request: Request, response: Response, next: NextFunction
     }
     
     try {
-        let project = await ProjectModel.findOne({name: request.body.name}).exec();
+        let project = await ProjectModel.findOne({ name: request.body.name }).exec();
         
         if (!project) {
             let newProject = await ProjectModel.create(projectModel);
@@ -236,7 +262,7 @@ router.delete("/", async (request: Request, response: Response, next: NextFuncti
     }
     
     try {
-        let result = await ProjectModel.deleteMany({name: {$in: names}}).exec();
+        let result = await ProjectModel.deleteMany({ name: { $in: names } }).exec();
         
         responseData.success = true;
         
@@ -268,7 +294,7 @@ router.delete("/:name", async (request: Request, response: Response, next: NextF
     }
     
     try {
-        let delProject = await ProjectModel.findOneAndDelete({name: decodeURI(request.params.name)}).exec();
+        let delProject = await ProjectModel.findOneAndDelete({ name: decodeURI(request.params.name) }).exec();
         
         responseData.success = true;
         
