@@ -142,61 +142,82 @@ const addTask = async (responseData: ResponseData, task: TaskBody, project: Docu
         switch (task.type) {
             case "vision":
                 const visionTask = task.task as VisionTask;
-                let newVisionTask: VisionTask = {
-                    completed: visionTask.completed,
-                    includeMask: visionTask.includeMask,
-                    name: visionTask.name,
-                    preprocessed: visionTask.preprocessed,
-                    taskType: visionTask.taskType
-                };
                 
-                project.updateOne({
-                    $push: { visionTasks: newVisionTask }
-                }, (error) => {
-                    if (error) {
-                        console.error(error);
-                        responseData.success = false;
-                        responseData.code = StatusCodes.INTERNAL_SERVER_ERROR;
-                        responseData.message = error;
-                    }
-                });
+                if (project.visionTasks.findIndex(elem => elem.name === visionTask.name) < 0) {
+                    let newVisionTask: VisionTask = {
+                        completed: visionTask.completed,
+                        includeMask: visionTask.includeMask,
+                        name: visionTask.name,
+                        preprocessed: visionTask.preprocessed,
+                        taskType: visionTask.taskType
+                    };
+                    
+                    project.updateOne({
+                        $push: { visionTasks: newVisionTask }
+                    }, (error) => {
+                        if (error) {
+                            console.error(error);
+                            responseData.success = false;
+                            responseData.code = StatusCodes.INTERNAL_SERVER_ERROR;
+                            responseData.message = error;
+                        }
+                    });
+                } else {
+                    responseData.success = false;
+                    responseData.code = StatusCodes.BAD_REQUEST;
+                    responseData.message = "The task name already exists.";
+                }
                 
                 break;
             case "text":
                 const textTask = task.task as TextTask;
-                let newTextTask: TextTask = {
-                    name: textTask.name
-                };
                 
-                project.updateOne({
-                    $push: { textTasks: newTextTask }
-                }, (error) => {
-                    if (error) {
-                        console.error(error);
-                        responseData.success = false;
-                        responseData.code = StatusCodes.INTERNAL_SERVER_ERROR;
-                        responseData.message = error;
-                    }
-                });
+                if (project.textTasks.findIndex(elem => elem.name === textTask.name) < 0) {
+                    let newTextTask: TextTask = {
+                        name: textTask.name
+                    };
+                    
+                    project.updateOne({
+                        $push: { textTasks: newTextTask }
+                    }, (error) => {
+                        if (error) {
+                            console.error(error);
+                            responseData.success = false;
+                            responseData.code = StatusCodes.INTERNAL_SERVER_ERROR;
+                            responseData.message = error;
+                        }
+                    });
+                } else {
+                    responseData.success = false;
+                    responseData.code = StatusCodes.BAD_REQUEST;
+                    responseData.message = "The task name already exists.";
+                }
                 
                 break;
             case "structural":
                 const structuralTask = task.task as StructuralTask;
-                let newStructuralTask: StructuralTask = {
-                    name: structuralTask.name,
-                    taskType: structuralTask.taskType
-                };
                 
-                project.updateOne({
-                    $push: { structuralTasks: newStructuralTask }
-                }, (error) => {
-                    if (error) {
-                        console.error(error);
-                        responseData.success = false;
-                        responseData.code = StatusCodes.INTERNAL_SERVER_ERROR;
-                        responseData.message = error;
-                    }
-                });
+                if (project.structuralTasks.findIndex(elem => elem.name === structuralTask.name) < 0) {
+                    let newStructuralTask: StructuralTask = {
+                        name: structuralTask.name,
+                        taskType: structuralTask.taskType
+                    };
+                    
+                    project.updateOne({
+                        $push: { structuralTasks: newStructuralTask }
+                    }, (error) => {
+                        if (error) {
+                            console.error(error);
+                            responseData.success = false;
+                            responseData.code = StatusCodes.INTERNAL_SERVER_ERROR;
+                            responseData.message = error;
+                        }
+                    });
+                } else {
+                    responseData.success = false;
+                    responseData.code = StatusCodes.BAD_REQUEST;
+                    responseData.message = "The task name already exists.";
+                }
                 
                 break;
             default:
