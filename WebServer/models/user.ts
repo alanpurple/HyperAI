@@ -14,6 +14,7 @@ interface RunningTasks {
 export interface User {
     name: string;
     password: string;
+    organization: 'infinov' | 'namutech' | 'samsung'|'hynix';
     nickName: string;
     hasNickName: boolean;
     accountType: 'admin' | 'user';
@@ -32,7 +33,7 @@ const runningTaskSchema = new Schema<RunningTasks>({
 const schema = new Schema<User>({
     name: { type: String, required: true },
     password: { type: String, required: true },
-    // temporary default nickname
+    organization: {type:String,enum:['infinov','namutech','samsung','hynix']},
     nickName: { type: String, unique: true, sparse: true },
     // true for now
     hasNickName: { type: Boolean, default: true },

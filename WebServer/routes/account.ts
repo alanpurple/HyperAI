@@ -150,6 +150,20 @@ router.get('/checkUser/:id', (req: Request, res: Response) => {
     });
 });
 
+router.get('/colleagues', (req: Request, res: Response) => {
+    const user = req.user as User;
+    UserModel.find({ organization: user.organization }, 'email').then(
+        users => {
+            if (users.length < 1)
+                res.sendStatus(404);
+            else {
+                const userlist = users.map(user => user.email);
+                res.send(userlist);
+            }
+        }
+    )
+});
+
 function ensureAuthenticated(req: Request, res: Response, next: NextFunction) {
     if (req.isUnauthenticated())
         res.status(401).send('unauthorized');

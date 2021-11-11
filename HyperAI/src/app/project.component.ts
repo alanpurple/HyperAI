@@ -6,6 +6,7 @@ import { Project } from './project.data';
 
 import { ProjectDialog } from './project.dialog';
 import { ProjectService } from './project.service';
+import { UserService } from './user.service';
 
 @Component({
   selector: 'app-project',
@@ -15,6 +16,7 @@ import { ProjectService } from './project.service';
 export class ProjectComponent implements OnInit {
 
   constructor(
+    private userService: UserService,
     public dialog: MatDialog,
     private projectService: ProjectService,
     private errorAlert: ErrorAlert,
@@ -24,13 +26,23 @@ export class ProjectComponent implements OnInit {
   isMaking: boolean = false;
   projects: Project[] = [];
   newProject: Project = {} as Project;
+  colleagues: string[] = [];
 
   roles = ['member', 'attendee'];
+  categories = ['various', 'vision', 'text', 'structural'];
 
   ngOnInit(): void {
     this.projectService.getProjects().subscribe(
       projects => this.projects = projects,
       err => this.errorAlert.open(err)
+    );
+    this.userService.getColleagues().subscribe(
+      users => this.colleagues = users,
+      err => {
+        //not found
+        if (err.status != 404)
+          this.errorAlert.open(err);
+      }
     );
   }
 
@@ -53,9 +65,31 @@ export class ProjectComponent implements OnInit {
     );
   }
 
+  availableMembers: string[] = [];
   //using stepper
   createProjectEasy() {
     this.isMaking = true;
+    this.availableMembers = this.colleagues;
+  }
+
+  selectedMember = '';
+
+  addMember() {
+    if (!this.selectedMember)
+      return;
+    this.newProject.members.push({ user: this.selectedMember, role: 'attendee' });
+    const index = this.availableMembers.indexOf(this.selectedMember);
+    if (index < 0) {
+      this.errorAlert.open('somethings wrong, inconsistency in process');
+      return;
+    }
+    this.availableMembers.splice(index, 1);
+    this.selectedMember = '';
+  }
+
+  removeUser(index: number) {
+    this.availableMembers.push(this.newProject.members[index].user);
+    this.newProject.members.splice(index, 1);
   }
 
   postCreated() {

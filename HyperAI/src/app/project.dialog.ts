@@ -5,7 +5,7 @@ import { Project } from "./project.data";
 
 @Component({
   selector: 'project-dialog',
-  templateUrl: './project-dialog.html'
+  templateUrl: './project.dialog.html'
 })
 export class ProjectDialog {
   constructor(

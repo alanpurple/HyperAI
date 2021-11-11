@@ -29,6 +29,11 @@ import { ModelComponent } from './model.component';
 import { EdaComponent } from './eda.component';
 import { Association } from './association';
 import { DataPreview } from './data-preview';
+import { ProjectComponent } from './project.component';
+import { ProjectDetailComponent } from './project-detail.component';
+
+import { ProjectDialog } from './project.dialog';
+import { StructuralTaskDialog, TextTaskDialog, VisionTaskDialog } from './task.dialog';
 
 /*import { DataService } from './data.service';
 import { EdaService } from './eda.service';
@@ -40,8 +45,7 @@ import { LoggedIn, NotLoggedIn, HasNick, IsAdmin, IsNotAdmin } from './check.log
 import { ErrorAlert, ErrorDialog } from './error.alert';
 import { ConfirmDialog, ConfirmDialogTemplate,ConfirmDialogTemplate2 } from './confirm.dialog';
 import { UserInfo, ComingSoonDialog, NickNameConfirmDialog, NickNameTakenDialog } from './user.info';
-import { ProjectComponent } from './project.component';
-import { ProjectDetailComponent } from './project-detail.component';
+
 
 @NgModule({
   declarations: [
@@ -49,11 +53,13 @@ import { ProjectDetailComponent } from './project-detail.component';
     AdminConsole, InfoComponent, DescComponent, TrainComponent,
     DataComponent, ModelComponent, EdaComponent, Association, DataPreview,
     ErrorDialog, ConfirmDialogTemplate, ConfirmDialogTemplate2, UserInfo,
-    ComingSoonDialog, NickNameTakenDialog, NickNameConfirmDialog, ProjectComponent, ProjectDetailComponent
+    ComingSoonDialog, NickNameTakenDialog, NickNameConfirmDialog, ProjectComponent, ProjectDetailComponent,
+    ProjectDialog, VisionTaskDialog, TextTaskDialog, StructuralTaskDialog
   ],
   entryComponents: [
     ConfirmDialogTemplate, ConfirmDialogTemplate2, ErrorDialog, ComingSoonDialog,
-    NickNameConfirmDialog, NickNameTakenDialog
+    NickNameConfirmDialog, NickNameTakenDialog,
+    ProjectDialog, VisionTaskDialog, TextTaskDialog, StructuralTaskDialog
   ],
   imports: [
     BrowserModule,
