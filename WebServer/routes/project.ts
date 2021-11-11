@@ -1,5 +1,5 @@
 import { Router, Request, Response, NextFunction } from 'express';
-import { Project, ProjectModel } from "../models/project";
+import { Project, ProjectModel, VisionTask, TextTask, StructuralTask } from "../models/project";
 import { ReasonPhrases, StatusCodes, } from 'http-status-codes';
 import Debug from "debug";
 import { ensureAuthenticated } from "../authentication/authentication";
@@ -126,6 +126,126 @@ const removeMember = async (outMembers: string[], project: Document<any, any, Pr
             });
             
             if (!result.success) break;
+        }
+    } catch (error) {
+        console.error(error);
+        result = { success: false, message: error };
+    }
+    
+    return result;
+};
+
+const addTask = async (task: TaskBody, project: Document<any, any, Project> & Project & { _id: Types.ObjectId }) => {
+    let result = { success: true, message: "success" };
+    
+    try {
+        switch (task.type) {
+            case "vision":
+                const visionTask = task.task as VisionTask;
+                let newVisionTask: VisionTask = {
+                    completed: visionTask.completed,
+                    includeMask: visionTask.includeMask,
+                    name: visionTask.name,
+                    preprocessed: visionTask.preprocessed,
+                    taskType: visionTask.taskType
+                };
+                
+                project.updateOne({
+                    $push: { visionTasks: newVisionTask }
+                }, (error) => {
+                    if (error) {
+                        console.error(error);
+                        result = { success: false, message: error };
+                    }
+                });
+                
+                break;
+            case "text":
+                const textTask = task.task as TextTask;
+                let newTextTask: TextTask = {
+                    name: textTask.name
+                };
+                
+                project.updateOne({
+                    $push: { textTasks: newTextTask }
+                }, (error) => {
+                    if (error) {
+                        console.error(error);
+                        result = { success: false, message: error };
+                    }
+                });
+                
+                break;
+            case "structural":
+                const structuralTask = task.task as StructuralTask;
+                let newStructuralTask: StructuralTask = {
+                    name: structuralTask.name,
+                    taskType: structuralTask.taskType
+                };
+                
+                project.updateOne({
+                    $push: { structuralTasks: newStructuralTask }
+                }, (error) => {
+                    if (error) {
+                        console.error(error);
+                        result = { success: false, message: error };
+                    }
+                });
+                
+                break;
+            default:
+                result = { success: false, message: "category is undefined" };
+                break;
+        }
+    } catch (error) {
+        console.error(error);
+        result = { success: false, message: error };
+    }
+    
+    return result;
+};
+
+const removeTask = async (type: string, taskName: string, project: Document<any, any, Project> & Project & { _id: Types.ObjectId }) => {
+    let result = { success: true, message: "success" };
+    
+    try {
+        switch (type) {
+            case "vision":
+                project.updateOne({
+                    $pull: { visionTasks: { name: taskName } }
+                }, (error) => {
+                    if (error) {
+                        console.error(error);
+                        result = { success: false, message: error };
+                    }
+                });
+                
+                break;
+            case "text":
+                project.updateOne({
+                    $push: { textTasks: { name: taskName } }
+                }, (error) => {
+                    if (error) {
+                        console.error(error);
+                        result = { success: false, message: error };
+                    }
+                });
+                
+                break;
+            case "structural":
+                project.updateOne({
+                    $push: { structuralTasks: { name: taskName } }
+                }, (error) => {
+                    if (error) {
+                        console.error(error);
+                        result = { success: false, message: error };
+                    }
+                });
+                
+                break;
+            default:
+                result = { success: false, message: "category is undefined" };
+                break;
         }
     } catch (error) {
         console.error(error);
@@ -278,7 +398,7 @@ router.put("/:name/members", async (request: Request, response: Response, next: 
                 responseData.success = true;
                 responseData.code = StatusCodes.CREATED;
                 responseData.message = ReasonPhrases.CREATED;
-    
+                
                 response.status(StatusCodes.CREATED);
             } else {
                 responseData.success = false;
@@ -291,6 +411,102 @@ router.put("/:name/members", async (request: Request, response: Response, next: 
             responseData.success = false;
             responseData.code = StatusCodes.NOT_FOUND;
             responseData.message = "No project was modified.";
+            
+            response.status(StatusCodes.NOT_FOUND);
+        }
+    } catch (error) {
+        responseData = makeErrorResult(error, response);
+    } finally {
+        response.send(responseData);
+        response.end();
+    }
+});
+
+router.put("/:name/task", async (request: Request, response: Response, next: NextFunction) => {
+    let responseData = new ResponseData();
+    
+    if (pathParamError(request.params.name)) {
+        return next(new Error("Project name error."));
+    }
+    
+    let reqTasks: TaskBody = request.body;
+    
+    try {
+        let modProject = await ProjectModel.findOne({ name: decodeURI(request.params.name) }).exec();
+        
+        if (modProject) {
+            let result: { success: boolean; message: string };
+            
+            result = await addTask(reqTasks, modProject);
+            
+            if (result.success) {
+                responseData.success = true;
+                responseData.code = StatusCodes.CREATED;
+                responseData.message = ReasonPhrases.CREATED;
+                
+                response.status(StatusCodes.CREATED);
+            } else {
+                responseData.success = false;
+                responseData.code = StatusCodes.INTERNAL_SERVER_ERROR;
+                responseData.message = result.message;
+                
+                response.status(StatusCodes.INTERNAL_SERVER_ERROR);
+            }
+        } else {
+            responseData.success = false;
+            responseData.code = StatusCodes.NOT_FOUND;
+            responseData.message = "No task was added.";
+            
+            response.status(StatusCodes.NOT_FOUND);
+        }
+    } catch (error) {
+        responseData = makeErrorResult(error, response);
+    } finally {
+        response.send(responseData);
+        response.end();
+    }
+});
+
+router.delete("/:name/task/:type/:taskName", async (request: Request, response: Response, next: NextFunction) => {
+    let responseData = new ResponseData();
+    
+    if (pathParamError(request.params.name)) {
+        return next(new Error("Project name error."));
+    }
+    
+    if (pathParamError(request.params.type)) {
+        return next(new Error("Project category error."));
+    }
+    
+    if (pathParamError(request.params.taskName)) {
+        return next(new Error("Task name error."));
+    }
+    
+    try {
+        let modProject = await ProjectModel.findOne({ name: decodeURI(request.params.name) }).exec();
+        console.log(modProject);
+        if (modProject) {
+            let result: { success: boolean; message: string };
+            
+            result = await removeTask(decodeURI(request.params.type), decodeURI(request.params.taskName), modProject);
+            
+            if (result.success) {
+                responseData.success = true;
+                responseData.code = StatusCodes.CREATED;
+                responseData.message = ReasonPhrases.CREATED;
+                
+                response.status(StatusCodes.CREATED);
+            } else {
+                responseData.success = false;
+                responseData.code = StatusCodes.INTERNAL_SERVER_ERROR;
+                responseData.message = result.message;
+                
+                response.status(StatusCodes.INTERNAL_SERVER_ERROR);
+            }
+        } else {
+            responseData.success = false;
+            responseData.code = StatusCodes.NOT_FOUND;
+            responseData.message = "No tasks were removed.";
             
             response.status(StatusCodes.NOT_FOUND);
         }
@@ -371,5 +587,14 @@ interface EditMember {
     outMember: string[];
 }
 
+interface EditTask {
+    name: string;
+    taskType: 'recommendation' | 'clustering' | 'classification' | 'regression';
+}
+
+interface TaskBody {
+    type: 'structural' | 'text' | 'vision';
+    task: EditTask
+}
 
 export default router;
