@@ -1,10 +1,9 @@
-import { Router, Request, Response, NextFunction } from 'express';
-import { Project, ProjectModel, VisionTask, TextTask, StructuralTask } from "../models/project";
+import { NextFunction, Request, Response, Router } from 'express';
+import { Project, ProjectModel, StructuralTask, TextTask, VisionTask } from "../models/project";
 import { ReasonPhrases, StatusCodes, } from 'http-status-codes';
 import Debug from "debug";
-import { ensureAuthenticated } from "../authentication/authentication";
 import { ResponseData } from "../interfaces/ResponseData";
-import { Document, Schema, Types, ObjectId } from 'mongoose';
+import { Document, Types } from 'mongoose';
 import { UserModel } from "../models/user";
 
 const debug = Debug("project");
@@ -135,8 +134,9 @@ const removeMember = async (outMembers: string[], project: Document<any, any, Pr
     return result;
 };
 
-const addTask = async (task: TaskBody, project: Document<any, any, Project> & Project & { _id: Types.ObjectId }) => {
-    let result = { success: true, message: "success" };
+const addTask = async (responseData: ResponseData, task: TaskBody, project: Document<any, any, Project> & Project & { _id: Types.ObjectId }) => {
+    responseData.success = true;
+    responseData.code = StatusCodes.CREATED;
     
     try {
         switch (task.type) {
@@ -155,7 +155,9 @@ const addTask = async (task: TaskBody, project: Document<any, any, Project> & Pr
                 }, (error) => {
                     if (error) {
                         console.error(error);
-                        result = { success: false, message: error };
+                        responseData.success = false;
+                        responseData.code = StatusCodes.INTERNAL_SERVER_ERROR;
+                        responseData.message = error;
                     }
                 });
                 
@@ -171,7 +173,9 @@ const addTask = async (task: TaskBody, project: Document<any, any, Project> & Pr
                 }, (error) => {
                     if (error) {
                         console.error(error);
-                        result = { success: false, message: error };
+                        responseData.success = false;
+                        responseData.code = StatusCodes.INTERNAL_SERVER_ERROR;
+                        responseData.message = error;
                     }
                 });
                 
@@ -188,71 +192,103 @@ const addTask = async (task: TaskBody, project: Document<any, any, Project> & Pr
                 }, (error) => {
                     if (error) {
                         console.error(error);
-                        result = { success: false, message: error };
+                        responseData.success = false;
+                        responseData.code = StatusCodes.INTERNAL_SERVER_ERROR;
+                        responseData.message = error;
                     }
                 });
                 
                 break;
             default:
-                result = { success: false, message: "category is undefined" };
+                responseData.success = false;
+                responseData.code = StatusCodes.BAD_REQUEST;
+                responseData.message = "category is undefined";
                 break;
         }
     } catch (error) {
         console.error(error);
-        result = { success: false, message: error };
+        responseData.success = false;
+        responseData.code = StatusCodes.INTERNAL_SERVER_ERROR;
+        responseData.message = error;
     }
-    
-    return result;
 };
 
-const removeTask = async (type: string, taskName: string, project: Document<any, any, Project> & Project & { _id: Types.ObjectId }) => {
-    let result = { success: true, message: "success" };
+const removeTask = async (responseData: ResponseData, type: string, taskName: string, project: Document<any, any, Project> & Project & { _id: Types.ObjectId }) => {
+    responseData.success = true;
+    responseData.code = StatusCodes.CREATED;
+    const MIN_REMOVABLE_LENGTH = 2;
     
     try {
         switch (type) {
             case "vision":
-                project.updateOne({
-                    $pull: { visionTasks: { name: taskName } }
-                }, (error) => {
-                    if (error) {
-                        console.error(error);
-                        result = { success: false, message: error };
-                    }
-                });
+                if (project.visionTasks.length < MIN_REMOVABLE_LENGTH) {
+                    responseData.success = false;
+                    responseData.code = StatusCodes.BAD_REQUEST;
+                    responseData.message = "The task could not be deleted. A project must have at least one task.";
+                } else {
+                    project.updateOne({
+                        $pull: { visionTasks: { name: taskName } }
+                    }, (error) => {
+                        if (error) {
+                            console.error(error);
+                            responseData.success = false;
+                            responseData.code = StatusCodes.INTERNAL_SERVER_ERROR;
+                            responseData.message = error;
+                        }
+                    });
+                }
                 
                 break;
             case "text":
-                project.updateOne({
-                    $push: { textTasks: { name: taskName } }
-                }, (error) => {
-                    if (error) {
-                        console.error(error);
-                        result = { success: false, message: error };
-                    }
-                });
+                if (project.textTasks.length < MIN_REMOVABLE_LENGTH) {
+                    responseData.success = false;
+                    responseData.code = StatusCodes.BAD_REQUEST;
+                    responseData.message = "The task could not be deleted. A project must have at least one task.";
+                } else {
+                    project.updateOne({
+                        $push: { textTasks: { name: taskName } }
+                    }, (error) => {
+                        if (error) {
+                            console.error(error);
+                            responseData.success = false;
+                            responseData.code = StatusCodes.INTERNAL_SERVER_ERROR;
+                            responseData.message = error;
+                        }
+                    });
+                }
                 
                 break;
             case "structural":
-                project.updateOne({
-                    $push: { structuralTasks: { name: taskName } }
-                }, (error) => {
-                    if (error) {
-                        console.error(error);
-                        result = { success: false, message: error };
-                    }
-                });
+                if (project.structuralTasks.length < MIN_REMOVABLE_LENGTH) {
+                    responseData.success = false;
+                    responseData.code = StatusCodes.BAD_REQUEST;
+                    responseData.message = "The task could not be deleted. A project must have at least one task.";
+                } else {
+                    project.updateOne({
+                        $push: { structuralTasks: { name: taskName } }
+                    }, (error) => {
+                        if (error) {
+                            console.error(error);
+                            responseData.success = false;
+                            responseData.code = StatusCodes.INTERNAL_SERVER_ERROR;
+                            responseData.message = error;
+                        }
+                    });
+                }
                 
                 break;
             default:
-                result = { success: false, message: "category is undefined" };
+                responseData.success = false;
+                responseData.code = StatusCodes.BAD_REQUEST;
+                responseData.message = "category is undefined";
                 break;
         }
     } catch (error) {
         console.error(error);
-        result = { success: false, message: error };
+        responseData.success = false;
+        responseData.code = StatusCodes.INTERNAL_SERVER_ERROR;
+        responseData.message = error;
     }
-    
-    return result;
 };
 
 // User authentication checks before processing all project requests.
@@ -435,23 +471,8 @@ router.put("/:name/task", async (request: Request, response: Response, next: Nex
         let modProject = await ProjectModel.findOne({ name: decodeURI(request.params.name) }).exec();
         
         if (modProject) {
-            let result: { success: boolean; message: string };
-            
-            result = await addTask(reqTasks, modProject);
-            
-            if (result.success) {
-                responseData.success = true;
-                responseData.code = StatusCodes.CREATED;
-                responseData.message = ReasonPhrases.CREATED;
-                
-                response.status(StatusCodes.CREATED);
-            } else {
-                responseData.success = false;
-                responseData.code = StatusCodes.INTERNAL_SERVER_ERROR;
-                responseData.message = result.message;
-                
-                response.status(StatusCodes.INTERNAL_SERVER_ERROR);
-            }
+            await addTask(responseData, reqTasks, modProject);
+            response.status(responseData.code);
         } else {
             responseData.success = false;
             responseData.code = StatusCodes.NOT_FOUND;
@@ -484,25 +505,10 @@ router.delete("/:name/task/:type/:taskName", async (request: Request, response: 
     
     try {
         let modProject = await ProjectModel.findOne({ name: decodeURI(request.params.name) }).exec();
-        console.log(modProject);
+        
         if (modProject) {
-            let result: { success: boolean; message: string };
-            
-            result = await removeTask(decodeURI(request.params.type), decodeURI(request.params.taskName), modProject);
-            
-            if (result.success) {
-                responseData.success = true;
-                responseData.code = StatusCodes.CREATED;
-                responseData.message = ReasonPhrases.CREATED;
-                
-                response.status(StatusCodes.CREATED);
-            } else {
-                responseData.success = false;
-                responseData.code = StatusCodes.INTERNAL_SERVER_ERROR;
-                responseData.message = result.message;
-                
-                response.status(StatusCodes.INTERNAL_SERVER_ERROR);
-            }
+            await removeTask(responseData, decodeURI(request.params.type), decodeURI(request.params.taskName), modProject);
+            response.status(responseData.code);
         } else {
             responseData.success = false;
             responseData.code = StatusCodes.NOT_FOUND;
