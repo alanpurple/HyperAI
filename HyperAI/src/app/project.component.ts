@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { MatTable } from '@angular/material/table';
 import { ConfirmDialog } from './confirm.dialog';
 import { ErrorAlert } from './error.alert';
 import { Project } from './project.data';
@@ -7,6 +8,7 @@ import { Project } from './project.data';
 import { ProjectDialog } from './project.dialog';
 import { ProjectService } from './project.service';
 import { UserService } from './user.service';
+import { DataInfo } from './data.info';
 
 @Component({
   selector: 'app-project',
@@ -23,6 +25,8 @@ export class ProjectComponent implements OnInit {
     private confirmDialog: ConfirmDialog
   ) { }
 
+  @ViewChild('projects') projectTable: MatTable<Project> | null = null;
+
   isMaking: boolean = false;
   projects: Project[] = [];
   newProject: Project = {} as Project;
@@ -31,10 +35,16 @@ export class ProjectComponent implements OnInit {
   roles = ['member', 'attendee'];
   categories = ['various', 'vision', 'text', 'structural'];
 
+  userData: DataInfo[] = [];
+  dataList: DataInfo[] = [];
+
   ngOnInit(): void {
     this.projectService.getProjects().subscribe(
       projects => this.projects = projects,
-      err => this.errorAlert.open(err)
+      err => {
+        if(err.status!=404)
+         this.errorAlert.open(err);
+      }
     );
     this.userService.getColleagues().subscribe(
       users => this.colleagues = users,
@@ -43,6 +53,10 @@ export class ProjectComponent implements OnInit {
         if (err.status != 404)
           this.errorAlert.open(err);
       }
+    );
+    this.userService.getUser().subscribe(
+      user => this.userData = user.data,
+      err => this.errorAlert.open(err)
     );
   }
 
@@ -72,6 +86,25 @@ export class ProjectComponent implements OnInit {
     this.availableMembers = this.colleagues;
   }
 
+  cancelMaking() {
+    this.newProject = {} as Project;
+    this.isMaking = false;
+    this.dataList = [];
+  }
+
+  resetMaking() {
+    this.newProject = {} as Project;
+    this.dataList = [];
+  }
+
+  filterData() {
+    const category = this.newProject.category;
+    if (category == 'various')
+      this.dataList = this.userData;
+    else
+      this.dataList = this.userData.filter(elem => elem.type == this.newProject.category);
+  }
+
   selectedMember = '';
 
   addMember() {
@@ -99,6 +132,7 @@ export class ProjectComponent implements OnInit {
         this.newProject = {} as Project;
         this.confirmDialog.open('project created successfully');
         this.isMaking = false;
+        this.dataList = [];
       }
     )
   }

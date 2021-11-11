@@ -1,17 +1,69 @@
 <button mat-fab color="accent" aria-label="create project button"
-        (click)="createProject()" *ngIf="!isMaking">
+        (click)="createProjectEasy()" *ngIf="!isMaking">
   <mat-icon>add</mat-icon>
 </button>
 
-<mat-stepper *ngIf="isMaking" linear>
+<!--<table #projects mat-table [dataSource]="projects">
+  <ng-container matColumnDef="name">
+
+  </ng-container>
+  <ng-container matColumnDef="dataURI">
+
+  </ng-container>
+  <ng-container matColumnDef="category">
+
+  </ng-container>
+</table>-->
+
+<button *ngIf="isMaking" mat-button color="accent" (click)="cancelMaking()">Cancel Making Project</button>
+<mat-stepper *ngIf="isMaking" orientation="vertical" linear #stepper>
   <mat-step>
     <form>
       <ng-template matStepLabel>Project Name</ng-template>
       <mat-form-field apperance="fill">
         <mat-label>Name</mat-label>
-        <input matInput placeholder="project name" required>
+        <input matInput placeholder="project name" [(ngModel)]="newProject.name" name="name" required>
       </mat-form-field>
     </form>
+    <div>
+      <button mat-button matStepperNext>Next</button>
+      <button mat-button color="warn" (click)="stepper.reset(); resetMaking()">Reset process</button>
+    </div>
+  </mat-step>
+  <mat-step>
+    <form>
+      <mat-form-field appearance="fill">
+        <mat-label>Project Category</mat-label>
+        <mat-select [(ngModel)]="newProject.category" name="category"
+                    (selectionChange)="filterData()">
+          <mat-option *ngFor="let category of categories" [value]="category">
+            {{category}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </form>
+    <div>
+      <button mat-button matStepperPrevious>Back</button>
+      <button mat-button matStepperNext>Next</button>
+      <button mat-button color="warn" (click)="stepper.reset(); resetMaking()">Reset process</button>
+    </div>
+  </mat-step>
+  <mat-step>
+    <form>
+      <mat-form-field apperance="fill">
+        <mat-label>Data for project</mat-label>
+        <mat-select [(ngModel)]="newProject.dataURI" name="dataURI">
+          <mat-option *ngFor="let data of dataList" [value]="data">
+            {{data.name}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </form>
+    <div>
+      <button mat-button matStepperPrevious>Back</button>
+      <button mat-button matStepperNext>Next</button>
+      <button mat-button color="warn" (click)="stepper.reset(); resetMaking()">Reset process</button>
+    </div>
   </mat-step>
   <mat-step>
     <form>
@@ -28,7 +80,7 @@
       </mat-form-field>
       <mat-form-field>
         <mat-label>available members</mat-label>
-        <mat-select [(ngModel)]="selectedMember">
+        <mat-select [(ngModel)]="selectedMember" name="member">
           <mat-option *ngFor="let member of availableMembers" [value]="member">
             {{member}}
           </mat-option>
@@ -38,29 +90,27 @@
         </button>
       </mat-form-field>
     </form>
+    <div>
+      <button mat-button matStepperPrevious>Back</button>
+      <button mat-button matStepperNext>Next</button>
+      <button mat-button color="warn" (click)="stepper.reset(); resetMaking()">Reset process</button>
+    </div>
   </mat-step>
   <mat-step>
     <form>
       <mat-form-field *ngFor="let member of newProject.members" appearance="fill">
         <mat-label>{{member.user}}</mat-label>
-        <mat-select [(ngModel)]="member.role">
+        <mat-select [(ngModel)]="member.role" name="role">
           <mat-option *ngFor="let role of roles" [value]="role">
             {{role}}
           </mat-option>
         </mat-select>
       </mat-form-field>
     </form>
-  </mat-step>
-  <mat-step>
-    <form>
-      <mat-form-field appearance="fill">
-        <mat-label>Project Category</mat-label>
-        <mat-select [(ngModel)]="newProject.category" name="category">
-          <mat-option *ngFor="let category of categories" [value]="category">
-            {{category}}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
-    </form>
+    <div>
+      <button mat-button matStepperPrevious>Back</button>
+      <button mat-button matStepperNext>Next</button>
+      <button mat-button color="warn" (click)="stepper.reset(); resetMaking()">Reset process</button>
+    </div>
   </mat-step>
 </mat-stepper>

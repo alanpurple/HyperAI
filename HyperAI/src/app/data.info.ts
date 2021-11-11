@@ -1,6 +1,6 @@
 export interface DataInfo {
   name: string;
-  type: 'structural' | 'sound' | 'text' | 'image';
+  type: 'structural' | 'sound' | 'text' | 'vision';
   numRows: number;
   isClean: boolean;
   cleansed: DataBasic;
