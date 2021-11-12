@@ -3,6 +3,7 @@ import { Project, ProjectModel, StructuralTask, TextTask, VisionTask } from "../
 import { ReasonPhrases, StatusCodes, } from 'http-status-codes';
 import Debug from "debug";
 import { ResponseData } from "../interfaces/ResponseData";
+import { RequestProject } from "../interfaces/ProjectRequest";
 import { Document, Types } from 'mongoose';
 import { UserModel } from "../models/user";
 
@@ -81,6 +82,39 @@ const makeProjectResponse = (isAdmin: boolean, project: Document<any, any, Proje
         createdAt: project["createdAt"],
         updatedAt: project["updatedAt"]
     };
+};
+
+/**
+ * Convert requested project data to mongoose project data
+ * @param rProject Requested project data
+ */
+const convertToProjectSchema = async (rProject: RequestProject) => {
+    try {
+        let owner = await UserModel.findOne({ email: rProject.owner }).exec();
+        let members: { user: Types.ObjectId; role: "attendee" | "member" }[] = [];
+        
+        for (let rMember of rProject.members) {
+            let user = await UserModel.findOne({ email: rMember.user }).exec();
+            members.push({ user: user._id, role: rMember.role });
+        }
+        
+        let projectSchema: Project = {
+            category: rProject.category,
+            dataURI: rProject.dataURI,
+            members: members,
+            name: rProject.name,
+            owner: owner._id,
+            projectType: rProject.projectType,
+            structuralTasks: rProject.structuralTasks,
+            textTasks: rProject.textTasks,
+            visionTasks: rProject.visionTasks
+        };
+        
+        return projectSchema;
+    } catch(error) {
+        debug(error);
+        return undefined;
+    }
 };
 
 const addMember = async (responseData: ResponseData, inMembers: { user: string, role: 'member' | 'attendee' }[], project: Document<any, any, Project> & Project & { _id: Types.ObjectId }) => {
@@ -371,7 +405,7 @@ router.get("/", async (request: Request, response: Response) => {
         responseData = makeErrorResult(error, response);
     } finally {
         debug("############## responseData -", responseData);
-        response.send(responseData);
+        response.send(responseData.data); // send data only
         response.end();
     }
 });
@@ -410,7 +444,7 @@ router.get("/:name", async (request: Request, response: Response, next: NextFunc
     } catch (error) {
         responseData = makeErrorResult(error, response);
     } finally {
-        response.send(responseData);
+        response.send(responseData.data); // send data only
         response.end();
     }
 });
@@ -418,8 +452,12 @@ router.get("/:name", async (request: Request, response: Response, next: NextFunc
 router.post("/", async (request: Request, response: Response, next: NextFunction) => {
     let responseData = new ResponseData();
     
-    let projectModel = new ProjectModel(request.body);
-    debug("projectModel: ", projectModel);
+    const projectSchema = await convertToProjectSchema(request.body);
+    if (!projectSchema) {
+        return next("Failed to parse request data.");
+    }
+    
+    let projectModel = new ProjectModel(projectSchema);
     
     let validation = modelValidationError(projectModel);
     if (validation.withError) {
