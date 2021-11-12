@@ -8,7 +8,7 @@ import { Project } from './project.data';
 import { ProjectDialog } from './project.dialog';
 import { ProjectService } from './project.service';
 import { UserService } from './user.service';
-import { DataInfo } from './data.info';
+import { DataInfo, DataBasic } from './data.info';
 
 @Component({
   selector: 'app-project',
@@ -48,6 +48,10 @@ export class ProjectComponent implements OnInit {
 
   userData: DataInfo[] = [];
   dataList: DataInfo[] = [];
+
+
+  
+
 
   ngOnInit(): void {
     this.projectService.getProjects().subscribe(
@@ -146,8 +150,12 @@ export class ProjectComponent implements OnInit {
     const category = this.newProject.category;
     if (category == 'various')
       this.dataList = this.userData;
-    else
+    else {
       this.dataList = this.userData.filter(elem => elem.type == this.newProject.category);
+      //temporary insertion code
+      if (this.newProject.category == 'vision')
+        this.dataList.push(TEMPORARY_VISION_DATA);
+    }
   }
 
   selectedMember = '';
@@ -221,3 +229,8 @@ export class ProjectComponent implements OnInit {
     })
   }
 }
+
+
+const TEMPORARY_VISION_DATA: DataInfo = {
+  name: 'coco', isClean: false, numRows: 1000000, type: 'vision', cleansed: null, preprocessed: null
+};

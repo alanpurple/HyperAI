@@ -3,8 +3,8 @@ export interface DataInfo {
   type: 'structural' | 'sound' | 'text' | 'vision';
   numRows: number;
   isClean: boolean;
-  cleansed: DataBasic;
-  preprocessed: DataBasic;
+  cleansed: DataBasic|null;
+  preprocessed: DataBasic|null;
 }
 
 export interface DataBasic {
