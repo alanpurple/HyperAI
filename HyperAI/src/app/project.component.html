@@ -3,17 +3,26 @@
   <mat-icon>add</mat-icon>
 </button>
 
-<!--<table #projects mat-table [dataSource]="projects">
+<table #projectTable mat-table [dataSource]="projects" matSort>
   <ng-container matColumnDef="name">
-
+    <th mat-header-cell *matHeaderCellDef>name</th>
+    <td mat-cell *matCellDef="let row">{{row.name}}</td>
   </ng-container>
   <ng-container matColumnDef="dataURI">
-
+    <th mat-header-cell *matHeaderCellDef>Data</th>
+    <td mat-cell *matCellDef="let row">{{row.dataURI}}</td>
+  </ng-container>
+  <ng-container matColumnDef="projectType">
+    <th mat-header-cell *matHeaderCellDef>Project Type</th>
+    <td mat-cell *matCellDef="let row">{{row.projectType}}</td>
   </ng-container>
   <ng-container matColumnDef="category">
-
+    <th mat-header-cell *matHeaderCellDef>Category</th>
+    <td mat-cell *matCellDef="let row">{{row.category}}</td>
   </ng-container>
-</table>-->
+  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+  <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+</table>
 
 <button *ngIf="isMaking" mat-button color="accent" (click)="cancelMaking()">Cancel Making Project</button>
 <mat-stepper *ngIf="isMaking" orientation="vertical" linear #stepper>

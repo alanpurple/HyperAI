@@ -22,6 +22,7 @@ passport.use(new LocalStrategy({ passReqToCallback: true },
                     email: emailAddr,
                     password: password,
                     name: req.body.name,
+                    organization:req.body.organization,
                     accountType: 'user'
                 }).then(user => done(null, user));
             }

@@ -25,7 +25,7 @@ export class ProjectComponent implements OnInit {
     private confirmDialog: ConfirmDialog
   ) { }
 
-  @ViewChild('projects') projectTable: MatTable<Project> | null = null;
+  @ViewChild('projectTable') projectTable: MatTable<Project> | null = null;
 
   isMaking: boolean = false;
   projects: Project[] = [];
@@ -34,6 +34,7 @@ export class ProjectComponent implements OnInit {
 
   roles = ['member', 'attendee'];
   categories = ['various', 'vision', 'text', 'structural'];
+  displayedColumns = ['name', 'dataURI', 'projectType', 'category'];
 
   userData: DataInfo[] = [];
   dataList: DataInfo[] = [];
@@ -72,6 +73,7 @@ export class ProjectComponent implements OnInit {
       this.projectService.createProject(project).subscribe(
         msg => {
           this.projects.push(project);
+          this.projectTable?.renderRows();
           this.confirmDialog.open('project created successfully');
         },
         err => this.errorAlert.open(err)
@@ -129,6 +131,7 @@ export class ProjectComponent implements OnInit {
     this.projectService.createProject(this.newProject).subscribe(
       msg => {
         this.projects.push(this.newProject);
+        this.projectTable?.renderRows();
         this.newProject = {} as Project;
         this.confirmDialog.open('project created successfully');
         this.isMaking = false;
