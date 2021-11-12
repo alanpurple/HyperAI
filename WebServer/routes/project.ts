@@ -500,11 +500,40 @@ router.put("/:name/members", async (request: Request, response: Response, next: 
     let reqMembers: EditMember = request.body;
     
     try {
-        let modProject = await ProjectModel.findOne({ name: decodeURI(request.params.name) }).exec();
+        let modProject = await ProjectModel.findOne({ name: decodeURI(request.params.name) })
+            .populate({ path: 'members.user', select: 'email -_id' })
+            .exec();
         
         if (modProject) {
-            if (reqMembers.inMember.length > 0) await addMember(responseData, reqMembers.inMember, modProject);
-            if (reqMembers.outMember.length > 0) await removeMember(responseData, reqMembers.outMember, modProject);
+            let currentMemberEmails: string[] = modProject.members.map(member => {
+                return member.user["email"];
+            });
+            
+            let inCount: number = 0, outCount: number = 0;
+            if (reqMembers.inMember.length > 0) {
+                // Check if the target to be removed exists
+                let inMemberEmails: string[] = reqMembers.inMember.map(e => e.user);
+                const difference: string[] = inMemberEmails.filter(e => !currentMemberEmails.includes(e));
+                if (difference.length > 0) {
+                    await addMember(responseData, reqMembers.inMember, modProject);
+                    inCount = difference.length;
+                }
+            }
+            
+            if (reqMembers.outMember.length > 0) {
+                // Check if the target to be removed exists
+                const intersection: string[] = currentMemberEmails.filter(e => reqMembers.outMember.includes(e));
+                if (intersection.length > 0 && (currentMemberEmails.length > intersection.length)) {
+                    await removeMember(responseData, reqMembers.outMember, modProject);
+                    outCount = intersection.length;
+                }
+            }
+            
+            if (inCount === 0 && outCount === 0) {
+                responseData.success = false;
+                responseData.code = StatusCodes.NOT_FOUND;
+                responseData.message = "No members were modified.";
+            }
             
             response.status(responseData.code);
         } else {
