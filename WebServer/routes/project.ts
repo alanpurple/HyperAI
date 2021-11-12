@@ -379,7 +379,7 @@ router.get("/", async (request: Request, response: Response) => {
     
     try {
         let projects = await ProjectModel
-            .find({ /*"owner": request.user['_id']*/ }, { _id: false, __v: false })
+            .find({ "owner": request.user['_id'] }, { _id: false, __v: false })
             .populate({ path: 'owner', select: 'email -_id' })
             .populate({ path: 'members.user', select: 'email -_id' })
             .exec();
@@ -422,7 +422,7 @@ router.get("/:name", async (request: Request, response: Response, next: NextFunc
     
     try {
         let project = await ProjectModel
-            .findOne({ name: decodeURI(request.params.name)/*, "owner": request.user['_id']*/ }, { _id: 0 })
+            .findOne({ name: decodeURI(request.params.name), "owner": request.user['_id'] }, { _id: 0 })
             .populate({ path: 'owner', select: 'email -_id' })
             .populate({ path: 'members.user', select: 'email -_id' })
             .exec();
