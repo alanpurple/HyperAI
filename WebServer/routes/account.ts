@@ -159,7 +159,7 @@ router.get('/checkUser/:id', (req: Request, res: Response) => {
 
 router.get('/colleagues', (req: Request, res: Response) => {
     const user = req.user as User;
-    UserModel.find({ organization: user.organization }, 'email').then(
+    UserModel.find({ organization: user.organization, email: { $ne: user.email } }, 'email').then(
         users => {
             if (users.length < 1)
                 res.sendStatus(404);

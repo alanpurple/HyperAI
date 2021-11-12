@@ -41,6 +41,7 @@
   </mat-step>
   <mat-step>
     <form>
+      <ng-template matStepLabel>Category</ng-template>
       <mat-form-field appearance="fill">
         <mat-label>Project Category</mat-label>
         <mat-select [(ngModel)]="newProject.category" name="category"
@@ -58,6 +59,7 @@
     </div>
   </mat-step>
   <mat-step>
+    <ng-template matStepLabel>Data</ng-template>
     <form>
       <mat-form-field apperance="fill">
         <mat-label>Data for project</mat-label>
@@ -75,7 +77,8 @@
     </div>
   </mat-step>
   <mat-step>
-    <form>
+    <form fxLayout="row">
+      <ng-template matStepLabel>Select Members</ng-template>
       <mat-chip-list #memberList aria-label="project members" multiple>
         <mat-chip *ngFor="let member of newProject.members; index as i"
                   [value]="member" removable
@@ -104,6 +107,7 @@
   </mat-step>
   <mat-step>
     <form>
+      <ng-template matStepLabel>Roles</ng-template>
       <mat-form-field *ngFor="let member of newProject.members" appearance="fill">
         <mat-label>{{member.user}}</mat-label>
         <mat-select [(ngModel)]="member.role" name="role">
@@ -116,6 +120,15 @@
     <div>
       <button mat-button matStepperPrevious>Back</button>
       <button mat-button matStepperNext>Next</button>
+      <button mat-button color="warn" (click)="stepper.reset(); resetMaking()">Reset process</button>
+    </div>
+  </mat-step>
+  <mat-step>
+    <ng-template matStepLabel>Done</ng-template>
+    <p>Now you are ready to make your project</p>
+    <div>
+      <button mat-button matStepperPrevious>Back</button>
+      <button mat-button color="primary" (click)="postCreated()">Create</button>
       <button mat-button color="warn" (click)="stepper.reset(); resetMaking()">Reset process</button>
     </div>
   </mat-step>

@@ -29,7 +29,17 @@ export class ProjectComponent implements OnInit {
 
   isMaking: boolean = false;
   projects: Project[] = [];
-  newProject: Project = {} as Project;
+  newProject: Project = {
+    name: '',
+    dataURI: '',
+    projectType: 'single',
+    category: 'structural',
+    owner: '',
+    members: [],
+    visionTasks: [],
+    textTasks: [],
+    structuralTasks: []
+  };
   colleagues: string[] = [];
 
   roles = ['member', 'attendee'];
@@ -56,7 +66,10 @@ export class ProjectComponent implements OnInit {
       }
     );
     this.userService.getUser().subscribe(
-      user => this.userData = user.data,
+      user => {
+        this.userData = user.data;
+        this.filterData();
+      },
       err => this.errorAlert.open(err)
     );
   }
@@ -65,7 +78,17 @@ export class ProjectComponent implements OnInit {
   createProject() {
     const dialogRef = this.dialog.open(ProjectDialog, {
       data: {
-        project: {} as Project,
+        project: {
+          name: '',
+          dataURI: '',
+          projectType: 'single',
+          category: 'structural',
+          owner: '',
+          members: [],
+          visionTasks: [],
+          textTasks: [],
+          structuralTasks: []
+        },
         isNew:true
       }
     });
@@ -89,13 +112,33 @@ export class ProjectComponent implements OnInit {
   }
 
   cancelMaking() {
-    this.newProject = {} as Project;
+    this.newProject = {
+      name: '',
+      dataURI: '',
+      projectType: 'single',
+      category: 'structural',
+      owner: '',
+      members: [],
+      visionTasks: [],
+      textTasks: [],
+      structuralTasks: []
+    };
     this.isMaking = false;
     this.dataList = [];
   }
 
   resetMaking() {
-    this.newProject = {} as Project;
+    this.newProject = {
+      name: '',
+      dataURI: '',
+      projectType: 'single',
+      category: 'structural',
+      owner: '',
+      members: [],
+      visionTasks: [],
+      textTasks: [],
+      structuralTasks: []
+    };
     this.dataList = [];
   }
 
@@ -119,7 +162,7 @@ export class ProjectComponent implements OnInit {
       return;
     }
     this.availableMembers.splice(index, 1);
-    this.selectedMember = '';
+    //this.selectedMember = '';
   }
 
   removeUser(index: number) {
@@ -132,7 +175,17 @@ export class ProjectComponent implements OnInit {
       msg => {
         this.projects.push(this.newProject);
         this.projectTable?.renderRows();
-        this.newProject = {} as Project;
+        this.newProject = {
+          name: '',
+          dataURI: '',
+          projectType: 'single',
+          category: 'structural',
+          owner: '',
+          members: [],
+          visionTasks: [],
+          textTasks: [],
+          structuralTasks: []
+        };
         this.confirmDialog.open('project created successfully');
         this.isMaking = false;
         this.dataList = [];
