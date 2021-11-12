@@ -7,7 +7,7 @@ export interface Project {
     projectType: 'single' | 'sequential' | 'multiple_comparison';
     category: 'various' | 'vision' | 'text' | 'structural';
     owner: Types.ObjectId;
-    members: [{ user: Types.ObjectId, role: 'attendee' | 'member' }]; // one and only owner, others are all attendee(for now)
+    members: { user: Types.ObjectId, role: 'attendee' | 'member' }[]; // one and only owner, others are all attendee(for now)
     visionTasks: VisionTask[];  // use only when category is 'vision'
     textTasks: TextTask[];  // use only when category is 'text'
     structuralTasks: StructuralTask[];
