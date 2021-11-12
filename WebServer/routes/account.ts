@@ -74,6 +74,7 @@ router.get('/info', (req: Request, res: Response) => {
         const user: User = req.user as User;
         res.send({
             name: user.name,
+            organization: user.organization,
             nickName: user.nickName,
             hasNickName: user.hasNickName,
             accountType: user.accountType,
