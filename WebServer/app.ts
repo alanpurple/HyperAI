@@ -39,6 +39,7 @@ UserModel.findOne({email:'alan@infinov.com'}).then(user => {
         return UserModel.create({
             name: 'Alan Anderson',
             email: 'alan@infinov.com',
+            organization:'infinov',
             nickName: 'alanracer',
             accountType: 'admin',
             password: 'testadmin'
@@ -53,6 +54,7 @@ UserModel.findOne({ email: 'alanpurple@gmail.com'}).then(user => {
         return UserModel.create({
             name: 'Alan User',
             email: 'alanpurple@gmail.com',
+            organization:'infinov',
             nickName: 'retriever',
             accountType: 'user',
             password: 'testuser'
