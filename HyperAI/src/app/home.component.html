@@ -1,4 +1,4 @@
-<mat-grid-list cols="5" rowHeight="2:1">
+<mat-grid-list *ngIf="loggedIn" cols="5" rowHeight="2:1">
   <mat-grid-tile *ngFor="let project of projects">
     <mat-card>
       <mat-card-header>
