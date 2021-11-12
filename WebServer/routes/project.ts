@@ -5,7 +5,7 @@ import Debug from "debug";
 import { ResponseData } from "../interfaces/ResponseData";
 import { RequestProject } from "../interfaces/ProjectRequest";
 import { Document, Types } from 'mongoose';
-import { UserModel } from "../models/user";
+import { User, UserModel } from "../models/user";
 
 const debug = Debug("project");
 const router = Router();
@@ -88,9 +88,11 @@ const makeProjectResponse = (isAdmin: boolean, project: Document<any, any, Proje
  * Convert requested project data to mongoose project data
  * @param rProject Requested project data
  */
-const convertToProjectSchema = async (rProject: RequestProject) => {
+const convertToProjectSchema = async (user, rProject: RequestProject) => {
+    debug("user::::::::", user);
+    debug("rProject::::::::::", rProject);
     try {
-        let owner = await UserModel.findOne({ email: rProject.owner }).exec();
+        // let owner = await UserModel.findOne({ email: rProject.owner }).exec();
         let members: { user: Types.ObjectId; role: "attendee" | "member" }[] = [];
         
         for (let rMember of rProject.members) {
@@ -103,7 +105,7 @@ const convertToProjectSchema = async (rProject: RequestProject) => {
             dataURI: rProject.dataURI,
             members: members,
             name: rProject.name,
-            owner: owner._id,
+            owner: user["_id"],
             projectType: rProject.projectType,
             structuralTasks: rProject.structuralTasks,
             textTasks: rProject.textTasks,
@@ -452,7 +454,7 @@ router.get("/:name", async (request: Request, response: Response, next: NextFunc
 router.post("/", async (request: Request, response: Response, next: NextFunction) => {
     let responseData = new ResponseData();
     
-    const projectSchema = await convertToProjectSchema(request.body);
+    const projectSchema = await convertToProjectSchema(request.user, request.body);
     if (!projectSchema) {
         return next("Failed to parse request data.");
     }
