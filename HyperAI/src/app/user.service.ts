@@ -20,6 +20,10 @@ export class UserService {
       + encodeURI(email), { responseType: 'text' });
   }
 
+  getOrganizations(): Observable<string[]> {
+    return this.http.get<string[]>('/account/all-organization');
+  }
+
   updateUser(data: {}): Observable<string> {
     return this.http.put('/account', data, { responseType: 'text' });
   }

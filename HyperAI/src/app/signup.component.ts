@@ -9,14 +9,22 @@ import {ErrorAlert } from './error.alert'
   templateUrl: './signup.component.html',
   styleUrls: ['./signup.component.sass']
 })
-export class SignupComponent {
+export class SignupComponent implements OnInit {
 
   constructor(
     private router: Router,
     private userService: UserService,
     private errorAlert: ErrorAlert
   ) { }
+  organizations: string[] = [];
+  ngOnInit() {
+    this.userService.getOrganizations().subscribe(
+      orgs => this.organizations = orgs,
+      err => this.errorAlert.open(err)
+    );
+  }
 
+  organization: string | undefined = undefined;
   email: string = '';
   emailChecked: boolean = false;
   password: string = '';
@@ -41,6 +49,7 @@ export class SignupComponent {
     this.name = '';
     this.emailChecked = false;
     this.email = '';
+    this.organization = undefined;
     this.password = '';
     this.passwordConfirm = '';
   }

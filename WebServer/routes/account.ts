@@ -45,6 +45,12 @@ router.post('/signup', (req: Request, res: Response, next: NextFunction)=> {
         passReqToCallback: true
     }));
 
+const ALL_ORGANIZATIONS = ['infinov', 'namutech', 'samsung', 'hynix'];
+
+router.get('/all-organization', (req: Request, res: Response) => {
+    res.send(ALL_ORGANIZATIONS);
+})
+
 router.put('/', (req: Request, res: Response) => {
     if (!('nickName' in req.body)) {
         res.status(400).send('only nickname can be modified or created for now');

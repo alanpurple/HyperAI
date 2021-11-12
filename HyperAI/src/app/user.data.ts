@@ -5,6 +5,7 @@ export class UserData {
   emailVerified?: boolean = false;
   nickName?: string = '';
   name: string = '';
+  organization: string | undefined = undefined;
   accountType: 'admin' | 'user' = 'user';
   data: DataInfo[] = [];
 }
