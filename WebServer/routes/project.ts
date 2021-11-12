@@ -5,7 +5,8 @@ import Debug from "debug";
 import { ResponseData } from "../interfaces/ResponseData";
 import { RequestProject } from "../interfaces/ProjectRequest";
 import { Document, Types } from 'mongoose';
-import { User, UserModel } from "../models/user";
+import { UserModel } from "../models/user";
+import { ensureAuthenticated } from "../authentication/authentication";
 
 const debug = Debug("project");
 const router = Router();
@@ -368,14 +369,12 @@ const removeTask = async (responseData: ResponseData, type: string, taskName: st
 };
 
 // User authentication checks before processing all project requests.
-// Temporary comments for testing
-// router.all("*", ensureAuthenticated);
+router.all("*", ensureAuthenticated);
 
 router.get("/", async (request: Request, response: Response) => {
     let responseData = new ResponseData();
     debug(request.user);
     
-    request.user = { accountType: "admin" }; // todo: should be removed after testing
     let isAdmin = request.user["accountType"] === "admin";
     
     try {
@@ -419,7 +418,6 @@ router.get("/:name", async (request: Request, response: Response, next: NextFunc
         return next(new Error("Project name error."));
     }
     
-    request.user = { accountType: "admin" }; // todo: should be removed after testing
     let isAdmin = request.user["accountType"] === "admin";
     
     try {
