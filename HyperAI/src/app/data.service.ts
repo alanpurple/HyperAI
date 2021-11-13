@@ -31,6 +31,10 @@ export class DataService {
     return this._httpClient.post<DataInfo>('/data', formData);
   }
 
+  addData(data: DataInfo): Observable<string> {
+    return this._httpClient.post('/data/nonfile', data, { responseType: 'text' });
+  }
+
   getDataCompact(isOpen: boolean, name: string, attributes: string[]): Observable<CompactData> {
     if (!attributes || attributes.length < 2)
       return throwError('invalid request');

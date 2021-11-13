@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { ConfirmDialog } from './confirm.dialog';
 import { ErrorAlert } from './error.alert';
 import { Project } from './project.data';
 import { ProjectService } from './project.service';
@@ -14,16 +15,23 @@ export class HomeComponent implements OnInit {
   constructor(
     private projectService: ProjectService,
     private userService: UserService,
-    private errorAlert: ErrorAlert
+    private errorAlert: ErrorAlert,
+    private confirmDialog: ConfirmDialog
   ) { }
 
   projects: Project[] = [];
-  loggedIn: boolean = false;
+  isUser: boolean = false;
+  isAdmin: boolean = false;
   
   ngOnInit(): void {
     this.userService.getUser().subscribe(
       user => {
-        this.loggedIn = true;
+        if (user.accountType == 'admin')
+          this.isAdmin = true;
+        else if (user.accountType == 'user')
+          this.isUser = true;
+        else
+          this.confirmDialog.open('unknown account type');
         this.projectService.getProjects().subscribe(
           projects => this.projects = projects,
           err => {

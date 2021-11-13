@@ -12,10 +12,21 @@ export class ProjectDialog {
     public dialogRef: MatDialogRef<ProjectDialog>,
     @Inject(MAT_DIALOG_DATA) public data: { project: Project, isNew: boolean }
   ) {
-    this.originalData = this.data.project;
+    if(!this.data.isNew)
+      this.originalData = this.data.project;
   }
 
-  originalData: Project = {} as Project;
+  originalData: Project = {
+    name: '',
+    dataURI: '',
+    projectType: 'single',
+    category: 'structural',
+    owner: '',
+    members: [],
+    visionTasks: [],
+    textTasks: [],
+    structuralTasks: []
+  };
 
   cancel() {
     this.dialogRef.close();

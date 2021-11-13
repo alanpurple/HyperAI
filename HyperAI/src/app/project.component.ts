@@ -8,7 +8,8 @@ import { Project } from './project.data';
 import { ProjectDialog } from './project.dialog';
 import { ProjectService } from './project.service';
 import { UserService } from './user.service';
-import { DataInfo, DataBasic } from './data.info';
+import { DataService } from './data.service';
+import { DataInfo } from './data.info';
 
 @Component({
   selector: 'app-project',
@@ -21,6 +22,7 @@ export class ProjectComponent implements OnInit {
     private userService: UserService,
     public dialog: MatDialog,
     private projectService: ProjectService,
+    private dataService: DataService,
     private errorAlert: ErrorAlert,
     private confirmDialog: ConfirmDialog
   ) { }
@@ -69,12 +71,17 @@ export class ProjectComponent implements OnInit {
           this.errorAlert.open(err);
       }
     );
-    this.userService.getUser().subscribe(
-      user => {
-        this.userData = user.data;
-        this.filterData();
-      },
-      err => this.errorAlert.open(err)
+    this.dataService.getDataPublic().subscribe(
+      data => {
+        this.userData = data;
+        this.userService.getUser().subscribe(
+          user => {
+            this.userData = this.userData.concat(user.data);
+            this.filterData();
+          },
+          err => this.errorAlert.open(err)
+        );
+      }, err => this.errorAlert.open(err)
     );
   }
 
@@ -96,15 +103,17 @@ export class ProjectComponent implements OnInit {
         isNew:true
       }
     });
-    dialogRef.afterClosed().subscribe(project =>
-      this.projectService.createProject(project).subscribe(
-        msg => {
-          this.projects.push(project);
-          this.projectTable?.renderRows();
-          this.confirmDialog.open('project created successfully');
-        },
-        err => this.errorAlert.open(err)
-      )
+    dialogRef.afterClosed().subscribe(project => {
+      if(project)
+        this.projectService.createProject(project).subscribe(
+          msg => {
+            this.projects.push(project);
+            this.projectTable?.renderRows();
+            this.confirmDialog.open('project created successfully');
+          },
+          err => this.errorAlert.open(err)
+        );
+    }
     );
   }
 
@@ -150,12 +159,8 @@ export class ProjectComponent implements OnInit {
     const category = this.newProject.category;
     if (category == 'various')
       this.dataList = this.userData;
-    else {
+    else
       this.dataList = this.userData.filter(elem => elem.type == this.newProject.category);
-      //temporary insertion code
-      if (this.newProject.category == 'vision')
-        this.dataList.push(TEMPORARY_VISION_DATA);
-    }
   }
 
   selectedMember = '';
@@ -229,8 +234,3 @@ export class ProjectComponent implements OnInit {
     })
   }
 }
-
-
-const TEMPORARY_VISION_DATA: DataInfo = {
-  name: 'coco', isClean: false, numRows: 1000000, type: 'vision', cleansed: null, preprocessed: null
-};

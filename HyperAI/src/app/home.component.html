@@ -1,4 +1,4 @@
-<mat-grid-list *ngIf="loggedIn" cols="5" rowHeight="2:1">
+<mat-grid-list *ngIf="isUser" cols="5" rowHeight="1:1">
   <mat-grid-tile *ngFor="let project of projects">
     <mat-card>
       <mat-card-header>
@@ -7,14 +7,17 @@
       </mat-card-header>
       <mat-card-content>
         <mat-form-field>
+          <mat-label>Project Type</mat-label>
           <input matInput type="text" [(ngModel)]="project.projectType" name="projectType" disabled>
-          <mat-chip-list aria-label="members">
-            <mat-chip *ngFor="let member of project.members" color="primary" selected>
-              {{member.user}}
-            </mat-chip>
-          </mat-chip-list>
         </mat-form-field>
+        <mat-chip-list aria-label="members">
+          <mat-chip *ngFor="let member of project.members" color="primary" selected>
+            {{member.user}}
+          </mat-chip>
+        </mat-chip-list>
       </mat-card-content>
     </mat-card>
   </mat-grid-tile>
 </mat-grid-list>
+
+<h2 *ngIf="isAdmin">Admin has no home content yet</h2>

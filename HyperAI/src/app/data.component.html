@@ -7,9 +7,12 @@
         <mat-icon>add</mat-icon>
       </button>
       <mat-spinner *ngIf="uploading"></mat-spinner>
+      <br>
+      <button mat-button color="primary" (click)="addNonFile()">Add data location</button>
     </ng-container>
+
     <mat-spinner *ngIf="isLoadingPublic"></mat-spinner>
-    <table mat-table [dataSource]="openData" matSort>
+    <table #openTable mat-table [dataSource]="openData" matSort>
       <ng-container matColumnDef="name">
         <th mat-header-cell *matHeaderCellDef>name</th>
         <td mat-cell *matCellDef="let row">{{row.name}}</td>
@@ -34,8 +37,11 @@
       <mat-icon>add</mat-icon>
     </button>
     <mat-spinner *ngIf="uploading"></mat-spinner>
+
+    <button mat-button color="primary" (click)="addNonFile()">Add data location</button>
+
     <mat-spinner *ngIf="isLoadingMy"></mat-spinner>
-    <table mat-table [dataSource]="myData" matSort>
+    <table #userTable mat-table [dataSource]="myData" matSort>
       <ng-container matColumnDef="name">
         <th mat-header-cell *matHeaderCellDef>name</th>
         <td mat-cell *matCellDef="let row">{{row.name}}</td>

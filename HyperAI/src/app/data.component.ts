@@ -1,11 +1,14 @@
 import { HttpClient } from '@angular/common/http';
-import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 
 import { DataInfo } from './data.info';
 import { DataDatabase, DataService } from './data.service';
+import { DataDialog } from './data.dialog';
 import { UserService } from './user.service';
 import { ConfirmDialog } from './confirm.dialog';
 import { ErrorAlert } from './error.alert';
+import { MatDialog } from '@angular/material/dialog';
+import { MatTable } from '@angular/material/table';
 
 @Component({
   selector: 'app-data',
@@ -15,6 +18,7 @@ import { ErrorAlert } from './error.alert';
 export class DataComponent implements OnInit, AfterViewInit {
 
   constructor(
+    public dialog: MatDialog,
     private _httpClient: HttpClient,
     private dataService: DataService,
     private userService: UserService,
@@ -24,6 +28,9 @@ export class DataComponent implements OnInit, AfterViewInit {
 
   displayedColumns: string[] = ['name', 'type', 'numRows'];
   isAdmin: boolean = false;
+
+  @ViewChild('openTable') openTable: MatTable<DataInfo> | null = null;
+  @ViewChild('userTable') userTable: MatTable<DataInfo> | null = null;
 
   ngOnInit(): void {
     this.userService.getUser().subscribe(user => { this.isAdmin = user.accountType == 'admin' },
@@ -116,5 +123,26 @@ export class DataComponent implements OnInit, AfterViewInit {
     else
       this.fileOpen = files[0];
 
+  }
+
+  addNonFile() {
+    this.dialog.open(DataDialog).afterClosed().subscribe(
+      data => {
+        if (data)
+          this.dataService.addData(data).subscribe(
+            msg => {
+              if (this.isAdmin) {
+                this.openData.push(data);
+                this.openTable?.renderRows();
+              }
+              else {
+                this.myData.push(data);
+                this.userTable?.renderRows();
+              }
+              this.confirmDialog.open('data added successfully');
+            }
+          );
+      }
+    );
   }
 }

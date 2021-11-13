@@ -130,6 +130,24 @@ const AvailableExts = ['csv', 'xlsx', 'tsv'];
 
 router.get('/ext', (req: Request, res: Response) => res.send({ ext: AvailableExts }));
 
+router.post('/nonfile', (req: Request, res: Response) => {
+    UserModel.findByIdAndUpdate(req.user['_id'], {
+        $push: {
+            data: {
+                name: req.body.name,
+                type: req.body.type,
+                locationType: req.body.locationType,
+                numRows: req.body.numRows
+            }
+        }
+    }).then(
+        () => res.send('file added successfully')
+    ).catch(err => {
+        console.error(err);
+        res.status(500).send(err);
+    });
+});
+
 router.post('/', multerRead.single('data'), (req: Request, res: Response) => {
     const filename = req.file.originalname;
     const splited = filename.split('.');

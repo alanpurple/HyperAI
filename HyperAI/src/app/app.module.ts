@@ -34,6 +34,7 @@ import { ProjectDetailComponent } from './project-detail.component';
 
 import { ProjectDialog } from './project.dialog';
 import { StructuralTaskDialog, TextTaskDialog, VisionTaskDialog } from './task.dialog';
+import { DataDialog } from './data.dialog';
 
 /*import { DataService } from './data.service';
 import { EdaService } from './eda.service';
@@ -54,12 +55,12 @@ import { UserInfo, ComingSoonDialog, NickNameConfirmDialog, NickNameTakenDialog 
     DataComponent, ModelComponent, EdaComponent, Association, DataPreview,
     ErrorDialog, ConfirmDialogTemplate, ConfirmDialogTemplate2, UserInfo,
     ComingSoonDialog, NickNameTakenDialog, NickNameConfirmDialog, ProjectComponent, ProjectDetailComponent,
-    ProjectDialog, VisionTaskDialog, TextTaskDialog, StructuralTaskDialog
+    ProjectDialog, VisionTaskDialog, TextTaskDialog, StructuralTaskDialog, DataDialog
   ],
   entryComponents: [
     ConfirmDialogTemplate, ConfirmDialogTemplate2, ErrorDialog, ComingSoonDialog,
     NickNameConfirmDialog, NickNameTakenDialog,
-    ProjectDialog, VisionTaskDialog, TextTaskDialog, StructuralTaskDialog
+    ProjectDialog, VisionTaskDialog, TextTaskDialog, StructuralTaskDialog,DataDialog
   ],
   imports: [
     BrowserModule,

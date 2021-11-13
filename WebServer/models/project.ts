@@ -79,13 +79,12 @@ const schema = new Schema<Project>({
 schema.pre('save', { document: true, query: false }, async function (next) {
     const project = this;
     if (project.isNew) {
-        const user = await UserModel.findById(project.owner);
-        // temporary pass for coco data
-        if (project.dataURI!= 'coco'){
-            const userData = user.data.map(elem => elem.name);
-            if (!userData.includes(project.dataURI))
-                next(Error('dataURI is not included in user data list'));
-        }
+        const user = await UserModel.findById(project.owner,'data');
+        const admins = await UserModel.find({ accountType: 'admin' }, 'data');
+        const userData = user.data.map(elem => elem.name);
+        const adminData = admins.flatMap(admin => admin.data).map(elem => elem.name);
+        if (!userData.includes(project.dataURI) && !adminData.includes(project.dataURI))
+            next(Error('dataURI is not included in user data list'));
     }
     if ((project.isNew || project.isModified('visionTasks')) && project.visionTasks?.length > 1)
         if ((new Set(project.visionTasks)).size != project.visionTasks.length)
