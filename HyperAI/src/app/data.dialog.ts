@@ -14,6 +14,7 @@ export class DataDialog {
 
   data: DataInfo = {
     name: '',
+    uri:'',
     type: 'structural',
     locationType: 'local',
     numRows: 10000,
@@ -32,6 +33,7 @@ export class DataDialog {
   reset() {
     this.data = {
       name: '',
+      uri:'',
       type: 'structural',
       locationType: 'local',
       numRows: 10000,

@@ -18,12 +18,14 @@
                  [(ngModel)]="name" type="text" required [autofocus]="emailChecked">
         </mat-form-field>
         <mat-form-field>
-          <mat-label>Organization(Employer)</mat-label>
-          <mat-select [(ngModel)]="organization" name="organization">
+          <mat-label>Organization</mat-label>
+          <input matInput type="text" name="organization" placeholder="selected organization"
+                 [(ngModel)]="organization" [matAutocomplete]="auto" required>
+          <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">
             <mat-option *ngFor="let org of organizations; index as i" [value]="org">
               {{org}}
             </mat-option>
-          </mat-select>
+          </mat-autocomplete>
         </mat-form-field>
         <mat-form-field>
           <input matInput placeholder="Password" name="password"

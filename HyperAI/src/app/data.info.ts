@@ -1,5 +1,6 @@
 export interface DataInfo {
   name: string;
+  uri: string;
   type: 'structural' | 'sound' | 'text' | 'vision';
   locationType: 'db uri' | 'local' | 'smb' | 'datalake' | 'aws s3';
   numRows: number;

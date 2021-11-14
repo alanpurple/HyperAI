@@ -28,7 +28,7 @@ router.post('/login', (req: Request, res: Response, next: NextFunction)=> {
             res.redirect('/');
     });
 
-router.post('/signup', (req: Request, res: Response, next: NextFunction)=> {
+router.post('/signup', (req: Request, res: Response, next: NextFunction) => {
     UserModel.findOne({ email: req.body.username }).then(user => {
         if (!user)
             next();

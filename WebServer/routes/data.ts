@@ -135,6 +135,7 @@ router.post('/nonfile', (req: Request, res: Response) => {
         $push: {
             data: {
                 name: req.body.name,
+                uri: req.body.uri,
                 type: req.body.type,
                 locationType: req.body.locationType,
                 numRows: req.body.numRows

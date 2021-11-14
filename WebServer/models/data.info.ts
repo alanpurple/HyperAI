@@ -1,7 +1,8 @@
 import { Schema } from 'mongoose';
 
 export interface DataInfo {
-    name: string;   // local folder name for local type, URI elsewhere
+    name: string;   // local folder name for local type, URI upmost name(collection name, etc) elsewhere
+    uri: string;    // actual uri
     createdAt: Date;
     locationType: 'db uri' | 'local' | 'smb' | 'datalake' | 'aws s3';
     type: 'structural' | 'sound' | 'text' | 'vision';
@@ -25,6 +26,7 @@ const BasicSchema = new Schema<DataBasic>({
 
 export const DataSchema = new Schema<DataInfo>({
     name: { type: String, unique: true, required: true },
+    uri: String,
     locationType: { type: String, enum: ['db uri', 'local', 'smb', 'datalake', 'aws s3'], required: true },
     createdAt: Date,
     type: { type: String, enum: ['structural', 'sound', 'text', 'vision'], required: true },
