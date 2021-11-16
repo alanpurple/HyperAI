@@ -636,18 +636,13 @@ interface EditMember {
     outMember: string[];
 }
 
-interface EditTask {
-    name: string;
-    taskType: 'recommendation' | 'clustering' | 'classification' | 'regression';
-}
-
 interface TaskBody {
     type: 'structural' | 'text' | 'vision';
-    task: EditTask
+    task: object
 }
 
 const testUser = {
-    _id: "616e7f034f3bbb2ef4a87ce3",
+    _id: "6182210d0befc34adfa2c8cf",
     accountType: "user"
 };
 
