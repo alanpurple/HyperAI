@@ -2,7 +2,7 @@ export const swaggerOptions = {
     swaggerDefinition: {
         openapi: "3.0.0",
         info: {
-            title: "Express API Server",
+            title: "Martinie API Server",
             version: "1.0.0",
             description: "This is a REST API application made with Express. It retrieves data from Martinie",
             contact: {
@@ -19,7 +19,7 @@ export const swaggerOptions = {
         basePath: "/",
         servers: [
             {
-                url: `https://192.168.0.2:${process.env.PORT || 3000}`,
+                url: `https://192.168.0.2`,
                 description: "Development server"
             },
         ],

@@ -36,10 +36,6 @@ definitions:
   Project:
     type: object
     properties:
-      _id:
-        type: string
-        description: ObjectId of project
-        readOnly: true
       name:
         type: string
         example: Example project
@@ -49,14 +45,14 @@ definitions:
         required: true
       projectType:
         type: string
-        enum: ['single', 'multiple', 'multiple_comparison']
-      taskType:
+        enum: ['single', 'sequential', 'multiple_comparison']
+      category:
         type: string
         enum: ['various', 'vision', 'text', 'structural']
       owner:
         type: string
-        description: ObjectId of project owner
-        required: true
+        description: Email of project owner if user account type is 'administrator', otherwise 'self'
+        readOnly: true
       members:
         description: one and only owner, others are all attendee(for now)
         type: array
@@ -65,8 +61,8 @@ definitions:
           properties:
             user:
               type: string
-              description: Current user's ObjectId
-              example: 616e7f034f3bbb2ef4a87ce3
+              description: project member email
+              example: member@project.com
             role:
               type: string
               enum: ['attendee', 'member']
@@ -104,39 +100,11 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  code:
-                    type: number
-                    example: 200
-                  message:
-                    type: string
-                    example: OK
-                  data:
-                    type: array
-                    items:
-                      $ref: '#/definitions/Project'
-        204:
-          description: No project found.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  code:
-                    type: number
-                    example: 204
-                  message:
-                    type: string
-                    example: No project found.
-                  data:
-                    type: object
+                type: array
+                items:
+                  $ref: '#/definitions/Project'
+        404:
+          description: Not Found.
     post:
       tags:
         - Project
@@ -145,7 +113,7 @@ paths:
       produces:
         - application/json
       requestBody:
-        description: "Note: Property '_id' does not need"
+        description: "Project data"
         required: true
         content:
           application/json:
@@ -173,7 +141,7 @@ paths:
                     items:
                       $ref: '#/definitions/Project'
         400:
-          description: Project name already in use.
+          description: Project name already in use or ValidationError or CastError
           content:
             application/json:
               schema:
@@ -234,6 +202,22 @@ paths:
                       deletedCount:
                         type: integer
                         example: 3
+        400:
+          description: Target is not an array or empty.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  code:
+                    type: number
+                    example: 400
+                  message:
+                    type: string
+                    example: Target is not an array or empty.
         404:
           description: No project was deleted.
           content:
@@ -272,19 +256,23 @@ paths:
           content:
             application/json:
               schema:
+                $ref: '#/definitions/Project'
+        400:
+          description: Path parameter error.
+          content:
+            application/json:
+              schema:
                 type: object
                 properties:
                   success:
                     type: boolean
-                    example: true
+                    example: false
                   code:
                     type: number
-                    example: 200
+                    example: 400
                   message:
                     type: string
-                    example: OK
-                  data:
-                    $ref: '#/definitions/Project'
+                    example: Path parameter error - project name
         404:
           description: A project with the specified name was not found.
           content:
@@ -300,64 +288,7 @@ paths:
                     example: 404
                   message:
                     type: string
-                    example: A project with the specified ID was not found.
-                  data:
-                    type: object
-    put:
-      tags:
-        - Project
-      summary: Modify a project
-      description: Modify a project.
-      produces:
-        - application/json
-      parameters:
-        - name: name
-          in: path
-          description: path parameter takes the project name
-          required: true
-          type: string
-      requestBody:
-        description: project properties
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/definitions/Project'
-      responses:
-        200:
-          description: A modified project
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  code:
-                    type: number
-                    example: 201
-                  message:
-                    type: string
-                    example: Created
-                  data:
-                    $ref: '#/definitions/Project'
-        404:
-          description: No project was modified. (A project with the specified ID was not found)
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  code:
-                    type: number
-                    example: 404
-                  message:
-                    type: string
-                    example: No project was modified.
+                    example: A project with the specified name was not found.
                   data:
                     type: object
     delete:
@@ -380,6 +311,22 @@ paths:
             application/json:
               schema:
                 $ref: '#/definitions/Project'
+        400:
+          description: Path parameter error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  code:
+                    type: number
+                    example: 400
+                  message:
+                    type: string
+                    example: Path parameter error - project name
         404:
           description: No project was deleted. (A project with the specified name was not found)
           content:
@@ -398,3 +345,209 @@ paths:
                     example: No project was deleted.
                   data:
                     type: object
+  /project/{name}/members:
+    put:
+      tags:
+        - Project
+      summary: Add or Remove project members
+      description: Modify a project.
+      produces:
+        - application/json
+      parameters:
+        - name: name
+          in: path
+          description: path parameter takes the project name
+          required: true
+          type: string
+      requestBody:
+        description: add - email and role of project members, remove - email of project members
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                inMember:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      user:
+                        type: string
+                      role:
+                        type: string
+                        enum: ['member', 'attendee']
+                  uniqueItems: true
+                  example: [{user: "user1@example.com", role: "member"}, {user: "user2@example.com", role: "member"}, {user: "user3@example.com", role: "attendee"}]
+                outMember:
+                  type: array
+                  items:
+                    type: string
+                  uniqueItems: true
+                  example: [ "user7@example.com", "user8@example.com", "user9@example.com" ]
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  code:
+                    type: number
+                    example: 201
+                  message:
+                    type: string
+                    example: Created
+        400:
+          description: |
+            Path parameter error
+            Project members already exist
+            Project member must have at least one user
+            The target project does not exist
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  code:
+                    type: number
+                    example: 400
+                  message:
+                    type: string
+                    example: Project member must have at least one user
+  /project/{name}/task:
+    put:
+      tags:
+        - Project
+      summary: Add project tasks
+      description: Modify a project.
+      produces:
+        - application/json
+      parameters:
+        - name: name
+          in: path
+          description: path parameter takes the project name
+          required: true
+          type: string
+      requestBody:
+        description:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                type:
+                  type: string
+                  enum: [ 'structural', 'text', 'vision' ]
+                  example: structural
+                task:
+                  type: object
+                  description: task object (VisionTask, TextTask, StructuralTask)
+                  properties:
+                    name:
+                      type: string
+                    taskType:
+                      type: string
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  code:
+                    type: number
+                    example: 201
+                  message:
+                    type: string
+                    example: Created
+        400:
+          description: |
+            Path parameter error
+            The task name already exists.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  code:
+                    type: number
+                    example: 400
+                  message:
+                    type: string
+                    example: The task name already exists.
+  /project/{name}/task/{type}/{taskName}:
+    delete:
+      tags:
+        - Project
+      summary: Remove project tasks
+      description: Modify a project.
+      produces:
+        - application/json
+      parameters:
+        - name: name
+          in: path
+          description: path parameter takes the project name
+          required: true
+          type: string
+        - name: type
+          in: path
+          description: path parameter takes the project category
+          required: true
+          type: string
+          enum: [ 'structural', 'text', 'vision' ]
+        - name: taskName
+          in: path
+          description: path parameter takes the project task name
+          required: true
+          type: string
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  code:
+                    type: number
+                    example: 201
+                  message:
+                    type: string
+                    example: Created
+        400:
+          description: |
+            Path parameter error
+            Project must have at least one task.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  code:
+                    type: number
+                    example: 400
+                  message:
+                    type: string
+                    example: Project must have at least one task.
