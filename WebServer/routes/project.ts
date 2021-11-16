@@ -458,7 +458,6 @@ router.post("/", async (request: Request, response: Response, next: NextFunction
     } catch (error) {
         responseData = makeErrorResult(error, responseData);
     } finally {
-        debug(responseData);
         response.status(responseData.code);
         response.send(responseData);
         response.end();
@@ -501,6 +500,8 @@ router.put("/:name/members", async (request: Request, response: Response, next: 
                 if (intersection.length > 0 && (currentMemberEmails.length > intersection.length)) {
                     await removeMember(responseData, reqMembers.outMember, modProject);
                     outCount = intersection.length;
+                } else if (intersection.length === 0) {
+                    doProjectError("No project members to remove.");
                 } else {
                     doProjectError("Project member must have at least one user.");
                 }
@@ -535,13 +536,10 @@ router.put("/:name/task", async (request: Request, response: Response, next: Nex
         
         if (modProject) {
             await addTask(responseData, reqTasks, modProject);
-            response.status(responseData.code);
         } else {
             responseData.success = false;
             responseData.code = StatusCodes.NOT_FOUND;
             responseData.message = "No task was added.";
-            
-            response.status(StatusCodes.NOT_FOUND);
         }
     } catch (error) {
         responseData = makeErrorResult(error, responseData);
