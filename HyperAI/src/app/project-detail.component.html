@@ -1,1 +1,19 @@
-<p>project-detail works!</p>
+<button mat-fab color="accent" aria-label="add task button"
+        (click)="addTask()">
+  <mat-icon>add</mat-icon>
+</button>
+<div *ngFor="let task of tasks; index as i; last as isLast">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>{{task.name}}</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      {{task.taskType}}
+    </mat-card-content>
+    <mat-card-actions>
+      <button mat-button color="primary" click="editTask(i)">Edit</button>
+      <button mat-button color="warn" click="deleteTask(task.name)">Delete</button>
+    </mat-card-actions>
+    <mat-icon *ngIf="!last">double_arrow</mat-icon>
+  </mat-card>
+</div>
