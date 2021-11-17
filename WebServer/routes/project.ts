@@ -33,7 +33,7 @@ const makeErrorResult = (error, responseData: ResponseData) => {
     debug(error);
     
     responseData.success = false;
-    if (error.name === "ValidationError" || error.name === "CastError" || "ProjectError") {
+    if (error.name === "ValidationError" || error.name === "CastError" || error.name === "ProjectError") {
         responseData.code = StatusCodes.BAD_REQUEST;
     } else {
         responseData.code = StatusCodes.INTERNAL_SERVER_ERROR;
@@ -344,9 +344,9 @@ router.get("/", async (request: Request, response: Response) => {
     }
     debug(request.user);
     
-    let isAdmin = request.user["accountType"] === "admin";
-    
     try {
+        let isAdmin = request.user["accountType"] === "admin";
+        
         let projects = await ProjectModel
             .find({ "owner": request.user['_id'] }, { _id: false, __v: false })
             .populate({ path: 'owner', select: 'email -_id' })
