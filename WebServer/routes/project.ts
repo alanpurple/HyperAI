@@ -38,8 +38,6 @@ const makeErrorResult = (error, responseData: ResponseData) => {
         responseData.code = StatusCodes.INTERNAL_SERVER_ERROR;
     }
     responseData.message = error.message;
-    
-    return responseData;
 };
 
 /**
@@ -417,7 +415,7 @@ router.get("/", async (request: Request, response: Response) => {
             responseData.message = ReasonPhrases.NOT_FOUND;
         }
     } catch (error) {
-        responseData = makeErrorResult(error, responseData);
+        makeErrorResult(error, responseData);
     } finally {
         logger(responseData);
         response.status(responseData.code);
@@ -461,7 +459,7 @@ router.get("/:name", async (request: Request, response: Response, next: NextFunc
             responseData.message = ReasonPhrases.NOT_FOUND;
         }
     } catch (error) {
-        responseData = makeErrorResult(error, responseData);
+        makeErrorResult(error, responseData);
     } finally {
         response.status(responseData.code);
         if (responseData.success) {
@@ -504,7 +502,7 @@ router.post("/", async (request: Request, response: Response, next: NextFunction
             doProjectError("Project name already in use.");
         }
     } catch (error) {
-        responseData = makeErrorResult(error, responseData);
+        makeErrorResult(error, responseData);
     } finally {
         response.status(responseData.code);
         response.send(responseData);
@@ -554,7 +552,7 @@ router.put("/:name/members", async (request: Request, response: Response, next: 
             doProjectError("The target project does not exist.");
         }
     } catch (error) {
-        responseData = makeErrorResult(error, responseData);
+        makeErrorResult(error, responseData);
     } finally {
         response.status(responseData.code);
         response.send(responseData);
@@ -580,7 +578,7 @@ router.put("/:name/task", async (request: Request, response: Response, next: Nex
             responseData.message = "No task was added.";
         }
     } catch (error) {
-        responseData = makeErrorResult(error, responseData);
+        makeErrorResult(error, responseData);
     } finally {
         response.status(responseData.code);
         response.send(responseData);
@@ -606,7 +604,7 @@ router.delete("/:name/task/:type/:taskName", async (request: Request, response: 
             responseData.message = "No tasks were removed.";
         }
     } catch (error) {
-        responseData = makeErrorResult(error, responseData);
+        makeErrorResult(error, responseData);
     } finally {
         response.status(responseData.code);
         response.send(responseData);
@@ -633,7 +631,7 @@ router.delete("/", async (request: Request, response: Response, next: NextFuncti
             responseData.message = "No project was deleted.";
         }
     } catch (error) {
-        responseData = makeErrorResult(error, responseData);
+        makeErrorResult(error, responseData);
     } finally {
         response.status(responseData.code);
         response.send(responseData);
@@ -659,7 +657,7 @@ router.delete("/:name", async (request: Request, response: Response, next: NextF
             responseData.message = "No project was deleted.";
         }
     } catch (error) {
-        responseData = makeErrorResult(error, responseData);
+        makeErrorResult(error, responseData);
     } finally {
         response.status(responseData.code);
         response.send(responseData);
