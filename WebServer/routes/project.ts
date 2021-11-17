@@ -107,7 +107,12 @@ const convertToProjectSchema = async (user, reqProject: RequestProject) => {
     
     for (let rMember of reqProject.members) {
         let user = await UserModel.findOne({ email: rMember.user }).exec();
-        members.push({ user: user._id, role: rMember.role });
+        
+        if (user) {
+            members.push({ user: user._id, role: rMember.role });
+        } else {
+            doProjectError(`Project member '${ rMember.user }' not found.`);
+        }
     }
     
     let projectSchema: Project = {
