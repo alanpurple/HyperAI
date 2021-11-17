@@ -1,14 +1,14 @@
 import { NextFunction, Request, Response, Router } from 'express';
 import { Project, ProjectModel, StructuralTask, TextTask, VisionTask } from "../models/project";
 import { ReasonPhrases, StatusCodes, } from 'http-status-codes';
-import Debug from "debug";
 import { ResponseData } from "../interfaces/ResponseData";
 import { RequestProject } from "../interfaces/ProjectRequest";
 import { Document, Types } from 'mongoose';
 import { UserModel } from "../models/user";
 import { ensureAuthenticated } from "../authentication/authentication";
 
-const debug = Debug("project");
+const logger = require("../logger/logger")("project");
+
 const router = Router();
 
 class ProjectError extends Error {
@@ -29,8 +29,7 @@ const doProjectError = (message: string) => {
  * @return Generated data
  */
 const makeErrorResult = (error, responseData: ResponseData) => {
-    debug("############## exception");
-    debug(error);
+    logger(error);
     
     responseData.success = false;
     if (error.name === "ValidationError" || error.name === "CastError" || error.name === "ProjectError") {
@@ -100,80 +99,130 @@ const makeProjectResponse = (isAdmin: boolean, project: Document<any, any, Proje
 /**
  * Convert requested project data to mongoose project data
  * @param user
- * @param rProject Requested project data
+ * @param reqProject Requested project data
  */
-const convertToProjectSchema = async (user, rProject: RequestProject) => {
-    debug("user::::::::");
-    debug(user);
-    debug("rProject::::::::::");
-    debug(rProject);
+const convertToProjectSchema = async (user, reqProject: RequestProject) => {
+    logger(user);
+    logger(reqProject);
     
     let members: { user: Types.ObjectId; role: "attendee" | "member" }[] = [];
     
-    for (let rMember of rProject.members) {
+    for (let rMember of reqProject.members) {
         let user = await UserModel.findOne({ email: rMember.user }).exec();
         members.push({ user: user._id, role: rMember.role });
     }
     
     let projectSchema: Project = {
-        category: rProject.category,
-        dataURI: rProject.dataURI,
+        category: reqProject.category,
+        dataURI: reqProject.dataURI,
         members: members,
-        name: rProject.name,
+        name: reqProject.name,
         owner: user["_id"],
-        projectType: rProject.projectType,
-        structuralTasks: rProject.structuralTasks,
-        textTasks: rProject.textTasks,
-        visionTasks: rProject.visionTasks
+        projectType: reqProject.projectType,
+        structuralTasks: reqProject.structuralTasks,
+        textTasks: reqProject.textTasks,
+        visionTasks: reqProject.visionTasks
     };
     
     return projectSchema;
 };
 
-const addMember = async (responseData: ResponseData, inMembers: { user: string, role: 'member' | 'attendee' }[], project: Document<any, any, Project> & Project & { _id: Types.ObjectId }) => {
-    responseData.success = true;
-    responseData.code = StatusCodes.CREATED;
-    
+const addMember = async (inMembers: { user: string, role: 'member' | 'attendee' }[], project: Document<any, any, Project> & Project & { _id: Types.ObjectId }) => {
     try {
-        for (let member of inMembers) {
-            let user = await UserModel.findOne({ email: member.user }).exec();
-            
-            if (project.members.findIndex(elem => elem.user.equals(user._id)) < 0) {
-                project.updateOne({
-                    $push: { "members": { user: user._id, role: member.role } }
-                }, (error) => {
-                    if (error) {
-                        makeErrorResult(error, responseData);
-                    }
-                });
+        let addMemberResult: AddMemberResult = { error: [], addedMembers: [], ignoredMembers: [] };
+        
+        // Check if the target to be removed exists
+        let currentMemberEmails: string[] = project.members.map(member => member.user["email"]);
+        let inMemberEmails: string[] = inMembers.map(e => e.user);
+        const difference: string[] = inMemberEmails.filter(e => !currentMemberEmails.includes(e));
+        
+        if (difference.length > 0) {
+            for (let member of inMembers) {
+                let user = await UserModel.findOne({ email: member.user }).exec();
+                
+                if (user) {
+                    project.updateOne({
+                        $push: { "members": { user: user._id, role: member.role } }
+                    }, (error) => {
+                        if (error) {
+                            logger(error);
+                            addMemberResult.error.push(error);
+                        } else {
+                            logger(`User '${ member.user }' is added.`);
+                            addMemberResult.addedMembers.push(member.user);
+                        }
+                    });
+                } else {
+                    logger(`User '${ member.user }' not found.`);
+                    addMemberResult.ignoredMembers.push(member.user);
+                }
             }
-            
-            if (!responseData.success) break;
+        } else {
+            addMemberResult.addedMembers.push("Project members already exist.");
         }
+        
+        return addMemberResult;
     } catch (error) {
-        makeErrorResult(error, responseData);
+        throw error;
     }
 };
 
-const removeMember = async (responseData: ResponseData, outMembers: string[], project: Document<any, any, Project> & Project & { _id: Types.ObjectId }) => {
-    responseData.success = true;
-    responseData.code = StatusCodes.CREATED;
-    
-    try {
-        for (let member of outMembers) {
-            let user = await UserModel.findOne({ email: member }).exec();
+/**
+ * remove project member when user account is being removed (future use)
+ *
+ * @param userId
+ */
+const removeMemberFromAllProjects = async (userId: Types.ObjectId) => {
+    let projects = await ProjectModel.find({ "members.user": userId }).exec();
+    if (projects.length > 0) {
+        projects.forEach(project => {
             project.updateOne({
-                $pull: { "members": { user: user._id } }
+                $pull: { "members": { user: userId } }
             }, (error) => {
-                if (error) {
-                    makeErrorResult(error, responseData);
-                }
+                throw error;
             });
-            
-            if (!responseData.success) break;
+        });
+    }
+}
+
+const removeMember = async (outMembers: string[], project: Document<any, any, Project> & Project & { _id: Types.ObjectId }) => {
+    try {
+        let removeMemberResult: RemoveMemberResult = { error: [], ignoredMembers: [], removedMembers: [] };
+        
+        // Check if the target to be removed exists
+        let currentMemberEmails: string[] = project.members.map(member => member.user["email"]);
+        const intersection: string[] = currentMemberEmails.filter(e => outMembers.includes(e));
+        
+        if (intersection.length > 0 && (currentMemberEmails.length > intersection.length)) {
+            for (let member of outMembers) {
+                let user = await UserModel.findOne({ email: member }).exec();
+                
+                if (user) {
+                    project.updateOne({
+                        $pull: { "members": { user: user._id } }
+                    }, (error) => {
+                        if (error) {
+                            logger(error);
+                            removeMemberResult.error.push(error);
+                        } else {
+                            logger(`User '${ member }' is removed.`);
+                            removeMemberResult.removedMembers.push(member);
+                        }
+                    });
+                } else {
+                    logger(`User '${ member }' not found.`);
+                    removeMemberResult.ignoredMembers.push(member);
+                }
+            }
+        } else if (intersection.length === 0) {
+            removeMemberResult.error.push("No project members to remove.");
+        } else {
+            removeMemberResult.error.push("Project member must have at least one user.");
         }
+        
+        return removeMemberResult;
     } catch (error) {
-        makeErrorResult(error, responseData);
+        throw error;
     }
 };
 
@@ -342,7 +391,7 @@ router.get("/", async (request: Request, response: Response) => {
             request.user = testUser;
         }
     }
-    debug(request.user);
+    logger(request.user);
     
     try {
         let isAdmin = request.user["accountType"] === "admin";
@@ -370,8 +419,7 @@ router.get("/", async (request: Request, response: Response) => {
     } catch (error) {
         responseData = makeErrorResult(error, responseData);
     } finally {
-        debug("############## responseData::::::::");
-        debug(responseData);
+        logger(responseData);
         response.status(responseData.code);
         if (responseData.success) {
             response.send(responseData.data); // send data only
@@ -467,6 +515,10 @@ router.post("/", async (request: Request, response: Response, next: NextFunction
 router.put("/:name/members", async (request: Request, response: Response, next: NextFunction) => {
     let responseData = new ResponseData();
     
+    let addMemberResult: AddMemberResult = { error: [], addedMembers: [], ignoredMembers: [] };
+    let removeMemberResult: RemoveMemberResult = { error: [], ignoredMembers: [], removedMembers: [] };
+    
+    
     try {
         checkPathParamError(request.params.name, "project name");
         
@@ -477,41 +529,27 @@ router.put("/:name/members", async (request: Request, response: Response, next: 
             .exec();
         
         if (modProject) {
-            let currentMemberEmails: string[] = modProject.members.map(member => {
-                return member.user["email"];
-            });
-            
-            let inCount: number = 0, outCount: number = 0;
             if (reqMembers.inMember.length > 0) {
-                // Check if the target to be removed exists
-                let inMemberEmails: string[] = reqMembers.inMember.map(e => e.user);
-                const difference: string[] = inMemberEmails.filter(e => !currentMemberEmails.includes(e));
-                if (difference.length > 0) {
-                    await addMember(responseData, reqMembers.inMember, modProject);
-                    inCount = difference.length;
-                } else {
-                    doProjectError("Project members already exist.");
-                }
+                addMemberResult = await addMember(reqMembers.inMember, modProject);
             }
             
             if (reqMembers.outMember.length > 0) {
-                // Check if the target to be removed exists
-                const intersection: string[] = currentMemberEmails.filter(e => reqMembers.outMember.includes(e));
-                if (intersection.length > 0 && (currentMemberEmails.length > intersection.length)) {
-                    await removeMember(responseData, reqMembers.outMember, modProject);
-                    outCount = intersection.length;
-                } else if (intersection.length === 0) {
-                    doProjectError("No project members to remove.");
-                } else {
-                    doProjectError("Project member must have at least one user.");
-                }
+                removeMemberResult = await removeMember(reqMembers.outMember, modProject);
             }
             
-            if (inCount === 0 && outCount === 0) {
+            if (addMemberResult.error.length === 0 && removeMemberResult.error.length === 0) {
+                responseData.success = true;
+                responseData.code = StatusCodes.CREATED;
+                responseData.message = "Project members were modified.";
+            } else {
                 responseData.success = false;
-                responseData.code = StatusCodes.NOT_FOUND;
-                responseData.message = "No members were modified.";
+                responseData.code = StatusCodes.BAD_REQUEST;
+                responseData.message = "Errors occurred";
             }
+            
+            responseData.data = {
+                addMemberResult: addMemberResult, removeMemberResult: removeMemberResult
+            };
         } else {
             doProjectError("The target project does not exist.");
         }
@@ -642,6 +680,18 @@ interface TaskBody {
 const testUser = {
     _id: "6182210d0befc34adfa2c8cf",
     accountType: "user"
+};
+
+interface AddMemberResult {
+    error: any[];
+    addedMembers: string[];
+    ignoredMembers: string[];
+}
+
+interface RemoveMemberResult {
+    error: any[];
+    removedMembers: string[];
+    ignoredMembers: string[];
 };
 
 export default router;
