@@ -220,7 +220,8 @@ const addTask = async (responseData: ResponseData, task: TaskBody, project: Docu
                 
                 if (tasksCanBeAdded(project.textTasks, textTask.name, responseData)) {
                     let newTextTask: TextTask = {
-                        name: textTask.name
+                        name: textTask.name,
+                        taskType: textTask.taskType
                     };
                     
                     project.updateOne({

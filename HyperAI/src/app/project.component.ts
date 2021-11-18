@@ -157,10 +157,7 @@ export class ProjectComponent implements OnInit {
 
   filterData() {
     const category = this.newProject.category;
-    if (category == 'various')
-      this.dataList = this.userData;
-    else
-      this.dataList = this.userData.filter(elem => elem.type == this.newProject.category);
+    this.dataList = this.userData.filter(elem => elem.type == this.newProject.category);
   }
 
   selectedMember = '';
