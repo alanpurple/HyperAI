@@ -20,6 +20,23 @@
     <th mat-header-cell *matHeaderCellDef>Category</th>
     <td mat-cell *matCellDef="let row">{{row.category}}</td>
   </ng-container>
+  <ng-container matColumnDef="edit">
+    <th mat-headercell *matHeaderCellDef>Edit</th>
+    <td mat-cell *matCellDef="let row; let i=index">
+      <button mat-button (click)="editProject(i)">
+        Edit
+      </button>
+    </td>
+  </ng-container>
+  <ng-container matColumnDef="delete">
+    <th mat-header-cell *matHeaderCellDef>Delete</th>
+    <td mat-cell *matCellDef="let row; let i=index">
+      <button mat-fab color="accent" aria-label="delete project"
+              (click)="deleteProject(i)">
+        <mat-icon>delete</mat-icon>
+      </button>
+    </td>
+  </ng-container>
   <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
   <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
 </table>
@@ -77,7 +94,7 @@
     </div>
   </mat-step>
   <mat-step>
-    <form fxLayout="row">
+    <form fxLayout="column">
       <ng-template matStepLabel>Select Members</ng-template>
       <mat-chip-list #memberList aria-label="project members" multiple>
         <mat-chip *ngFor="let member of newProject.members; index as i"
@@ -89,14 +106,12 @@
       </mat-chip-list>
       <mat-form-field>
         <mat-label>available members</mat-label>
-        <mat-select [(ngModel)]="selectedMember" name="member">
-          <mat-option *ngFor="let member of availableMembers" [value]="member">
+        <mat-select name="member">
+          <mat-option *ngFor="let member of availableMembers; let i=index"
+                      [value]="member" (click)="addMember(i)">
             {{member}}
           </mat-option>
         </mat-select>
-        <button [disabled]="!selectedMember" mat-button color="warning" (click)="addMember()">
-          add member
-        </button>
       </mat-form-field>
     </form>
     <div>
