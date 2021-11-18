@@ -265,7 +265,8 @@ const addTask = async (task: TaskBody, project: Document<any, any, Project> & Pr
                 tasksCanBeAdded = checkTasksCanBeAdded(project.textTasks, textTask.name);
                 if (tasksCanBeAdded) {
                     let newTextTask: TextTask = {
-                        name: textTask.name
+                        name: textTask.name,
+                        taskType: textTask.taskType
                     };
                     
                     updateResult = await project.updateOne(
