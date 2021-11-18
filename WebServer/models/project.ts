@@ -22,7 +22,8 @@ const VisionTaskSchema = new Schema<VisionTask>({
 }, { _id: false });
 
 const TextTaskSchema = new Schema<TextTask>({
-    name: String
+    name: String,
+    taskType: { type: String, enum: ['tokenization' , 'vectorization' , 'classification' , 'translation' , 'qna']}
 }, { _id: false });
 
 const StructuralTaskSchema = new Schema<StructuralTask>({
@@ -122,6 +123,7 @@ export interface VisionTask {
 
 export interface TextTask {
     name: string;
+    taskType: 'tokenization' | 'vectorization' | 'classification' | 'translation' | 'qna'
 }
 
 export interface StructuralTask {
