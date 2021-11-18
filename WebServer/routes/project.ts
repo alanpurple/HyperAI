@@ -304,6 +304,68 @@ const addTask = async (task: TaskBody, project: Document<any, any, Project> & Pr
     }
 };
 
+const editTask = async (taskName: string, task: TaskBody, project: Document<any, any, Project> & Project & { _id: Types.ObjectId }) => {
+    try {
+        let foundIndex = -1;
+        let updateResult = undefined;
+        const options = { lean: true, new: true, rawResult: true };
+        const projectObj = project.toObject();
+        let tasks: any[] = [];
+        
+        switch (task.type) {
+            case "vision":
+                tasks = projectObj.visionTasks;
+                foundIndex = tasks.findIndex(task => task.name === taskName);
+                if (foundIndex >= 0) {
+                    let targetTask = tasks[foundIndex];
+                    tasks[foundIndex] = Object.assign({}, targetTask, task.task);
+                    
+                    updateResult = await project.updateOne(
+                        { $set: { visionTasks: tasks } }, options
+                    ).exec();
+                }
+                
+                break;
+            case "text":
+                tasks = projectObj.textTasks;
+                foundIndex = tasks.findIndex(task => task.name === taskName);
+                if (foundIndex >= 0) {
+                    let targetTask = tasks[foundIndex];
+                    tasks[foundIndex] = Object.assign({}, targetTask, task.task);
+                    
+                    updateResult = await project.updateOne(
+                        { $set: { textTasks: tasks } }, options
+                    ).exec();
+                }
+                
+                break;
+            case "structural":
+                tasks = projectObj.structuralTasks;
+                foundIndex = tasks.findIndex(task => task.name === taskName);
+                if (foundIndex >= 0) {
+                    let targetTask = tasks[foundIndex];
+                    tasks[foundIndex] = Object.assign({}, targetTask, task.task);
+                    
+                    updateResult = await project.updateOne(
+                        { $set: { structuralTasks: tasks } }, options
+                    ).exec();
+                }
+                
+                break;
+            default:
+                doProjectError(`The requested category '${ task.type }' is not supported.`);
+                break;
+        }
+        
+        if (foundIndex < 0) doProjectError(`The task '${ taskName }' does not exist.`);
+        if (!updateResult) doUncaughtError("Some errors occurred");
+        
+        return updateResult;
+    } catch (error) {
+        throw error;
+    }
+};
+
 const checkTasksRemovable = (length: number): boolean => {
     const MIN_REMOVABLE_LENGTH = 2;
     return !(length < MIN_REMOVABLE_LENGTH);
@@ -578,6 +640,43 @@ router.put("/:name/task", async (request: Request, response: Response, next: Nex
             responseData.success = false;
             responseData.code = StatusCodes.NOT_FOUND;
             responseData.message = "No task was added.";
+        }
+    } catch (error) {
+        makeErrorResult(error, responseData);
+    } finally {
+        response.status(responseData.code);
+        response.send(responseData);
+        response.end();
+    }
+});
+
+router.put("/:name/task/:taskName", async (request: Request, response: Response, next: NextFunction) => {
+    let responseData = new ResponseData();
+    let updateResult = undefined;
+    
+    try {
+        checkPathParamError(request.params.name, "project name");
+        checkPathParamError(request.params.name, "task name");
+        
+        let reqTasks: TaskBody = request.body;
+        
+        let modProject = await ProjectModel.findOne({ name: decodeURI(request.params.name) }).exec();
+        
+        if (modProject) {
+            updateResult = await editTask(decodeURI(request.params.taskName), reqTasks, modProject);
+            
+            if (updateResult) {
+                responseData.success = true;
+                responseData.code = StatusCodes.CREATED;
+            } else {
+                responseData.success = false;
+                responseData.code = StatusCodes.INTERNAL_SERVER_ERROR;
+                responseData.message = "Uncaught error occurred.";
+            }
+        } else {
+            responseData.success = false;
+            responseData.code = StatusCodes.NOT_FOUND;
+            responseData.message = "No tasks were removed.";
         }
     } catch (error) {
         makeErrorResult(error, responseData);
