@@ -241,6 +241,7 @@ export class ProjectComponent implements OnInit {
   deleteProject(index: number) {
     this.projectService.deleteProject(this.projects[index].name).subscribe(
       msg => {
+        this.projects.splice(index, 1);
         this.confirmDialog.open('project deleted');
         this.projectTable?.renderRows();
       }
