@@ -48,7 +48,7 @@ export class ProjectComponent implements OnInit {
 
   roles = ['member', 'attendee'];
   categories = ['various', 'vision', 'text', 'structural'];
-  displayedColumns = ['name', 'dataURI', 'projectType', 'category'];
+  displayedColumns = ['name', 'dataURI', 'projectType', 'category', 'edit', 'delete'];
 
   userData: DataInfo[] = [];
   dataList: DataInfo[] = [];
@@ -166,19 +166,9 @@ export class ProjectComponent implements OnInit {
     this.dataList = this.userData.filter(elem => elem.type == this.newProject.category);
   }
 
-  selectedMember = '';
-
-  addMember() {
-    if (!this.selectedMember)
-      return;
-    this.newProject.members.push({ user: this.selectedMember, role: 'attendee' });
-    const index = this.availableMembers.indexOf(this.selectedMember);
-    if (index < 0) {
-      this.errorAlert.open('somethings wrong, inconsistency in process');
-      return;
-    }
+  addMember(index: number) {
+    this.newProject.members.push({ user: this.availableMembers[index], role: 'attendee' });
     this.availableMembers.splice(index, 1);
-    //this.selectedMember = '';
   }
 
   removeUser(index: number) {
@@ -214,10 +204,12 @@ export class ProjectComponent implements OnInit {
   //only dialog
   editProject(index: number) {
     const currentProject = this.projects[index];
+    const projectMembers = currentProject.members.map(elem => elem.user);
     const dialogRef = this.dialog.open(ProjectDialog, {
       data: {
         project: currentProject,
-        isNew: false
+        isNew: false,
+        availableMembers: this.colleagues.filter(elem => !projectMembers.includes(elem))
       }
     });
     dialogRef.afterClosed().subscribe(project => {
@@ -228,14 +220,30 @@ export class ProjectComponent implements OnInit {
         if (!currentProject.members.find(elem2 => elem2.user == elem.user))
           inMember.push(elem);
       });
-      currentProject.members.forEach(elem => {
-        if (!edited.members.find(elem2 => elem2.user == elem.user))
-          outMember.push(elem.user);
+      projectMembers.forEach(elem => {
+        if (!edited.members.find(elem2 => elem2.user == elem))
+          outMember.push(elem);
       });
-      // currently only members can be edited in existing project info management
-      this.projectService.editProjectMembers(currentProject.name, {
-        inMember: inMember, outMember: outMember
-      })
-    })
+      if (inMember.length < 1 && outMember.length < 1)
+        this.confirmDialog.open('nothing\'s changed');
+      else
+        // currently only members can be edited in existing project info management
+        this.projectService.editProjectMembers(currentProject.name, {
+          inMember: inMember, outMember: outMember
+        }).subscribe(msg => {
+          this.confirmDialog.open('project edited');
+          this.projectTable?.renderRows();
+        },
+          err => this.errorAlert.open(err));
+    });
+  }
+
+  deleteProject(index: number) {
+    this.projectService.deleteProject(this.projects[index].name).subscribe(
+      msg => {
+        this.confirmDialog.open('project deleted');
+        this.projectTable?.renderRows();
+      }
+    );
   }
 }
