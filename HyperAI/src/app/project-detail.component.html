@@ -14,6 +14,6 @@
       <button mat-button color="primary" click="editTask(i)">Edit</button>
       <button mat-button color="warn" click="deleteTask(task.name)">Delete</button>
     </mat-card-actions>
-    <mat-icon *ngIf="!last">double_arrow</mat-icon>
+    <mat-icon *ngIf="!isLast">double_arrow</mat-icon>
   </mat-card>
 </div>

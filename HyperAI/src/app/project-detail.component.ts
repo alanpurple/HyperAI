@@ -71,13 +71,10 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
 
   }
 
-  taskTypes = ['vision', 'sound', 'text', 'structural'];
-
-  addTask(typeIndex: number) {
+  addTask() {
     let dialogRef: MatDialogRef<VisionTaskDialog | TextTaskDialog | StructuralTaskDialog> | null = null;
-    switch (typeIndex) {
-      //vision
-      case 0:
+    switch (this.project.category) {
+      case 'vision':
         this.dialog.open(VisionTaskDialog, {
           data: {
             task: {
@@ -99,12 +96,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
             );
         });
         break;
-      //sound
-      case 1:
-        this.confirmDialog.open('sorry, sound task type is not supported yet');
-        break;
-      //text
-      case 2:
+      case 'text':
         this.dialog.open(TextTaskDialog, {
           data: {
             task: { name: '' }, isNew: true
@@ -121,8 +113,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
           }
         );
         break;
-      //structural
-      case 3:
+      case 'structural':
         this.dialog.open(StructuralTaskDialog, {
           data: {
             task: { name: '', taskType: 'recommendataion' },
