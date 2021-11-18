@@ -22,6 +22,10 @@ const doProjectError = (message: string) => {
     throw new ProjectError(message);
 };
 
+const doUncaughtError = (message: string) => {
+    throw new Error(message);
+};
+
 /**
  * Generate error response messages
  * @param error
@@ -229,26 +233,19 @@ const removeMember = async (outMembers: string[], project: Document<any, any, Pr
     }
 };
 
-const tasksCanBeAdded = (tasks: Array<any>, taskName: string, responseData: ResponseData) => {
-    if (tasks.findIndex(elem => elem.name === taskName) >= 0) {
-        responseData.success = false;
-        responseData.code = StatusCodes.BAD_REQUEST;
-        responseData.message = "The task name already exists.";
-    }
-    
-    return !(tasks.findIndex(elem => elem.name === taskName) >= 0);
-}
+const checkTasksCanBeAdded = (tasks: Array<any>, taskName: string) => !(tasks.findIndex(elem => elem.name === taskName) >= 0);
 
-const addTask = async (responseData: ResponseData, task: TaskBody, project: Document<any, any, Project> & Project & { _id: Types.ObjectId }) => {
-    responseData.success = true;
-    responseData.code = StatusCodes.CREATED;
-    
+const addTask = async (task: TaskBody, project: Document<any, any, Project> & Project & { _id: Types.ObjectId }) => {
     try {
+        let tasksCanBeAdded: boolean = false;
+        let updateResult = undefined;
+        const options = { lean: true, new: true, rawResult: true };
+        
         switch (task.type) {
             case "vision":
                 const visionTask = task.task as VisionTask;
-                
-                if (tasksCanBeAdded(project.visionTasks, visionTask.name, responseData)) {
+                tasksCanBeAdded = checkTasksCanBeAdded(project.visionTasks, visionTask.name);
+                if (tasksCanBeAdded) {
                     let newVisionTask: VisionTask = {
                         completed: visionTask.completed,
                         includeMask: visionTask.includeMask,
@@ -257,126 +254,115 @@ const addTask = async (responseData: ResponseData, task: TaskBody, project: Docu
                         taskType: visionTask.taskType
                     };
                     
-                    project.updateOne({
-                        $push: { visionTasks: newVisionTask }
-                    }, (error) => {
-                        if (error) {
-                            makeErrorResult(error, responseData);
-                        }
-                    });
+                    updateResult = await project.updateOne(
+                        { $push: { visionTasks: newVisionTask } }, options
+                    ).exec();
                 }
                 
                 break;
             case "text":
                 const textTask = task.task as TextTask;
-                
-                if (tasksCanBeAdded(project.textTasks, textTask.name, responseData)) {
+                tasksCanBeAdded = checkTasksCanBeAdded(project.textTasks, textTask.name);
+                if (tasksCanBeAdded) {
                     let newTextTask: TextTask = {
                         name: textTask.name
                     };
                     
-                    project.updateOne({
-                        $push: { textTasks: newTextTask }
-                    }, (error) => {
-                        if (error) {
-                            makeErrorResult(error, responseData);
-                        }
-                    });
+                    updateResult = await project.updateOne(
+                        { $push: { textTasks: newTextTask } }, options
+                    ).exec();
                 }
                 
                 break;
             case "structural":
                 const structuralTask = task.task as StructuralTask;
-                
-                if (tasksCanBeAdded(project.structuralTasks, structuralTask.name, responseData)) {
+                tasksCanBeAdded = checkTasksCanBeAdded(project.structuralTasks, structuralTask.name);
+                if (tasksCanBeAdded) {
                     let newStructuralTask: StructuralTask = {
                         name: structuralTask.name,
                         taskType: structuralTask.taskType
                     };
                     
-                    project.updateOne({
-                        $push: { structuralTasks: newStructuralTask }
-                    }, (error) => {
-                        if (error) {
-                            makeErrorResult(error, responseData);
-                        }
-                    });
+                    updateResult = await project.updateOne(
+                        { $push: { structuralTasks: newStructuralTask } }, options
+                    ).exec();
                 }
                 
                 break;
             default:
-                responseData.success = false;
-                responseData.code = StatusCodes.BAD_REQUEST;
-                responseData.message = "category is undefined";
+                doProjectError(`The requested category '${ task.type }' is not supported.`);
                 break;
         }
+        
+        if (!tasksCanBeAdded) doProjectError("The task name already exists.");
+        if (!updateResult) doUncaughtError("Some errors occurred");
+        
+        return updateResult;
     } catch (error) {
-        makeErrorResult(error, responseData);
+        throw error;
     }
 };
 
-const tasksRemovable = (length: number, responseData: ResponseData): boolean => {
+const checkTasksRemovable = (length: number): boolean => {
     const MIN_REMOVABLE_LENGTH = 2;
-    
-    if (length < MIN_REMOVABLE_LENGTH) {
-        responseData.success = false;
-        responseData.code = StatusCodes.BAD_REQUEST;
-        responseData.message = "Project must have at least one task.";
-    }
-    
     return !(length < MIN_REMOVABLE_LENGTH);
 };
 
-const removeTask = async (responseData: ResponseData, type: string, taskName: string, project: Document<any, any, Project> & Project & { _id: Types.ObjectId }) => {
-    responseData.success = true;
-    responseData.code = StatusCodes.CREATED;
-    
+const removeTask = async (type: string, taskName: string, project: Document<any, any, Project> & Project & { _id: Types.ObjectId }) => {
     try {
+        let tasksRemovable: boolean = false;
+        let updateResult = undefined;
+        /*
+         <updateResult sample>
+         updateResult = {
+          "acknowledged": true,
+          "modifiedCount": 1,
+          "upsertedId": null,
+          "upsertedCount": 0,
+          "matchedCount": 1
+        }
+         */
+        const options = { lean: true, new: true, rawResult: true };
+        
         switch (type) {
             case "vision":
-                if (tasksRemovable(project.visionTasks.length, responseData)) {
-                    project.updateOne({
-                        $pull: { visionTasks: { name: taskName } }
-                    }, (error) => {
-                        if (error) {
-                            makeErrorResult(error, responseData);
-                        }
-                    });
+                tasksRemovable = checkTasksRemovable(project.visionTasks.length);
+                if (tasksRemovable) {
+                    updateResult = await project.updateOne(
+                        { $pull: { visionTasks: { name: taskName } } }, options
+                    ).exec();
                 }
                 
                 break;
             case "text":
-                if (tasksRemovable(project.textTasks.length, responseData)) {
-                    project.updateOne({
-                        $push: { textTasks: { name: taskName } }
-                    }, (error) => {
-                        if (error) {
-                            makeErrorResult(error, responseData);
-                        }
-                    });
+                tasksRemovable = checkTasksRemovable(project.textTasks.length);
+                if (tasksRemovable) {
+                    updateResult = await project.updateOne(
+                        { $push: { textTasks: { name: taskName } } }, options
+                    ).exec();
                 }
                 
                 break;
             case "structural":
-                if (tasksRemovable(project.structuralTasks.length, responseData)) {
-                    project.updateOne({
-                        $push: { structuralTasks: { name: taskName } }
-                    }, (error) => {
-                        if (error) {
-                            makeErrorResult(error, responseData);
-                        }
-                    });
+                tasksRemovable = checkTasksRemovable(project.structuralTasks.length)
+                if (tasksRemovable) {
+                    updateResult = await project.updateOne(
+                        { $push: { structuralTasks: { name: taskName } } }, options
+                    ).exec();
                 }
                 
                 break;
             default:
-                responseData.success = false;
-                responseData.code = StatusCodes.BAD_REQUEST;
-                responseData.message = "category is undefined";
+                doProjectError(`The requested category '${ type }' is not supported.`);
                 break;
         }
+        
+        if (!tasksRemovable) doProjectError("Project must have at least one task.");
+        if (!updateResult) doUncaughtError("Some errors occurred");
+        
+        return updateResult;
     } catch (error) {
-        makeErrorResult(error, responseData);
+        throw error;
     }
 };
 
@@ -567,6 +553,7 @@ router.put("/:name/members", async (request: Request, response: Response, next: 
 
 router.put("/:name/task", async (request: Request, response: Response, next: NextFunction) => {
     let responseData = new ResponseData();
+    let updateResult = undefined;
     
     try {
         checkPathParamError(request.params.name, "project name");
@@ -576,7 +563,16 @@ router.put("/:name/task", async (request: Request, response: Response, next: Nex
         let modProject = await ProjectModel.findOne({ name: decodeURI(request.params.name) }).exec();
         
         if (modProject) {
-            await addTask(responseData, reqTasks, modProject);
+            updateResult = await addTask(reqTasks, modProject);
+            
+            if (updateResult) {
+                responseData.success = true;
+                responseData.code = StatusCodes.CREATED;
+            } else {
+                responseData.success = false;
+                responseData.code = StatusCodes.INTERNAL_SERVER_ERROR;
+                responseData.message = "Uncaught error occurred.";
+            }
         } else {
             responseData.success = false;
             responseData.code = StatusCodes.NOT_FOUND;
@@ -593,6 +589,7 @@ router.put("/:name/task", async (request: Request, response: Response, next: Nex
 
 router.delete("/:name/task/:type/:taskName", async (request: Request, response: Response, next: NextFunction) => {
     let responseData = new ResponseData();
+    let updateResult = undefined;
     
     try {
         checkPathParamError(request.params.name, "project name");
@@ -602,7 +599,16 @@ router.delete("/:name/task/:type/:taskName", async (request: Request, response: 
         let modProject = await ProjectModel.findOne({ name: decodeURI(request.params.name) }).exec();
         
         if (modProject) {
-            await removeTask(responseData, decodeURI(request.params.type), decodeURI(request.params.taskName), modProject);
+            updateResult = await removeTask(decodeURI(request.params.type), decodeURI(request.params.taskName), modProject);
+            
+            if (updateResult) {
+                responseData.success = true;
+                responseData.code = StatusCodes.CREATED;
+            } else {
+                responseData.success = false;
+                responseData.code = StatusCodes.INTERNAL_SERVER_ERROR;
+                responseData.message = "Uncaught error occurred.";
+            }
         } else {
             responseData.success = false;
             responseData.code = StatusCodes.NOT_FOUND;
