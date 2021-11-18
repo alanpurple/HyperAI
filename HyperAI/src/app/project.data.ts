@@ -1,5 +1,7 @@
 export interface Project {
   name: string;
+  createdAt: Date;
+  updatedAt: Date;
   dataURI: string;
   projectType: 'single' | 'sequential' | 'multiple_comparison';
   category: 'vision' | 'text' | 'structural';

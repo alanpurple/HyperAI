@@ -33,6 +33,8 @@ export class ProjectComponent implements OnInit {
   projects: Project[] = [];
   newProject: Project = {
     name: '',
+    createdAt: new Date(),
+    updatedAt: new Date(),
     dataURI: '',
     projectType: 'single',
     category: 'structural',
@@ -127,6 +129,8 @@ export class ProjectComponent implements OnInit {
   cancelMaking() {
     this.newProject = {
       name: '',
+      createdAt: new Date(),
+      updatedAt: new Date(),
       dataURI: '',
       projectType: 'single',
       category: 'structural',
@@ -143,6 +147,8 @@ export class ProjectComponent implements OnInit {
   resetMaking() {
     this.newProject = {
       name: '',
+      createdAt: new Date(),
+      updatedAt: new Date(),
       dataURI: '',
       projectType: 'single',
       category: 'structural',
@@ -187,6 +193,8 @@ export class ProjectComponent implements OnInit {
         this.projectTable?.renderRows();
         this.newProject = {
           name: '',
+          createdAt: new Date(),
+          updatedAt: new Date(),
           dataURI: '',
           projectType: 'single',
           category: 'structural',
