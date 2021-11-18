@@ -443,13 +443,13 @@ router.get("/", async (request: Request, response: Response) => {
             request.user = testUser;
         }
     }
-    logger(request.user);
     
     try {
         let isAdmin = request.user["accountType"] === "admin";
+        let filter = isAdmin ? {} : { owner: request.user['_id'] };
         
         let projects = await ProjectModel
-            .find({ "owner": request.user['_id'] }, { _id: false, __v: false })
+            .find(filter, { _id: false, __v: false })
             .populate({ path: 'owner', select: 'email -_id' })
             .populate({ path: 'members.user', select: 'email -_id' })
             .exec();
@@ -495,9 +495,11 @@ router.get("/:name", async (request: Request, response: Response, next: NextFunc
         checkPathParamError(request.params.name, "project name");
         
         let isAdmin = request.user["accountType"] === "admin";
+        let filter = { name: decodeURI(request.params.name) };
+        filter = isAdmin ? filter : Object.assign({}, filter, { owner: request.user['_id'] });
         
         let project = await ProjectModel
-            .findOne({ name: decodeURI(request.params.name), "owner": request.user['_id'] }, { _id: 0 })
+            .findOne(filter, { _id: 0 })
             .populate({ path: 'owner', select: 'email -_id' })
             .populate({ path: 'members.user', select: 'email -_id' })
             .exec();
@@ -565,18 +567,27 @@ router.post("/", async (request: Request, response: Response, next: NextFunction
 });
 
 router.put("/:name/members", async (request: Request, response: Response, next: NextFunction) => {
+    if (env === 'development') {
+        if (!request.user) {
+            request.user = testUser;
+        }
+    }
+    
     let responseData = new ResponseData();
     
     let addMemberResult: AddMemberResult = { error: [], addedMembers: [], ignoredMembers: [] };
     let removeMemberResult: RemoveMemberResult = { error: [], ignoredMembers: [], removedMembers: [] };
     
-    
     try {
         checkPathParamError(request.params.name, "project name");
         
+        let isAdmin = request.user["accountType"] === "admin";
+        let filter = { name: decodeURI(request.params.name) };
+        filter = isAdmin ? filter : Object.assign({}, filter, { owner: request.user['_id'] });
+        
         let reqMembers: EditMember = request.body;
         
-        let modProject = await ProjectModel.findOne({ name: decodeURI(request.params.name) })
+        let modProject = await ProjectModel.findOne(filter)
             .populate({ path: 'members.user', select: 'email -_id' })
             .exec();
         
@@ -615,15 +626,25 @@ router.put("/:name/members", async (request: Request, response: Response, next: 
 });
 
 router.put("/:name/task", async (request: Request, response: Response, next: NextFunction) => {
+    if (env === 'development') {
+        if (!request.user) {
+            request.user = testUser;
+        }
+    }
+    
     let responseData = new ResponseData();
     let updateResult = undefined;
     
     try {
         checkPathParamError(request.params.name, "project name");
         
+        let isAdmin = request.user["accountType"] === "admin";
+        let filter = { name: decodeURI(request.params.name) };
+        filter = isAdmin ? filter : Object.assign({}, filter, { owner: request.user['_id'] });
+        
         let reqTasks: TaskBody = request.body;
         
-        let modProject = await ProjectModel.findOne({ name: decodeURI(request.params.name) }).exec();
+        let modProject = await ProjectModel.findOne(filter).exec();
         
         if (modProject) {
             updateResult = await addTask(reqTasks, modProject);
@@ -637,9 +658,7 @@ router.put("/:name/task", async (request: Request, response: Response, next: Nex
                 responseData.message = "Uncaught error occurred.";
             }
         } else {
-            responseData.success = false;
-            responseData.code = StatusCodes.NOT_FOUND;
-            responseData.message = "No task was added.";
+            doProjectError("The target project does not exist.");
         }
     } catch (error) {
         makeErrorResult(error, responseData);
@@ -651,6 +670,12 @@ router.put("/:name/task", async (request: Request, response: Response, next: Nex
 });
 
 router.put("/:name/task/:taskName", async (request: Request, response: Response, next: NextFunction) => {
+    if (env === 'development') {
+        if (!request.user) {
+            request.user = testUser;
+        }
+    }
+    
     let responseData = new ResponseData();
     let updateResult = undefined;
     
@@ -658,9 +683,13 @@ router.put("/:name/task/:taskName", async (request: Request, response: Response,
         checkPathParamError(request.params.name, "project name");
         checkPathParamError(request.params.name, "task name");
         
+        let isAdmin = request.user["accountType"] === "admin";
+        let filter = { name: decodeURI(request.params.name) };
+        filter = isAdmin ? filter : Object.assign({}, filter, { owner: request.user['_id'] });
+        
         let reqTasks: TaskBody = request.body;
         
-        let modProject = await ProjectModel.findOne({ name: decodeURI(request.params.name) }).exec();
+        let modProject = await ProjectModel.findOne(filter).exec();
         
         if (modProject) {
             updateResult = await editTask(decodeURI(request.params.taskName), reqTasks, modProject);
@@ -674,9 +703,7 @@ router.put("/:name/task/:taskName", async (request: Request, response: Response,
                 responseData.message = "Uncaught error occurred.";
             }
         } else {
-            responseData.success = false;
-            responseData.code = StatusCodes.NOT_FOUND;
-            responseData.message = "No tasks were removed.";
+            doProjectError("The target project does not exist.");
         }
     } catch (error) {
         makeErrorResult(error, responseData);
@@ -688,6 +715,12 @@ router.put("/:name/task/:taskName", async (request: Request, response: Response,
 });
 
 router.delete("/:name/task/:type/:taskName", async (request: Request, response: Response, next: NextFunction) => {
+    if (env === 'development') {
+        if (!request.user) {
+            request.user = testUser;
+        }
+    }
+    
     let responseData = new ResponseData();
     let updateResult = undefined;
     
@@ -696,7 +729,11 @@ router.delete("/:name/task/:type/:taskName", async (request: Request, response: 
         checkPathParamError(request.params.name, "project category");
         checkPathParamError(request.params.name, "task name");
         
-        let modProject = await ProjectModel.findOne({ name: decodeURI(request.params.name) }).exec();
+        let isAdmin = request.user["accountType"] === "admin";
+        let filter = { name: decodeURI(request.params.name) };
+        filter = isAdmin ? filter : Object.assign({}, filter, { owner: request.user['_id'] });
+        
+        let modProject = await ProjectModel.findOne(filter).exec();
         
         if (modProject) {
             updateResult = await removeTask(decodeURI(request.params.type), decodeURI(request.params.taskName), modProject);
@@ -710,9 +747,7 @@ router.delete("/:name/task/:type/:taskName", async (request: Request, response: 
                 responseData.message = "Uncaught error occurred.";
             }
         } else {
-            responseData.success = false;
-            responseData.code = StatusCodes.NOT_FOUND;
-            responseData.message = "No tasks were removed.";
+            doProjectError("The target project does not exist.");
         }
     } catch (error) {
         makeErrorResult(error, responseData);
@@ -724,12 +759,22 @@ router.delete("/:name/task/:type/:taskName", async (request: Request, response: 
 });
 
 router.delete("/", async (request: Request, response: Response, next: NextFunction) => {
+    if (env === 'development') {
+        if (!request.user) {
+            request.user = testUser;
+        }
+    }
+    
     let responseData = new ResponseData();
     
     try {
         checkArray(request.body.names);
         
-        let result = await ProjectModel.deleteMany({ name: { $in: request.body.names } }).exec();
+        let isAdmin = request.user["accountType"] === "admin";
+        let filter = { name: { $in: request.body.names } };
+        filter = isAdmin ? filter : Object.assign({}, filter, { owner: request.user['_id'] });
+        
+        let result = await ProjectModel.deleteMany(filter).exec();
         
         responseData.success = true;
         
@@ -739,7 +784,7 @@ router.delete("/", async (request: Request, response: Response, next: NextFuncti
             responseData.data = result;
         } else {
             responseData.code = StatusCodes.NOT_FOUND;
-            responseData.message = "No project was deleted.";
+            responseData.message = "No projects were deleted.";
         }
     } catch (error) {
         makeErrorResult(error, responseData);
@@ -751,12 +796,22 @@ router.delete("/", async (request: Request, response: Response, next: NextFuncti
 });
 
 router.delete("/:name", async (request: Request, response: Response, next: NextFunction) => {
+    if (env === 'development') {
+        if (!request.user) {
+            request.user = testUser;
+        }
+    }
+    
     let responseData = new ResponseData();
     
     try {
         checkPathParamError(request.params.name, "project name");
         
-        let delProject = await ProjectModel.findOneAndDelete({ name: decodeURI(request.params.name) }).exec();
+        let isAdmin = request.user["accountType"] === "admin";
+        let filter = { name: decodeURI(request.params.name) };
+        filter = isAdmin ? filter : Object.assign({}, filter, { owner: request.user['_id'] });
+        
+        let delProject = await ProjectModel.findOneAndDelete(filter).exec();
         
         responseData.success = true;
         
@@ -764,8 +819,7 @@ router.delete("/:name", async (request: Request, response: Response, next: NextF
             responseData.code = StatusCodes.OK;
             responseData.message = ReasonPhrases.OK;
         } else {
-            responseData.code = StatusCodes.NOT_FOUND;
-            responseData.message = "No project was deleted.";
+            doProjectError("The target project does not exist.");
         }
     } catch (error) {
         makeErrorResult(error, responseData);
