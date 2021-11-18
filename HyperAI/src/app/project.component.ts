@@ -213,28 +213,30 @@ export class ProjectComponent implements OnInit {
       }
     });
     dialogRef.afterClosed().subscribe(project => {
-      let inMember: { user: string, role: 'attendee' | 'member' }[] = [];
-      let outMember: string[] = [];
-      const edited = project as Project;
-      edited.members.forEach(elem => {
-        if (!currentProject.members.find(elem2 => elem2.user == elem.user))
-          inMember.push(elem);
-      });
-      projectMembers.forEach(elem => {
-        if (!edited.members.find(elem2 => elem2.user == elem))
-          outMember.push(elem);
-      });
-      if (inMember.length < 1 && outMember.length < 1)
-        this.confirmDialog.open('nothing\'s changed');
-      else
-        // currently only members can be edited in existing project info management
-        this.projectService.editProjectMembers(currentProject.name, {
-          inMember: inMember, outMember: outMember
-        }).subscribe(msg => {
-          this.confirmDialog.open('project edited');
-          this.projectTable?.renderRows();
-        },
-          err => this.errorAlert.open(err));
+      if (project) {
+        let inMember: { user: string, role: 'attendee' | 'member' }[] = [];
+        let outMember: string[] = [];
+        const edited = project as Project;
+        edited.members.forEach(elem => {
+          if (!projectMembers.find(elem2 => elem2 == elem.user))
+            inMember.push(elem);
+        });
+        projectMembers.forEach(elem => {
+          if (!edited.members.find(elem2 => elem2.user == elem))
+            outMember.push(elem);
+        });
+        if (inMember.length < 1 && outMember.length < 1)
+          this.confirmDialog.open('nothing\'s changed');
+        else
+          // currently only members can be edited in existing project info management
+          this.projectService.editProjectMembers(currentProject.name, {
+            inMember: inMember, outMember: outMember
+          }).subscribe(msg => {
+            this.confirmDialog.open('project edited');
+            this.projectTable?.renderRows();
+          },
+            err => this.errorAlert.open(err));
+      }
     });
   }
 
