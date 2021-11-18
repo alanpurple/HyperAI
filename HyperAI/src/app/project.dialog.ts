@@ -18,6 +18,8 @@ export class ProjectDialog {
 
   originalData: Project = {
     name: '',
+    createdAt: new Date(),
+    updatedAt: new Date(),
     dataURI: '',
     projectType: 'single',
     category: 'structural',

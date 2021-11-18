@@ -27,6 +27,10 @@ export class ProjectService {
     return this.http.put('/project/' + name + '/members', editInfo, { responseType: "text" });
   }
 
+  deleteProject(name: string): Observable<string> {
+    return this.http.delete('/project/' + name, { responseType: 'text' });
+  }
+
   addTask(name: string, type: 'structural'|'text'|'vision', task: StructuralTask | VisionTask | TextTask): Observable<string> {
     return this.http.put('/project/' + name + '/task', { type: type, task: task }, { responseType: 'text' });
   }

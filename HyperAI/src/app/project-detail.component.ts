@@ -29,7 +29,8 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
 
   project: Project = {
     name: '', dataURI: '', projectType: 'sequential', category: 'structural',
-    members: [], owner: 'self', structuralTasks: [], textTasks: [], visionTasks: []
+    members: [], owner: 'self', structuralTasks: [], textTasks: [], visionTasks: [],
+    createdAt: new Date(), updatedAt:new Date()
   };
 
   tasks: (StructuralTask | TextTask | VisionTask)[] = [];
