@@ -33,6 +33,7 @@ const doUncaughtError = (message: string) => {
  * @return Generated data
  */
 const makeErrorResult = (error, responseData: ResponseData) => {
+    console.error(error);
     logger(error);
     
     responseData.success = false;
@@ -681,7 +682,7 @@ router.put("/:name/task/:taskName", async (request: Request, response: Response,
     
     try {
         checkPathParamError(request.params.name, "project name");
-        checkPathParamError(request.params.name, "task name");
+        checkPathParamError(request.params.taskName, "task name");
         
         let isAdmin = request.user["accountType"] === "admin";
         let filter = { name: decodeURI(request.params.name) };
@@ -726,8 +727,8 @@ router.delete("/:name/task/:type/:taskName", async (request: Request, response: 
     
     try {
         checkPathParamError(request.params.name, "project name");
-        checkPathParamError(request.params.name, "project category");
-        checkPathParamError(request.params.name, "task name");
+        checkPathParamError(request.params.type, "project category");
+        checkPathParamError(request.params.taskName, "task name");
         
         let isAdmin = request.user["accountType"] === "admin";
         let filter = { name: decodeURI(request.params.name) };
