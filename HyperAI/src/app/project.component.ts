@@ -106,7 +106,8 @@ export class ProjectComponent implements OnInit {
           textTasks: [],
           structuralTasks: []
         },
-        isNew:true
+        isNew: true,
+        availableMembers: this.colleagues
       }
     });
     dialogRef.afterClosed().subscribe(project => {
