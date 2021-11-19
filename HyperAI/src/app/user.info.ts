@@ -45,7 +45,7 @@ export class UserInfo implements OnInit {
               console.log(yes);
               if (yes)
                 this.userService.updateUser({ nickName: this.nickName })
-                  .subscribe(res => this.router.navigate(['/']),
+                  .subscribe(res => window.location.href='/',
                     err => this.errorAlert.open(err.message));
               else
                 this.nickName = '';
