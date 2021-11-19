@@ -1,14 +1,14 @@
 import { NextFunction, Request, Response, Router } from 'express';
 import { Project, ProjectModel, StructuralTask, TextTask, VisionTask } from "../models/project";
 import { ReasonPhrases, StatusCodes, } from 'http-status-codes';
-import Debug from "debug";
 import { ResponseData } from "../interfaces/ResponseData";
 import { RequestProject } from "../interfaces/ProjectRequest";
 import { Document, Types } from 'mongoose';
 import { UserModel } from "../models/user";
 import { ensureAuthenticated } from "../authentication/authentication";
 
-const debug = Debug("project");
+const logger = require("../logger/logger")("project");
+
 const router = Router();
 
 class ProjectError extends Error {
@@ -22,6 +22,10 @@ const doProjectError = (message: string) => {
     throw new ProjectError(message);
 };
 
+const doUncaughtError = (message: string) => {
+    throw new Error(message);
+};
+
 /**
  * Generate error response messages
  * @param error
@@ -29,18 +33,16 @@ const doProjectError = (message: string) => {
  * @return Generated data
  */
 const makeErrorResult = (error, responseData: ResponseData) => {
-    debug("############## exception");
-    debug(error);
+    console.error(error);
+    logger(error);
     
     responseData.success = false;
-    if (error.name === "ValidationError" || error.name === "CastError" || "ProjectError") {
+    if (error.name === "ValidationError" || error.name === "CastError" || error.name === "ProjectError") {
         responseData.code = StatusCodes.BAD_REQUEST;
     } else {
         responseData.code = StatusCodes.INTERNAL_SERVER_ERROR;
     }
     responseData.message = error.message;
-    
-    return responseData;
 };
 
 /**
@@ -100,103 +102,151 @@ const makeProjectResponse = (isAdmin: boolean, project: Document<any, any, Proje
 /**
  * Convert requested project data to mongoose project data
  * @param user
- * @param rProject Requested project data
+ * @param reqProject Requested project data
  */
-const convertToProjectSchema = async (user, rProject: RequestProject) => {
-    debug("user::::::::");
-    debug(user);
-    debug("rProject::::::::::");
-    debug(rProject);
+const convertToProjectSchema = async (user, reqProject: RequestProject) => {
+    logger(user);
+    logger(reqProject);
     
     let members: { user: Types.ObjectId; role: "attendee" | "member" }[] = [];
     
-    for (let rMember of rProject.members) {
+    for (let rMember of reqProject.members) {
         let user = await UserModel.findOne({ email: rMember.user }).exec();
-        members.push({ user: user._id, role: rMember.role });
+        
+        if (user) {
+            members.push({ user: user._id, role: rMember.role });
+        } else {
+            doProjectError(`Project member '${ rMember.user }' not found.`);
+        }
     }
     
     let projectSchema: Project = {
-        category: rProject.category,
-        dataURI: rProject.dataURI,
+        category: reqProject.category,
+        dataURI: reqProject.dataURI,
         members: members,
-        name: rProject.name,
+        name: reqProject.name,
         owner: user["_id"],
-        projectType: rProject.projectType,
-        structuralTasks: rProject.structuralTasks,
-        textTasks: rProject.textTasks,
-        visionTasks: rProject.visionTasks
+        projectType: reqProject.projectType,
+        structuralTasks: reqProject.structuralTasks,
+        textTasks: reqProject.textTasks,
+        visionTasks: reqProject.visionTasks
     };
     
     return projectSchema;
 };
 
-const addMember = async (responseData: ResponseData, inMembers: { user: string, role: 'member' | 'attendee' }[], project: Document<any, any, Project> & Project & { _id: Types.ObjectId }) => {
-    responseData.success = true;
-    responseData.code = StatusCodes.CREATED;
-    
+const addMember = async (inMembers: { user: string, role: 'member' | 'attendee' }[], project: Document<any, any, Project> & Project & { _id: Types.ObjectId }) => {
     try {
-        for (let member of inMembers) {
-            let user = await UserModel.findOne({ email: member.user }).exec();
-            
-            if (project.members.findIndex(elem => elem.user.equals(user._id)) < 0) {
-                project.updateOne({
-                    $push: { "members": { user: user._id, role: member.role } }
-                }, (error) => {
-                    if (error) {
-                        makeErrorResult(error, responseData);
+        let addMemberResult: AddMemberResult = { error: [], addedMembers: [], ignoredMembers: [] };
+        const options = { lean: true, new: true, rawResult: true };
+        
+        // Check if the target to be removed exists
+        let currentMemberEmails: string[] = project.members.map(member => member.user["email"]);
+        let inMemberEmails: string[] = inMembers.map(e => e.user);
+        const difference: string[] = inMemberEmails.filter(e => !currentMemberEmails.includes(e));
+        
+        if (difference.length > 0) {
+            for (let member of inMembers) {
+                let user = await UserModel.findOne({ email: member.user }).exec();
+                
+                if (user) {
+                    let updateResult = await project.updateOne(
+                        { $push: { "members": { user: user._id, role: member.role } } }, options
+                    ).exec();
+                    
+                    if (!updateResult) {
+                        addMemberResult.error.push(`An error occurred while adding member '${ member.user }'.`);
+                    } else {
+                        logger(`User '${ member.user }' is added.`);
+                        addMemberResult.addedMembers.push(member.user);
                     }
-                });
-            }
-            
-            if (!responseData.success) break;
-        }
-    } catch (error) {
-        makeErrorResult(error, responseData);
-    }
-};
-
-const removeMember = async (responseData: ResponseData, outMembers: string[], project: Document<any, any, Project> & Project & { _id: Types.ObjectId }) => {
-    responseData.success = true;
-    responseData.code = StatusCodes.CREATED;
-    
-    try {
-        for (let member of outMembers) {
-            let user = await UserModel.findOne({ email: member }).exec();
-            project.updateOne({
-                $pull: { "members": { user: user._id } }
-            }, (error) => {
-                if (error) {
-                    makeErrorResult(error, responseData);
+                } else {
+                    logger(`User '${ member.user }' not found.`);
+                    addMemberResult.ignoredMembers.push(member.user);
                 }
-            });
-            
-            if (!responseData.success) break;
+            }
+        } else {
+            addMemberResult.addedMembers.push("Project members already exist.");
         }
+        
+        return addMemberResult;
     } catch (error) {
-        makeErrorResult(error, responseData);
+        throw error;
     }
 };
 
-const tasksCanBeAdded = (tasks: Array<any>, taskName: string, responseData: ResponseData) => {
-    if (tasks.findIndex(elem => elem.name === taskName) >= 0) {
-        responseData.success = false;
-        responseData.code = StatusCodes.BAD_REQUEST;
-        responseData.message = "The task name already exists.";
+/**
+ * remove project member when user account is being removed (future use)
+ *
+ * @param userId
+ */
+const removeMemberFromAllProjects = async (userId: Types.ObjectId) => {
+    let projects = await ProjectModel.find({ "members.user": userId }).exec();
+    if (projects.length > 0) {
+        projects.forEach(project => {
+            project.updateOne({
+                $pull: { "members": { user: userId } }
+            }, (error) => {
+                throw error;
+            });
+        });
     }
-    
-    return !(tasks.findIndex(elem => elem.name === taskName) >= 0);
 }
 
-const addTask = async (responseData: ResponseData, task: TaskBody, project: Document<any, any, Project> & Project & { _id: Types.ObjectId }) => {
-    responseData.success = true;
-    responseData.code = StatusCodes.CREATED;
-    
+const removeMember = async (outMembers: string[], project: Document<any, any, Project> & Project & { _id: Types.ObjectId }) => {
     try {
+        let removeMemberResult: RemoveMemberResult = { error: [], ignoredMembers: [], removedMembers: [] };
+        const options = { lean: true, new: true, rawResult: true };
+        
+        // Check if the target to be removed exists
+        let currentMemberEmails: string[] = project.members.map(member => member.user["email"]);
+        const intersection: string[] = currentMemberEmails.filter(e => outMembers.includes(e));
+        
+        if (intersection.length > 0 && (currentMemberEmails.length > intersection.length)) {
+            for (let member of outMembers) {
+                let user = await UserModel.findOne({ email: member }).exec();
+                
+                if (user) {
+                    let updateResult = await project.updateOne(
+                        { $pull: { "members": { user: user._id } } }, options
+                    ).exec();
+                    
+                    if (updateResult) {
+                        removeMemberResult.error.push(`An error occurred while removing member '${ member }'.`);
+                    } else {
+                        logger(`User '${ member }' is removed.`);
+                        removeMemberResult.removedMembers.push(member);
+                    }
+                } else {
+                    logger(`User '${ member }' not found.`);
+                    removeMemberResult.ignoredMembers.push(member);
+                }
+            }
+        } else if (intersection.length === 0) {
+            removeMemberResult.error.push("No project members to remove.");
+        } else {
+            removeMemberResult.error.push("Project member must have at least one user.");
+        }
+        
+        return removeMemberResult;
+    } catch (error) {
+        throw error;
+    }
+};
+
+const checkTasksCanBeAdded = (tasks: Array<any>, taskName: string) => !(tasks.findIndex(elem => elem.name === taskName) >= 0);
+
+const addTask = async (task: TaskBody, project: Document<any, any, Project> & Project & { _id: Types.ObjectId }) => {
+    try {
+        let tasksCanBeAdded: boolean = false;
+        let updateResult = undefined;
+        const options = { lean: true, new: true, rawResult: true };
+        
         switch (task.type) {
             case "vision":
                 const visionTask = task.task as VisionTask;
-                
-                if (tasksCanBeAdded(project.visionTasks, visionTask.name, responseData)) {
+                tasksCanBeAdded = checkTasksCanBeAdded(project.visionTasks, visionTask.name);
+                if (tasksCanBeAdded) {
                     let newVisionTask: VisionTask = {
                         completed: visionTask.completed,
                         includeMask: visionTask.includeMask,
@@ -205,127 +255,178 @@ const addTask = async (responseData: ResponseData, task: TaskBody, project: Docu
                         taskType: visionTask.taskType
                     };
                     
-                    project.updateOne({
-                        $push: { visionTasks: newVisionTask }
-                    }, (error) => {
-                        if (error) {
-                            makeErrorResult(error, responseData);
-                        }
-                    });
+                    updateResult = await project.updateOne(
+                        { $push: { visionTasks: newVisionTask } }, options
+                    ).exec();
                 }
                 
                 break;
             case "text":
                 const textTask = task.task as TextTask;
-                
-                if (tasksCanBeAdded(project.textTasks, textTask.name, responseData)) {
+                tasksCanBeAdded = checkTasksCanBeAdded(project.textTasks, textTask.name);
+                if (tasksCanBeAdded) {
                     let newTextTask: TextTask = {
                         name: textTask.name,
                         taskType: textTask.taskType
                     };
                     
-                    project.updateOne({
-                        $push: { textTasks: newTextTask }
-                    }, (error) => {
-                        if (error) {
-                            makeErrorResult(error, responseData);
-                        }
-                    });
+                    updateResult = await project.updateOne(
+                        { $push: { textTasks: newTextTask } }, options
+                    ).exec();
                 }
                 
                 break;
             case "structural":
                 const structuralTask = task.task as StructuralTask;
-                
-                if (tasksCanBeAdded(project.structuralTasks, structuralTask.name, responseData)) {
+                tasksCanBeAdded = checkTasksCanBeAdded(project.structuralTasks, structuralTask.name);
+                if (tasksCanBeAdded) {
                     let newStructuralTask: StructuralTask = {
                         name: structuralTask.name,
                         taskType: structuralTask.taskType
                     };
                     
-                    project.updateOne({
-                        $push: { structuralTasks: newStructuralTask }
-                    }, (error) => {
-                        if (error) {
-                            makeErrorResult(error, responseData);
-                        }
-                    });
+                    updateResult = await project.updateOne(
+                        { $push: { structuralTasks: newStructuralTask } }, options
+                    ).exec();
                 }
                 
                 break;
             default:
-                responseData.success = false;
-                responseData.code = StatusCodes.BAD_REQUEST;
-                responseData.message = "category is undefined";
+                doProjectError(`The requested category '${ task.type }' is not supported.`);
                 break;
         }
+        
+        if (!tasksCanBeAdded) doProjectError("The task name already exists.");
+        if (!updateResult) doUncaughtError("Some errors occurred");
+        
+        return updateResult;
     } catch (error) {
-        makeErrorResult(error, responseData);
+        throw error;
     }
 };
 
-const tasksRemovable = (length: number, responseData: ResponseData): boolean => {
-    const MIN_REMOVABLE_LENGTH = 2;
-    
-    if (length < MIN_REMOVABLE_LENGTH) {
-        responseData.success = false;
-        responseData.code = StatusCodes.BAD_REQUEST;
-        responseData.message = "Project must have at least one task.";
-    }
-    
-    return !(length < MIN_REMOVABLE_LENGTH);
-};
-
-const removeTask = async (responseData: ResponseData, type: string, taskName: string, project: Document<any, any, Project> & Project & { _id: Types.ObjectId }) => {
-    responseData.success = true;
-    responseData.code = StatusCodes.CREATED;
-    
+const editTask = async (taskName: string, task: TaskBody, project: Document<any, any, Project> & Project & { _id: Types.ObjectId }) => {
     try {
-        switch (type) {
+        let foundIndex = -1;
+        let updateResult = undefined;
+        const options = { lean: true, new: true, rawResult: true };
+        const projectObj = project.toObject();
+        let tasks: any[] = [];
+        
+        switch (task.type) {
             case "vision":
-                if (tasksRemovable(project.visionTasks.length, responseData)) {
-                    project.updateOne({
-                        $pull: { visionTasks: { name: taskName } }
-                    }, (error) => {
-                        if (error) {
-                            makeErrorResult(error, responseData);
-                        }
-                    });
+                tasks = projectObj.visionTasks;
+                foundIndex = tasks.findIndex(task => task.name === taskName);
+                if (foundIndex >= 0) {
+                    let targetTask = tasks[foundIndex];
+                    tasks[foundIndex] = Object.assign({}, targetTask, task.task);
+                    
+                    updateResult = await project.updateOne(
+                        { $set: { visionTasks: tasks } }, options
+                    ).exec();
                 }
                 
                 break;
             case "text":
-                if (tasksRemovable(project.textTasks.length, responseData)) {
-                    project.updateOne({
-                        $push: { textTasks: { name: taskName } }
-                    }, (error) => {
-                        if (error) {
-                            makeErrorResult(error, responseData);
-                        }
-                    });
+                tasks = projectObj.textTasks;
+                foundIndex = tasks.findIndex(task => task.name === taskName);
+                if (foundIndex >= 0) {
+                    let targetTask = tasks[foundIndex];
+                    tasks[foundIndex] = Object.assign({}, targetTask, task.task);
+                    
+                    updateResult = await project.updateOne(
+                        { $set: { textTasks: tasks } }, options
+                    ).exec();
                 }
                 
                 break;
             case "structural":
-                if (tasksRemovable(project.structuralTasks.length, responseData)) {
-                    project.updateOne({
-                        $push: { structuralTasks: { name: taskName } }
-                    }, (error) => {
-                        if (error) {
-                            makeErrorResult(error, responseData);
-                        }
-                    });
+                tasks = projectObj.structuralTasks;
+                foundIndex = tasks.findIndex(task => task.name === taskName);
+                if (foundIndex >= 0) {
+                    let targetTask = tasks[foundIndex];
+                    tasks[foundIndex] = Object.assign({}, targetTask, task.task);
+                    
+                    updateResult = await project.updateOne(
+                        { $set: { structuralTasks: tasks } }, options
+                    ).exec();
                 }
                 
                 break;
             default:
-                responseData.success = false;
-                responseData.code = StatusCodes.BAD_REQUEST;
-                responseData.message = "category is undefined";
+                doProjectError(`The requested category '${ task.type }' is not supported.`);
                 break;
         }
+        
+        if (foundIndex < 0) doProjectError(`The task '${ taskName }' does not exist.`);
+        if (!updateResult) doUncaughtError("Some errors occurred");
+        
+        return updateResult;
     } catch (error) {
-        makeErrorResult(error, responseData);
+        throw error;
+    }
+};
+
+const checkTasksRemovable = (length: number): boolean => {
+    const MIN_REMOVABLE_LENGTH = 2;
+    return !(length < MIN_REMOVABLE_LENGTH);
+};
+
+const removeTask = async (type: string, taskName: string, project: Document<any, any, Project> & Project & { _id: Types.ObjectId }) => {
+    try {
+        let tasksRemovable: boolean = false;
+        let updateResult = undefined;
+        /*
+         <updateResult sample>
+         updateResult = {
+          "acknowledged": true,
+          "modifiedCount": 1,
+          "upsertedId": null,
+          "upsertedCount": 0,
+          "matchedCount": 1
+        }
+         */
+        const options = { lean: true, new: true, rawResult: true };
+        
+        switch (type) {
+            case "vision":
+                tasksRemovable = checkTasksRemovable(project.visionTasks.length);
+                if (tasksRemovable) {
+                    updateResult = await project.updateOne(
+                        { $pull: { visionTasks: { name: taskName } } }, options
+                    ).exec();
+                }
+                
+                break;
+            case "text":
+                tasksRemovable = checkTasksRemovable(project.textTasks.length);
+                if (tasksRemovable) {
+                    updateResult = await project.updateOne(
+                        { $push: { textTasks: { name: taskName } } }, options
+                    ).exec();
+                }
+                
+                break;
+            case "structural":
+                tasksRemovable = checkTasksRemovable(project.structuralTasks.length)
+                if (tasksRemovable) {
+                    updateResult = await project.updateOne(
+                        { $push: { structuralTasks: { name: taskName } } }, options
+                    ).exec();
+                }
+                
+                break;
+            default:
+                doProjectError(`The requested category '${ type }' is not supported.`);
+                break;
+        }
+        
+        if (!tasksRemovable) doProjectError("Project must have at least one task.");
+        if (!updateResult) doUncaughtError("Some errors occurred");
+        
+        return updateResult;
+    } catch (error) {
+        throw error;
     }
 };
 
@@ -343,13 +444,13 @@ router.get("/", async (request: Request, response: Response) => {
             request.user = testUser;
         }
     }
-    debug(request.user);
-    
-    let isAdmin = request.user["accountType"] === "admin";
     
     try {
+        let isAdmin = request.user["accountType"] === "admin";
+        let filter = isAdmin ? {} : { owner: request.user['_id'] };
+        
         let projects = await ProjectModel
-            .find({ "owner": request.user['_id'] }, { _id: false, __v: false })
+            .find(filter, { _id: false, __v: false })
             .populate({ path: 'owner', select: 'email -_id' })
             .populate({ path: 'members.user', select: 'email -_id' })
             .exec();
@@ -369,10 +470,9 @@ router.get("/", async (request: Request, response: Response) => {
             responseData.message = ReasonPhrases.NOT_FOUND;
         }
     } catch (error) {
-        responseData = makeErrorResult(error, responseData);
+        makeErrorResult(error, responseData);
     } finally {
-        debug("############## responseData::::::::");
-        debug(responseData);
+        logger(responseData);
         response.status(responseData.code);
         if (responseData.success) {
             response.send(responseData.data); // send data only
@@ -396,9 +496,11 @@ router.get("/:name", async (request: Request, response: Response, next: NextFunc
         checkPathParamError(request.params.name, "project name");
         
         let isAdmin = request.user["accountType"] === "admin";
+        let filter = { name: decodeURI(request.params.name) };
+        filter = isAdmin ? filter : Object.assign({}, filter, { owner: request.user['_id'] });
         
         let project = await ProjectModel
-            .findOne({ name: decodeURI(request.params.name), "owner": request.user['_id'] }, { _id: 0 })
+            .findOne(filter, { _id: 0 })
             .populate({ path: 'owner', select: 'email -_id' })
             .populate({ path: 'members.user', select: 'email -_id' })
             .exec();
@@ -414,7 +516,7 @@ router.get("/:name", async (request: Request, response: Response, next: NextFunc
             responseData.message = ReasonPhrases.NOT_FOUND;
         }
     } catch (error) {
-        responseData = makeErrorResult(error, responseData);
+        makeErrorResult(error, responseData);
     } finally {
         response.status(responseData.code);
         if (responseData.success) {
@@ -457,7 +559,7 @@ router.post("/", async (request: Request, response: Response, next: NextFunction
             doProjectError("Project name already in use.");
         }
     } catch (error) {
-        responseData = makeErrorResult(error, responseData);
+        makeErrorResult(error, responseData);
     } finally {
         response.status(responseData.code);
         response.send(responseData);
@@ -466,58 +568,57 @@ router.post("/", async (request: Request, response: Response, next: NextFunction
 });
 
 router.put("/:name/members", async (request: Request, response: Response, next: NextFunction) => {
+    if (env === 'development') {
+        if (!request.user) {
+            request.user = testUser;
+        }
+    }
+    
     let responseData = new ResponseData();
+    
+    let addMemberResult: AddMemberResult = { error: [], addedMembers: [], ignoredMembers: [] };
+    let removeMemberResult: RemoveMemberResult = { error: [], ignoredMembers: [], removedMembers: [] };
     
     try {
         checkPathParamError(request.params.name, "project name");
         
+        let isAdmin = request.user["accountType"] === "admin";
+        let filter = { name: decodeURI(request.params.name) };
+        filter = isAdmin ? filter : Object.assign({}, filter, { owner: request.user['_id'] });
+        
         let reqMembers: EditMember = request.body;
         
-        let modProject = await ProjectModel.findOne({ name: decodeURI(request.params.name) })
+        let modProject = await ProjectModel.findOne(filter)
             .populate({ path: 'members.user', select: 'email -_id' })
             .exec();
         
         if (modProject) {
-            let currentMemberEmails: string[] = modProject.members.map(member => {
-                return member.user["email"];
-            });
-            
-            let inCount: number = 0, outCount: number = 0;
             if (reqMembers.inMember.length > 0) {
-                // Check if the target to be removed exists
-                let inMemberEmails: string[] = reqMembers.inMember.map(e => e.user);
-                const difference: string[] = inMemberEmails.filter(e => !currentMemberEmails.includes(e));
-                if (difference.length > 0) {
-                    await addMember(responseData, reqMembers.inMember, modProject);
-                    inCount = difference.length;
-                } else {
-                    doProjectError("Project members already exist.");
-                }
+                addMemberResult = await addMember(reqMembers.inMember, modProject);
             }
             
             if (reqMembers.outMember.length > 0) {
-                // Check if the target to be removed exists
-                const intersection: string[] = currentMemberEmails.filter(e => reqMembers.outMember.includes(e));
-                if (intersection.length > 0 && (currentMemberEmails.length > intersection.length)) {
-                    await removeMember(responseData, reqMembers.outMember, modProject);
-                    outCount = intersection.length;
-                } else if (intersection.length === 0) {
-                    doProjectError("No project members to remove.");
-                } else {
-                    doProjectError("Project member must have at least one user.");
-                }
+                removeMemberResult = await removeMember(reqMembers.outMember, modProject);
             }
             
-            if (inCount === 0 && outCount === 0) {
+            if (addMemberResult.error.length === 0 && removeMemberResult.error.length === 0) {
+                responseData.success = true;
+                responseData.code = StatusCodes.CREATED;
+                responseData.message = "Project members were modified.";
+            } else {
                 responseData.success = false;
-                responseData.code = StatusCodes.NOT_FOUND;
-                responseData.message = "No members were modified.";
+                responseData.code = StatusCodes.BAD_REQUEST;
+                responseData.message = "Errors occurred";
             }
+            
+            responseData.data = {
+                addMemberResult: addMemberResult, removeMemberResult: removeMemberResult
+            };
         } else {
             doProjectError("The target project does not exist.");
         }
     } catch (error) {
-        responseData = makeErrorResult(error, responseData);
+        makeErrorResult(error, responseData);
     } finally {
         response.status(responseData.code);
         response.send(responseData);
@@ -526,24 +627,87 @@ router.put("/:name/members", async (request: Request, response: Response, next: 
 });
 
 router.put("/:name/task", async (request: Request, response: Response, next: NextFunction) => {
+    if (env === 'development') {
+        if (!request.user) {
+            request.user = testUser;
+        }
+    }
+    
     let responseData = new ResponseData();
+    let updateResult = undefined;
     
     try {
         checkPathParamError(request.params.name, "project name");
         
+        let isAdmin = request.user["accountType"] === "admin";
+        let filter = { name: decodeURI(request.params.name) };
+        filter = isAdmin ? filter : Object.assign({}, filter, { owner: request.user['_id'] });
+        
         let reqTasks: TaskBody = request.body;
         
-        let modProject = await ProjectModel.findOne({ name: decodeURI(request.params.name) }).exec();
+        let modProject = await ProjectModel.findOne(filter).exec();
         
         if (modProject) {
-            await addTask(responseData, reqTasks, modProject);
+            updateResult = await addTask(reqTasks, modProject);
+            
+            if (updateResult) {
+                responseData.success = true;
+                responseData.code = StatusCodes.CREATED;
+            } else {
+                responseData.success = false;
+                responseData.code = StatusCodes.INTERNAL_SERVER_ERROR;
+                responseData.message = "Uncaught error occurred.";
+            }
         } else {
-            responseData.success = false;
-            responseData.code = StatusCodes.NOT_FOUND;
-            responseData.message = "No task was added.";
+            doProjectError("The target project does not exist.");
         }
     } catch (error) {
-        responseData = makeErrorResult(error, responseData);
+        makeErrorResult(error, responseData);
+    } finally {
+        response.status(responseData.code);
+        response.send(responseData);
+        response.end();
+    }
+});
+
+router.put("/:name/task/:taskName", async (request: Request, response: Response, next: NextFunction) => {
+    if (env === 'development') {
+        if (!request.user) {
+            request.user = testUser;
+        }
+    }
+    
+    let responseData = new ResponseData();
+    let updateResult = undefined;
+    
+    try {
+        checkPathParamError(request.params.name, "project name");
+        checkPathParamError(request.params.taskName, "task name");
+        
+        let isAdmin = request.user["accountType"] === "admin";
+        let filter = { name: decodeURI(request.params.name) };
+        filter = isAdmin ? filter : Object.assign({}, filter, { owner: request.user['_id'] });
+        
+        let reqTasks: TaskBody = request.body;
+        
+        let modProject = await ProjectModel.findOne(filter).exec();
+        
+        if (modProject) {
+            updateResult = await editTask(decodeURI(request.params.taskName), reqTasks, modProject);
+            
+            if (updateResult) {
+                responseData.success = true;
+                responseData.code = StatusCodes.CREATED;
+            } else {
+                responseData.success = false;
+                responseData.code = StatusCodes.INTERNAL_SERVER_ERROR;
+                responseData.message = "Uncaught error occurred.";
+            }
+        } else {
+            doProjectError("The target project does not exist.");
+        }
+    } catch (error) {
+        makeErrorResult(error, responseData);
     } finally {
         response.status(responseData.code);
         response.send(responseData);
@@ -552,24 +716,42 @@ router.put("/:name/task", async (request: Request, response: Response, next: Nex
 });
 
 router.delete("/:name/task/:type/:taskName", async (request: Request, response: Response, next: NextFunction) => {
+    if (env === 'development') {
+        if (!request.user) {
+            request.user = testUser;
+        }
+    }
+    
     let responseData = new ResponseData();
+    let updateResult = undefined;
     
     try {
         checkPathParamError(request.params.name, "project name");
-        checkPathParamError(request.params.name, "project category");
-        checkPathParamError(request.params.name, "task name");
+        checkPathParamError(request.params.type, "project category");
+        checkPathParamError(request.params.taskName, "task name");
         
-        let modProject = await ProjectModel.findOne({ name: decodeURI(request.params.name) }).exec();
+        let isAdmin = request.user["accountType"] === "admin";
+        let filter = { name: decodeURI(request.params.name) };
+        filter = isAdmin ? filter : Object.assign({}, filter, { owner: request.user['_id'] });
+        
+        let modProject = await ProjectModel.findOne(filter).exec();
         
         if (modProject) {
-            await removeTask(responseData, decodeURI(request.params.type), decodeURI(request.params.taskName), modProject);
+            updateResult = await removeTask(decodeURI(request.params.type), decodeURI(request.params.taskName), modProject);
+            
+            if (updateResult) {
+                responseData.success = true;
+                responseData.code = StatusCodes.CREATED;
+            } else {
+                responseData.success = false;
+                responseData.code = StatusCodes.INTERNAL_SERVER_ERROR;
+                responseData.message = "Uncaught error occurred.";
+            }
         } else {
-            responseData.success = false;
-            responseData.code = StatusCodes.NOT_FOUND;
-            responseData.message = "No tasks were removed.";
+            doProjectError("The target project does not exist.");
         }
     } catch (error) {
-        responseData = makeErrorResult(error, responseData);
+        makeErrorResult(error, responseData);
     } finally {
         response.status(responseData.code);
         response.send(responseData);
@@ -578,12 +760,22 @@ router.delete("/:name/task/:type/:taskName", async (request: Request, response: 
 });
 
 router.delete("/", async (request: Request, response: Response, next: NextFunction) => {
+    if (env === 'development') {
+        if (!request.user) {
+            request.user = testUser;
+        }
+    }
+    
     let responseData = new ResponseData();
     
     try {
         checkArray(request.body.names);
         
-        let result = await ProjectModel.deleteMany({ name: { $in: request.body.names } }).exec();
+        let isAdmin = request.user["accountType"] === "admin";
+        let filter = { name: { $in: request.body.names } };
+        filter = isAdmin ? filter : Object.assign({}, filter, { owner: request.user['_id'] });
+        
+        let result = await ProjectModel.deleteMany(filter).exec();
         
         responseData.success = true;
         
@@ -593,10 +785,10 @@ router.delete("/", async (request: Request, response: Response, next: NextFuncti
             responseData.data = result;
         } else {
             responseData.code = StatusCodes.NOT_FOUND;
-            responseData.message = "No project was deleted.";
+            responseData.message = "No projects were deleted.";
         }
     } catch (error) {
-        responseData = makeErrorResult(error, responseData);
+        makeErrorResult(error, responseData);
     } finally {
         response.status(responseData.code);
         response.send(responseData);
@@ -605,12 +797,22 @@ router.delete("/", async (request: Request, response: Response, next: NextFuncti
 });
 
 router.delete("/:name", async (request: Request, response: Response, next: NextFunction) => {
+    if (env === 'development') {
+        if (!request.user) {
+            request.user = testUser;
+        }
+    }
+    
     let responseData = new ResponseData();
     
     try {
         checkPathParamError(request.params.name, "project name");
         
-        let delProject = await ProjectModel.findOneAndDelete({ name: decodeURI(request.params.name) }).exec();
+        let isAdmin = request.user["accountType"] === "admin";
+        let filter = { name: decodeURI(request.params.name) };
+        filter = isAdmin ? filter : Object.assign({}, filter, { owner: request.user['_id'] });
+        
+        let delProject = await ProjectModel.findOneAndDelete(filter).exec();
         
         responseData.success = true;
         
@@ -618,11 +820,10 @@ router.delete("/:name", async (request: Request, response: Response, next: NextF
             responseData.code = StatusCodes.OK;
             responseData.message = ReasonPhrases.OK;
         } else {
-            responseData.code = StatusCodes.NOT_FOUND;
-            responseData.message = "No project was deleted.";
+            doProjectError("The target project does not exist.");
         }
     } catch (error) {
-        responseData = makeErrorResult(error, responseData);
+        makeErrorResult(error, responseData);
     } finally {
         response.status(responseData.code);
         response.send(responseData);
@@ -643,6 +844,18 @@ interface TaskBody {
 const testUser = {
     _id: "6182210d0befc34adfa2c8cf",
     accountType: "user"
+};
+
+interface AddMemberResult {
+    error: any[];
+    addedMembers: string[];
+    ignoredMembers: string[];
+}
+
+interface RemoveMemberResult {
+    error: any[];
+    removedMembers: string[];
+    ignoredMembers: string[];
 };
 
 export default router;
