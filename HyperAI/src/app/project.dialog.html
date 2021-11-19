@@ -2,10 +2,11 @@
 <h2 mat-dialog-title *ngIf="!data.isNew">Project Edit</h2>
 <div mat-dialog-content>
   <form>
-    <mat-form-field>
+    <mat-form-field appearance="fill">
       <mat-label>Project Name</mat-label>
       <input matInput maxlength="15" placeholder="Name" [(ngModel)]="data.project.name"
-             name="name" [disabled]="!data.isNew">
+             name="name" appForbiddenName [disabled]="!data.isNew">
+      <mat-error *ngIf="nameRe.test(data.project.name)">No special characters</mat-error>
     </mat-form-field>
     <mat-chip-list #memberlist aria-label="members" multiple>
       <mat-chip *ngFor="let member of data.project.members; index as i"
@@ -25,7 +26,7 @@
   </form>
 </div>
 <div mat-dialog-actions>
-  <button mat-button [mat-dialog-close]="data.project">Save</button>
+  <button mat-button [mat-dialog-close]="data.project" [disabled]="nameRe.test(data.project.name)">Save</button>
   <button mat-button (click)="cancel()">Cancel</button>
   <button mat-button (click)="reset()">Reset</button>
 </div>

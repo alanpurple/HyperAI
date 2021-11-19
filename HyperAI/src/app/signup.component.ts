@@ -2,7 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { UserService } from './user.service';
-import {ErrorAlert } from './error.alert'
+import { ErrorAlert } from './shared/error.alert';
+
+import { NameRe } from './shared/validataions';
 
 @Component({
   selector: 'app-signup',
@@ -52,6 +54,11 @@ export class SignupComponent implements OnInit {
     this.organization = undefined;
     this.password = '';
     this.passwordConfirm = '';
+  }
+
+  nameInvalid = false;
+  checkName() {
+    this.nameInvalid=NameRe.test(this.name);
   }
 
 }

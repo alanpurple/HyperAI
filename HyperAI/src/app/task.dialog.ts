@@ -1,7 +1,9 @@
 import { Component, Inject } from "@angular/core";
 import { MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
 
-import { StructuralTask, TextTask, VisionTask } from './project.data'
+import { StructuralTask, TextTask, VisionTask } from './project.data';
+
+import { NameRe } from './shared/validataions';
 
 @Component({
   selector: 'vision-task-dialog',
@@ -13,6 +15,8 @@ export class VisionTaskDialog {
     @Inject(MAT_DIALOG_DATA) public task: VisionTask,
     @Inject(MAT_DIALOG_DATA) public isNew: boolean
   ) { }
+
+  nameRe = NameRe;
 
   cancel() {
 
@@ -32,6 +36,9 @@ export class StructuralTaskDialog {
     @Inject(MAT_DIALOG_DATA) public task: StructuralTask,
     @Inject(MAT_DIALOG_DATA) public isNew: boolean
   ) { }
+
+  nameRe = NameRe;
+
   cancel() {
 
   }
@@ -50,6 +57,9 @@ export class TextTaskDialog {
     @Inject(MAT_DIALOG_DATA) public task: TextTask,
     @Inject(MAT_DIALOG_DATA) public isNew: boolean
   ) { }
+
+  nameRe = NameRe;
+
   cancel() {
 
   }

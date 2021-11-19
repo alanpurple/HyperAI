@@ -43,10 +43,11 @@ import { TrainService } from './train.service';
 import { UserService } from './user.service';*/
 
 import { LoggedIn, NotLoggedIn, HasNick, IsAdmin, IsNotAdmin } from './check.login';
-import { ErrorAlert, ErrorDialog } from './error.alert';
-import { ConfirmDialog, ConfirmDialogTemplate,ConfirmDialogTemplate2 } from './confirm.dialog';
+import { ErrorAlert, ErrorDialog } from './shared/error.alert';
+import { ConfirmDialog, ConfirmDialogTemplate,ConfirmDialogTemplate2 } from './shared/confirm.dialog';
 import { UserInfo, ComingSoonDialog, NickNameConfirmDialog, NickNameTakenDialog } from './user.info';
 
+import { ForbiddenValidatorDirective } from './shared/forbidden-name.directive';
 
 @NgModule({
   declarations: [
@@ -55,7 +56,8 @@ import { UserInfo, ComingSoonDialog, NickNameConfirmDialog, NickNameTakenDialog 
     DataComponent, ModelComponent, EdaComponent, Association, DataPreview,
     ErrorDialog, ConfirmDialogTemplate, ConfirmDialogTemplate2, UserInfo,
     ComingSoonDialog, NickNameTakenDialog, NickNameConfirmDialog, ProjectComponent, ProjectDetailComponent,
-    ProjectDialog, VisionTaskDialog, TextTaskDialog, StructuralTaskDialog, DataDialog
+    ProjectDialog, VisionTaskDialog, TextTaskDialog, StructuralTaskDialog, DataDialog,
+    ForbiddenValidatorDirective
   ],
   entryComponents: [
     ConfirmDialogTemplate, ConfirmDialogTemplate2, ErrorDialog, ComingSoonDialog,

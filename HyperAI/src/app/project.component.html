@@ -1,7 +1,14 @@
-<button mat-fab color="accent" aria-label="create project button"
-        (click)="createProjectEasy()" *ngIf="!isMaking">
-  <mat-icon>add</mat-icon>
-</button>
+<div *ngIf="!isMaking">
+  <button mat-fab color="accent" aria-label="create project button"
+          (click)="createProjectEasy()">
+    <mat-icon>add</mat-icon>
+  </button>
+  <button mat-button color="warn" (click)="createProjectEasy()">
+    Project Making(Easy mode)
+  </button>
+</div>
+
+<button mat-button color="accent" (click)="createProject()">Create project manually</button>
 
 <table #projectTable mat-table [dataSource]="projects" matSort>
   <ng-container matColumnDef="name">
@@ -48,11 +55,13 @@
       <ng-template matStepLabel>Project Name</ng-template>
       <mat-form-field apperance="fill">
         <mat-label>Name</mat-label>
-        <input matInput placeholder="project name" [(ngModel)]="newProject.name" name="name" required>
+        <input matInput placeholder="project name" [(ngModel)]="newProject.name"
+               name="name" appForbiddenName required>
       </mat-form-field>
+      <mat-error *ngIf="nameRe.test(newProject.name)">No special characters</mat-error>
     </form>
     <div>
-      <button mat-button matStepperNext>Next</button>
+      <button mat-button matStepperNext [disabled]="nameRe.test(newProject.name)">Next</button>
       <button mat-button color="warn" (click)="stepper.reset(); resetMaking()">Reset process</button>
     </div>
   </mat-step>
@@ -143,7 +152,7 @@
     <p>Now you are ready to make your project</p>
     <div>
       <button mat-button matStepperPrevious>Back</button>
-      <button mat-button color="primary" (click)="postCreated()">Create</button>
+      <button mat-button color="primary" (click)="postCreated()" [disabled]="nameRe.test(newProject.name)">Create</button>
       <button mat-button color="warn" (click)="stepper.reset(); resetMaking()">Reset process</button>
     </div>
   </mat-step>

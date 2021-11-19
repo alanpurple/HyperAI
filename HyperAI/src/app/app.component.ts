@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 
 import { UserData } from './user.data';
 import { UserService } from './user.service';
-import { ConfirmDialog } from './confirm.dialog';
+import { ConfirmDialog } from './shared/confirm.dialog';
 
 @Component({
   selector: 'app-root',

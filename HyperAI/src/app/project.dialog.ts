@@ -1,7 +1,7 @@
 import { Component, Inject } from "@angular/core";
 import { MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { Project } from "./project.data";
-
+import { NameRe } from './shared/validataions';
 
 @Component({
   selector: 'project-dialog',
@@ -20,6 +20,7 @@ export class ProjectDialog {
   }
 
   originalAM: string[] = [];
+  nameRe = NameRe;
 
   originalData: Project = {
     name: '',

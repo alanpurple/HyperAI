@@ -1,8 +1,8 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTable } from '@angular/material/table';
-import { ConfirmDialog } from './confirm.dialog';
-import { ErrorAlert } from './error.alert';
+import { ConfirmDialog } from './shared/confirm.dialog';
+import { ErrorAlert } from './shared/error.alert';
 import { Project } from './project.data';
 
 import { ProjectDialog } from './project.dialog';
@@ -10,6 +10,8 @@ import { ProjectService } from './project.service';
 import { UserService } from './user.service';
 import { DataService } from './data.service';
 import { DataInfo } from './data.info';
+
+import { NameRe } from './shared/validataions'
 
 @Component({
   selector: 'app-project',
@@ -26,6 +28,8 @@ export class ProjectComponent implements OnInit {
     private errorAlert: ErrorAlert,
     private confirmDialog: ConfirmDialog
   ) { }
+
+  nameRe = NameRe;
 
   @ViewChild('projectTable') projectTable: MatTable<Project> | null = null;
 

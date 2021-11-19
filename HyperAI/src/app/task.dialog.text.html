@@ -3,12 +3,14 @@
   <form>
     <mat-form-field>
       <mat-label>Task Name</mat-label>
-      <input matInput maxlength="15" placeholder="name" [(ngModel)]="task.name">
+      <input matInput maxlength="15" placeholder="name" [(ngModel)]="task.name"
+             name="name" appForbiddenName>
+      <mat-error *ngIf="nameRe.test(task.name)">No Special characters</mat-error>
     </mat-form-field>
   </form>
 </div>
 <div mat-dialog-actions>
-  <button mat-button [mat-dialog-close]="task">Save</button>
+  <button mat-button [mat-dialog-close]="task" [disabled]="nameRe.test(task.name)">Save</button>
   <button mat-button (click)="cancel()">Cancel</button>
   <button mat-button (click)="reset()">Reset</button>
 </div>

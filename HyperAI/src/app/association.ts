@@ -5,7 +5,7 @@ import { Color } from '@swimlane/ngx-charts';
 import { LrService } from './lr.service';
 
 import { DataService } from './data.service';
-import { ErrorAlert } from './error.alert';
+import { ErrorAlert } from './shared/error.alert';
 import { EdaService } from './eda.service';
 import { UserService } from './user.service';
 

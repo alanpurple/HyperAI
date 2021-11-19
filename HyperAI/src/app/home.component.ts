@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { ConfirmDialog } from './confirm.dialog';
-import { ErrorAlert } from './error.alert';
+import { ConfirmDialog } from './shared/confirm.dialog';
+import { ErrorAlert } from './shared/error.alert';
 import { Project } from './project.data';
 import { ProjectService } from './project.service';
 import { UserService } from './user.service';

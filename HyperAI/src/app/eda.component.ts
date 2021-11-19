@@ -3,8 +3,8 @@ import { UserService } from './user.service';
 import { EdaService } from './eda.service';
 import { AllData, DataBasic, EdaData } from './data.info';
 import { UserData } from './user.data';
-import { ErrorAlert } from './error.alert';
-import { ConfirmDialog } from './confirm.dialog';
+import { ErrorAlert } from './shared/error.alert';
+import { ConfirmDialog } from './shared/confirm.dialog';
 import { MatTable } from '@angular/material/table';
 
 interface DirtyData {

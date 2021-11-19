@@ -14,8 +14,10 @@
           Reset E-mail
         </button>
         <mat-form-field>
-          <input matInput placeholder="Name" name="name"
-                 [(ngModel)]="name" type="text" required [autofocus]="emailChecked">
+          <input matInput placeholder="Name" name="name" appForbiddenName
+                 [(ngModel)]="name" type="text" required
+                 (change)="checkName()">
+          <mat-error *ngIf="nameInvalid">No special characters</mat-error>
         </mat-form-field>
         <mat-form-field>
           <mat-label>Organization</mat-label>
@@ -35,7 +37,7 @@
           <input matInput placeholder="Confirm Password"
                  [(ngModel)]="passwordConfirm" type="password" required>
         </mat-form-field>
-        <button mat-raised-button type="submit" color="warn">Create Account</button>
+        <button mat-raised-button type="submit" color="warn" [disabled]="nameInvalid">Create Account</button>
       </div>
     </form>
   </mat-card-content>

@@ -7,17 +7,23 @@
       <input matInput type="text" name="name" placeholder="name" [(ngModel)]="user.name" disabled>
     </mat-form-field>
     <mat-form-field>
-      <input matInput type="text" name="organization" placeholder="organization" [(ngModel)]="user.organization" disabled>
+      <input matInput type="text" name="organization" placeholder="organization"
+             [(ngModel)]="user.organization" disabled>
     </mat-form-field>
     <mat-form-field>
-      <input matInput type="text" name="accountType" placeholder="account type" [(ngModel)]="user.accountType" disabled>
+      <input matInput type="text" name="accountType" placeholder="account type"
+             [(ngModel)]="user.accountType" disabled>
     </mat-form-field>
     <mat-form-field *ngIf="user?.nickName">
-      <input matInput type="text" name="nickName" placeholder="nickname" [(ngModel)]="user.nickName" disabled>
+      <input matInput type="text" name="nickName" placeholder="nickname"
+             [(ngModel)]="user.nickName" disabled>
     </mat-form-field>
     <mat-form-field *ngIf="!user?.nickName">
-      <input matInput type="text" name="newNickName" placeholder="nickname" [(ngModel)]="nickName">
+      <input matInput type="text" name="newNickName" placeholder="nickname" appForbiddenName
+             [(ngModel)]="nickName">
+      <mat-error *ngIf="nameRe.test(nickName)">No Special character</mat-error>
     </mat-form-field>
-    <button mat-raised-button color="warn" (click)="checkNick()" *ngIf="nickName&&!user.nickName">check availability</button>
+    <button mat-raised-button color="warn" (click)="checkNick()"
+            *ngIf="nickName&&!user.nickName" [disabled]="nameRe.test(nickName)">check availability</button>
   </mat-card-content>
 </mat-card>

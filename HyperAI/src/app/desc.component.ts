@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { SummaryData } from './summary.data';
 import { EdaService, SummaryDataSource } from './eda.service';
 import { DataService } from './data.service';
-import { ErrorAlert } from './error.alert';
+import { ErrorAlert } from './shared/error.alert';
 
 @Component({
   selector: 'app-desc',

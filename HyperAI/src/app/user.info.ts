@@ -3,8 +3,10 @@ import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 
 import { UserService } from './user.service';
-import { ErrorAlert } from './error.alert';
+import { ErrorAlert } from './shared/error.alert';
 import { UserData } from './user.data';
+
+import { NameRe } from './shared/validataions';
 
 
 @Component({
@@ -23,6 +25,7 @@ export class UserInfo implements OnInit {
 
   user: UserData = new UserData();
   nickName: string = '';
+  nameRe = NameRe;
 
   ngOnInit(): void {
     this.userService.getUser().subscribe(user => {

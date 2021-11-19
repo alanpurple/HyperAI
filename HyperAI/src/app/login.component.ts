@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 
 import { UserService } from './user.service';
-import { ErrorAlert } from './error.alert';
+import { ErrorAlert } from './shared/error.alert';
 
 @Component({
   selector: 'app-login',

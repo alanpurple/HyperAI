@@ -2,8 +2,8 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { ConfirmDialog } from './confirm.dialog';
-import { ErrorAlert } from './error.alert';
+import { ConfirmDialog } from './shared/confirm.dialog';
+import { ErrorAlert } from './shared/error.alert';
 
 import { Project, StructuralTask, TextTask, VisionTask } from './project.data';
 import { ProjectService } from './project.service';

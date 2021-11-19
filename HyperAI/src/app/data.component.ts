@@ -5,8 +5,8 @@ import { DataInfo } from './data.info';
 import { DataDatabase, DataService } from './data.service';
 import { DataDialog } from './data.dialog';
 import { UserService } from './user.service';
-import { ConfirmDialog } from './confirm.dialog';
-import { ErrorAlert } from './error.alert';
+import { ConfirmDialog } from './shared/confirm.dialog';
+import { ErrorAlert } from './shared/error.alert';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTable } from '@angular/material/table';
 
