@@ -1,6 +1,6 @@
 import { AbstractControl, ValidationErrors, ValidatorFn } from "@angular/forms";
 
-export const NameRe: RegExp = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/;
+export const NameRe: RegExp = /[!@#$%^&*()+\-=\[\]{};':"\\|,.<>\/?]/;
 
 export function forbiddenNameValidator(): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
