@@ -10,7 +10,7 @@ const pkgdef = loadSync(PROTO_PATH, {
 
 const LrService = loadPackageDefinition(pkgdef).lr;
 
-const client = new LrService['Lr']('192.168.0.2:50051', credentials.createInsecure());
+const client = new LrService['Lr']('martinie.ai:50051', credentials.createInsecure());
 
 const router = Router();
 

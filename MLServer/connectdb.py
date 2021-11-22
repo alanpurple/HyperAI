@@ -3,7 +3,7 @@ from sqlalchemy.orm import scoped_session,sessionmaker
 from sqlalchemy.ext.automap import automap_base
 #from urllib.parse import quote_plus
 
-server='192.168.0.2'
+server='martinie.ai'
 database='hyperai'
 driver = 'MySQL ODBC 8.0 Unicode Driver'
 id='root'
