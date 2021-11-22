@@ -8,415 +8,7 @@ import { User, UserModel } from "../models/user";
 import { ensureAuthenticated } from "../authentication/authentication";
 
 const logger = require("../logger/logger")("project");
-
 const router = Router();
-
-class ProjectError extends Error {
-    constructor(message) {
-        super(message);
-        this.name = "ProjectError";
-    }
-}
-
-const doProjectError = (message: string) => {
-    throw new ProjectError(message);
-};
-
-const doUncaughtError = (message: string) => {
-    throw new Error(message);
-};
-
-/**
- * Generate error response messages
- * @param error
- * @param responseData
- * @return Generated data
- */
-const makeErrorResult = (error, responseData: ResponseData) => {
-    console.error(error);
-    logger(error);
-    
-    responseData.success = false;
-    if (error.name === "ValidationError" || error.name === "CastError" || error.name === "ProjectError") {
-        responseData.code = StatusCodes.BAD_REQUEST;
-    } else {
-        responseData.code = StatusCodes.INTERNAL_SERVER_ERROR;
-    }
-    responseData.message = error.message;
-};
-
-/**
- * Validate project name
- * @param pathParameter
- * @param pathName
- */
-const checkPathParamError = (pathParameter: string, pathName: string) => {
-    if (!decodeURI(pathParameter) || decodeURI(pathParameter).trim().length === 0) {
-        throw new ProjectError(`Path parameter error - ${ pathName }`);
-    }
-};
-
-const checkArray = (target: any) => {
-    if (!Array.isArray(target) || (target.length === 0)) {
-        throw new ProjectError("Target is not an array or empty.");
-    }
-}
-
-const isAdmin = (accountType: string) => {
-    return accountType === "admin";
-};
-
-/**
- * Validate project model schema
- * @param model
- */
-const validateProjectModel = (model: Document<any, any, Project> & Project & { _id: Types.ObjectId; }) => {
-    let validationError = model.validateSync(); // ValidationError: there are errors, undefined: there is no error
-    
-    if (validationError) {
-        throw validationError;
-    }
-}
-
-const makeProjectResponse = (user: User, project: Document<any, any, Project> & Project & { _id: Types.ObjectId; }) => {
-    let isAdminOrMember = isAdmin(user.accountType) || (user.email !== project.owner["email"]);
-    
-    let projectMemberArray = [];
-    project.members.forEach(elem => {
-        let member = {
-            user: elem.user["email"],
-            role: elem.role
-        }
-        projectMemberArray.push(member);
-    });
-    
-    return {
-        name: project.name,
-        dataURI: project.dataURI,
-        projectType: project.projectType,
-        category: project.category,
-        owner: isAdminOrMember ? project.owner["email"] : "self",
-        members: projectMemberArray,
-        visionTasks: project.visionTasks,
-        textTasks: project.textTasks,
-        structuralTasks: project.structuralTasks,
-        createdAt: project["createdAt"],
-        updatedAt: project["updatedAt"]
-    };
-};
-
-/**
- * Convert requested project data to mongoose project data
- * @param user
- * @param reqProject Requested project data
- */
-const convertToProjectSchema = async (user, reqProject: RequestProject) => {
-    logger(user);
-    logger(reqProject);
-    
-    let members: { user: Types.ObjectId; role: "attendee" | "member" }[] = [];
-    
-    for (let rMember of reqProject.members) {
-        let user = await UserModel.findOne({ email: rMember.user }).exec();
-        
-        if (user) {
-            members.push({ user: user._id, role: rMember.role });
-        } else {
-            doProjectError(`Project member '${ rMember.user }' not found.`);
-        }
-    }
-    
-    let projectSchema: Project = {
-        category: reqProject.category,
-        dataURI: reqProject.dataURI,
-        members: members,
-        name: reqProject.name,
-        owner: user["_id"],
-        projectType: reqProject.projectType,
-        structuralTasks: reqProject.structuralTasks,
-        textTasks: reqProject.textTasks,
-        visionTasks: reqProject.visionTasks
-    };
-    
-    return projectSchema;
-};
-
-const addMember = async (inMembers: { user: string, role: 'member' | 'attendee' }[], project: Document<any, any, Project> & Project & { _id: Types.ObjectId }) => {
-    try {
-        let addMemberResult: AddMemberResult = { error: [], addedMembers: [], ignoredMembers: [] };
-        const options = { lean: true, new: true, rawResult: true };
-        
-        // Check if the target to be removed exists
-        let currentMemberEmails: string[] = project.members.map(member => member.user["email"]);
-        let inMemberEmails: string[] = inMembers.map(e => e.user);
-        const difference: string[] = inMemberEmails.filter(e => !currentMemberEmails.includes(e));
-        
-        if (difference.length > 0) {
-            for (let member of inMembers) {
-                let user = await UserModel.findOne({ email: member.user }).exec();
-                
-                if (user) {
-                    let updateResult = await project.updateOne(
-                        { $push: { "members": { user: user._id, role: member.role } } }, options
-                    ).exec();
-                    
-                    if (!updateResult) {
-                        addMemberResult.error.push(`An error occurred while adding member '${ member.user }'.`);
-                    } else {
-                        logger(`User '${ member.user }' is added.`);
-                        addMemberResult.addedMembers.push(member.user);
-                    }
-                } else {
-                    logger(`User '${ member.user }' not found.`);
-                    addMemberResult.ignoredMembers.push(member.user);
-                }
-            }
-        } else {
-            addMemberResult.addedMembers.push("Project members already exist.");
-        }
-        
-        return addMemberResult;
-    } catch (error) {
-        throw error;
-    }
-};
-
-const removeMember = async (outMembers: string[], project: Document<any, any, Project> & Project & { _id: Types.ObjectId }) => {
-    try {
-        let removeMemberResult: RemoveMemberResult = { error: [], ignoredMembers: [], removedMembers: [] };
-        const options = { lean: true, new: true, rawResult: true };
-        
-        // Check if the target to be removed exists
-        let currentMemberEmails: string[] = project.members.map(member => member.user["email"]);
-        const intersection: string[] = currentMemberEmails.filter(e => outMembers.includes(e));
-        
-        if (intersection.length > 0 && (currentMemberEmails.length > intersection.length)) {
-            for (let member of outMembers) {
-                let user = await UserModel.findOne({ email: member }).exec();
-                
-                if (user) {
-                    let updateResult = await project.updateOne(
-                        { $pull: { "members": { user: user._id } } }, options
-                    ).exec();
-                    
-                    if (updateResult) {
-                        removeMemberResult.error.push(`An error occurred while removing member '${ member }'.`);
-                    } else {
-                        logger(`User '${ member }' is removed.`);
-                        removeMemberResult.removedMembers.push(member);
-                    }
-                } else {
-                    logger(`User '${ member }' not found.`);
-                    removeMemberResult.ignoredMembers.push(member);
-                }
-            }
-        } else if (intersection.length === 0) {
-            removeMemberResult.error.push("No project members to remove.");
-        } else {
-            removeMemberResult.error.push("Project member must have at least one user.");
-        }
-        
-        return removeMemberResult;
-    } catch (error) {
-        throw error;
-    }
-};
-
-const checkTasksCanBeAdded = (tasks: Array<any>, taskName: string) => !(tasks.findIndex(elem => elem.name === taskName) >= 0);
-
-const addTask = async (task: TaskBody, project: Document<any, any, Project> & Project & { _id: Types.ObjectId }) => {
-    try {
-        let tasksCanBeAdded: boolean = false;
-        let updateResult = undefined;
-        const options = { lean: true, new: true, rawResult: true };
-        
-        switch (task.type) {
-            case "vision":
-                const visionTask = task.task as VisionTask;
-                tasksCanBeAdded = checkTasksCanBeAdded(project.visionTasks, visionTask.name);
-                if (tasksCanBeAdded) {
-                    let newVisionTask: VisionTask = {
-                        completed: visionTask.completed,
-                        includeMask: visionTask.includeMask,
-                        name: visionTask.name,
-                        preprocessed: visionTask.preprocessed,
-                        taskType: visionTask.taskType
-                    };
-                    
-                    updateResult = await project.updateOne(
-                        { $push: { visionTasks: newVisionTask } }, options
-                    ).exec();
-                }
-                
-                break;
-            case "text":
-                const textTask = task.task as TextTask;
-                tasksCanBeAdded = checkTasksCanBeAdded(project.textTasks, textTask.name);
-                if (tasksCanBeAdded) {
-                    let newTextTask: TextTask = {
-                        name: textTask.name,
-                        taskType: textTask.taskType
-                    };
-                    
-                    updateResult = await project.updateOne(
-                        { $push: { textTasks: newTextTask } }, options
-                    ).exec();
-                }
-                
-                break;
-            case "structural":
-                const structuralTask = task.task as StructuralTask;
-                tasksCanBeAdded = checkTasksCanBeAdded(project.structuralTasks, structuralTask.name);
-                if (tasksCanBeAdded) {
-                    let newStructuralTask: StructuralTask = {
-                        name: structuralTask.name,
-                        taskType: structuralTask.taskType
-                    };
-                    
-                    updateResult = await project.updateOne(
-                        { $push: { structuralTasks: newStructuralTask } }, options
-                    ).exec();
-                }
-                
-                break;
-            default:
-                doProjectError(`The requested category '${ task.type }' is not supported.`);
-                break;
-        }
-        
-        if (!tasksCanBeAdded) doProjectError("The task name already exists.");
-        if (!updateResult) doUncaughtError("Some errors occurred");
-        
-        return updateResult;
-    } catch (error) {
-        throw error;
-    }
-};
-
-const editTask = async (taskName: string, task: TaskBody, project: Document<any, any, Project> & Project & { _id: Types.ObjectId }) => {
-    try {
-        let foundIndex = -1;
-        let updateResult = undefined;
-        const options = { lean: true, new: true, rawResult: true };
-        const projectObj = project.toObject();
-        let tasks: any[] = [];
-        
-        switch (task.type) {
-            case "vision":
-                tasks = projectObj.visionTasks;
-                foundIndex = tasks.findIndex(task => task.name === taskName);
-                if (foundIndex >= 0) {
-                    let targetTask = tasks[foundIndex];
-                    tasks[foundIndex] = Object.assign({}, targetTask, task.task);
-                    
-                    updateResult = await project.updateOne(
-                        { $set: { visionTasks: tasks } }, options
-                    ).exec();
-                }
-                
-                break;
-            case "text":
-                tasks = projectObj.textTasks;
-                foundIndex = tasks.findIndex(task => task.name === taskName);
-                if (foundIndex >= 0) {
-                    let targetTask = tasks[foundIndex];
-                    tasks[foundIndex] = Object.assign({}, targetTask, task.task);
-                    
-                    updateResult = await project.updateOne(
-                        { $set: { textTasks: tasks } }, options
-                    ).exec();
-                }
-                
-                break;
-            case "structural":
-                tasks = projectObj.structuralTasks;
-                foundIndex = tasks.findIndex(task => task.name === taskName);
-                if (foundIndex >= 0) {
-                    let targetTask = tasks[foundIndex];
-                    tasks[foundIndex] = Object.assign({}, targetTask, task.task);
-                    
-                    updateResult = await project.updateOne(
-                        { $set: { structuralTasks: tasks } }, options
-                    ).exec();
-                }
-                
-                break;
-            default:
-                doProjectError(`The requested category '${ task.type }' is not supported.`);
-                break;
-        }
-        
-        if (foundIndex < 0) doProjectError(`The task '${ taskName }' does not exist.`);
-        if (!updateResult) doUncaughtError("Some errors occurred");
-        
-        return updateResult;
-    } catch (error) {
-        throw error;
-    }
-};
-
-const checkTasksRemovable = (length: number): boolean => {
-    const MIN_REMOVABLE_LENGTH = 2;
-    return !(length < MIN_REMOVABLE_LENGTH);
-};
-
-const removeTask = async (type: string, taskName: string, project: Document<any, any, Project> & Project & { _id: Types.ObjectId }) => {
-    try {
-        let tasksRemovable: boolean = false;
-        let updateResult = undefined;
-        /*
-         <updateResult sample>
-         updateResult = {
-          "acknowledged": true,
-          "modifiedCount": 1,
-          "upsertedId": null,
-          "upsertedCount": 0,
-          "matchedCount": 1
-        }
-         */
-        const options = { lean: true, new: true, rawResult: true };
-        
-        switch (type) {
-            case "vision":
-                tasksRemovable = checkTasksRemovable(project.visionTasks.length);
-                if (tasksRemovable) {
-                    updateResult = await project.updateOne(
-                        { $pull: { visionTasks: { name: taskName } } }, options
-                    ).exec();
-                }
-                
-                break;
-            case "text":
-                tasksRemovable = checkTasksRemovable(project.textTasks.length);
-                if (tasksRemovable) {
-                    updateResult = await project.updateOne(
-                        { $push: { textTasks: { name: taskName } } }, options
-                    ).exec();
-                }
-                
-                break;
-            case "structural":
-                tasksRemovable = checkTasksRemovable(project.structuralTasks.length)
-                if (tasksRemovable) {
-                    updateResult = await project.updateOne(
-                        { $push: { structuralTasks: { name: taskName } } }, options
-                    ).exec();
-                }
-                
-                break;
-            default:
-                doProjectError(`The requested category '${ type }' is not supported.`);
-                break;
-        }
-        
-        if (!tasksRemovable) doProjectError("Project must have at least one task.");
-        if (!updateResult) doUncaughtError("Some errors occurred");
-        
-        return updateResult;
-    } catch (error) {
-        throw error;
-    }
-};
 
 // User authentication checks before processing all project requests.
 const env = process.env.NODE_ENV || 'production';
@@ -809,6 +401,418 @@ router.delete("/:name", async (request: Request, response: Response) => {
         response.end();
     }
 });
+
+class ProjectError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = "ProjectError";
+    }
+}
+
+const doProjectError = (message: string) => {
+    throw new ProjectError(message);
+};
+
+const doUncaughtError = (message: string) => {
+    throw new Error(message);
+};
+
+/**
+ * Generate error response messages
+ * @param error
+ * @param responseData
+ * @return Generated data
+ */
+const makeErrorResult = (error, responseData: ResponseData) => {
+    console.error(error);
+    logger(error);
+    
+    responseData.success = false;
+    if (error.name === "ValidationError" || error.name === "CastError" || error.name === "ProjectError") {
+        responseData.code = StatusCodes.BAD_REQUEST;
+    } else {
+        responseData.code = StatusCodes.INTERNAL_SERVER_ERROR;
+    }
+    responseData.message = error.message;
+};
+
+/**
+ * Validate project name
+ * @param pathParameter
+ * @param pathName
+ */
+const checkPathParamError = (pathParameter: string, pathName: string) => {
+    if (!decodeURI(pathParameter) || decodeURI(pathParameter).trim().length === 0) {
+        throw new ProjectError(`Path parameter error - ${ pathName }`);
+    }
+};
+
+const checkArray = (target: any) => {
+    if (!Array.isArray(target) || (target.length === 0)) {
+        throw new ProjectError("Target is not an array or empty.");
+    }
+}
+
+const isAdmin = (accountType: string) => {
+    return accountType === "admin";
+};
+
+/**
+ * Validate project model schema
+ * @param model
+ */
+const validateProjectModel = (model: Document<any, any, Project> & Project & { _id: Types.ObjectId; }) => {
+    let validationError = model.validateSync(); // ValidationError: there are errors, undefined: there is no error
+    
+    if (validationError) {
+        throw validationError;
+    }
+}
+
+const makeProjectResponse = (user: User, project: Document<any, any, Project> & Project & { _id: Types.ObjectId; }) => {
+    let isAdminOrMember = isAdmin(user.accountType) || (user.email !== project.owner["email"]);
+    
+    let projectMemberArray = [];
+    project.members.forEach(elem => {
+        let member = {
+            user: elem.user["email"],
+            role: elem.role
+        }
+        projectMemberArray.push(member);
+    });
+    
+    return {
+        name: project.name,
+        dataURI: project.dataURI,
+        projectType: project.projectType,
+        category: project.category,
+        owner: isAdminOrMember ? project.owner["email"] : "self",
+        members: projectMemberArray,
+        visionTasks: project.visionTasks,
+        textTasks: project.textTasks,
+        structuralTasks: project.structuralTasks,
+        createdAt: project["createdAt"],
+        updatedAt: project["updatedAt"]
+    };
+};
+
+/**
+ * Convert requested project data to mongoose project data
+ * @param user
+ * @param reqProject Requested project data
+ */
+const convertToProjectSchema = async (user, reqProject: RequestProject) => {
+    logger(user);
+    logger(reqProject);
+    
+    let members: { user: Types.ObjectId; role: "attendee" | "member" }[] = [];
+    
+    for (let rMember of reqProject.members) {
+        let user = await UserModel.findOne({ email: rMember.user }).exec();
+        
+        if (user) {
+            members.push({ user: user._id, role: rMember.role });
+        } else {
+            doProjectError(`Project member '${ rMember.user }' not found.`);
+        }
+    }
+    
+    let projectSchema: Project = {
+        category: reqProject.category,
+        dataURI: reqProject.dataURI,
+        members: members,
+        name: reqProject.name,
+        owner: user["_id"],
+        projectType: reqProject.projectType,
+        structuralTasks: reqProject.structuralTasks,
+        textTasks: reqProject.textTasks,
+        visionTasks: reqProject.visionTasks
+    };
+    
+    return projectSchema;
+};
+
+const addMember = async (inMembers: { user: string, role: 'member' | 'attendee' }[], project: Document<any, any, Project> & Project & { _id: Types.ObjectId }) => {
+    try {
+        let addMemberResult: AddMemberResult = { error: [], addedMembers: [], ignoredMembers: [] };
+        const options = { lean: true, new: true, rawResult: true };
+        
+        // Check if the target to be removed exists
+        let currentMemberEmails: string[] = project.members.map(member => member.user["email"]);
+        let inMemberEmails: string[] = inMembers.map(e => e.user);
+        const difference: string[] = inMemberEmails.filter(e => !currentMemberEmails.includes(e));
+        
+        if (difference.length > 0) {
+            for (let member of inMembers) {
+                let user = await UserModel.findOne({ email: member.user }).exec();
+                
+                if (user) {
+                    let foundIndex = currentMemberEmails.findIndex(email => email === user.email);
+                    
+                    if (foundIndex < 0) {
+                        let updateResult = await project.updateOne(
+                            { $push: { "members": { user: user._id, role: member.role } } }, options
+                        ).exec();
+    
+                        if (!updateResult) {
+                            addMemberResult.error.push(`An error occurred while adding member '${ member.user }'.`);
+                        } else {
+                            logger(`User '${ member.user }' is added.`);
+                            addMemberResult.addedMembers.push(member.user);
+                        }
+                    } else {
+                        addMemberResult.ignoredMembers.push(`${ member.user }: already exists.`);
+                    }
+                } else {
+                    addMemberResult.ignoredMembers.push(`${ member.user }: not found.`);
+                }
+            }
+        } else {
+            addMemberResult.addedMembers.push("Project members already exist.");
+        }
+        
+        return addMemberResult;
+    } catch (error) {
+        throw error;
+    }
+};
+
+const removeMember = async (outMembers: string[], project: Document<any, any, Project> & Project & { _id: Types.ObjectId }) => {
+    try {
+        let removeMemberResult: RemoveMemberResult = { error: [], ignoredMembers: [], removedMembers: [] };
+        const options = { lean: true, new: true, rawResult: true };
+        
+        // Check if the target to be removed exists
+        let currentMemberEmails: string[] = project.members.map(member => member.user["email"]);
+        const intersection: string[] = currentMemberEmails.filter(e => outMembers.includes(e));
+        
+        if (intersection.length > 0 && (currentMemberEmails.length > intersection.length)) {
+            for (let member of outMembers) {
+                let user = await UserModel.findOne({ email: member }).exec();
+                
+                if (user) {
+                    let updateResult = await project.updateOne(
+                        { $pull: { "members": { user: user._id } } }, options
+                    ).exec();
+                    
+                    if (updateResult) {
+                        removeMemberResult.error.push(`An error occurred while removing member '${ member }'.`);
+                    } else {
+                        logger(`User '${ member }' is removed.`);
+                        removeMemberResult.removedMembers.push(member);
+                    }
+                } else {
+                    logger(`User '${ member }' not found.`);
+                    removeMemberResult.ignoredMembers.push(`${ member }: not found.`);
+                }
+            }
+        } else if (intersection.length === 0) {
+            removeMemberResult.error.push("No project members to remove.");
+        } else {
+            removeMemberResult.error.push("Project member must have at least one user.");
+        }
+        
+        return removeMemberResult;
+    } catch (error) {
+        throw error;
+    }
+};
+
+const checkTasksCanBeAdded = (tasks: Array<any>, taskName: string) => !(tasks.findIndex(elem => elem.name === taskName) >= 0);
+
+const addTask = async (task: TaskBody, project: Document<any, any, Project> & Project & { _id: Types.ObjectId }) => {
+    try {
+        let tasksCanBeAdded: boolean = false;
+        let updateResult = undefined;
+        const options = { lean: true, new: true, rawResult: true };
+        
+        switch (task.type) {
+            case "vision":
+                const visionTask = task.task as VisionTask;
+                tasksCanBeAdded = checkTasksCanBeAdded(project.visionTasks, visionTask.name);
+                if (tasksCanBeAdded) {
+                    let newVisionTask: VisionTask = {
+                        completed: visionTask.completed,
+                        includeMask: visionTask.includeMask,
+                        name: visionTask.name,
+                        preprocessed: visionTask.preprocessed,
+                        taskType: visionTask.taskType
+                    };
+                    
+                    updateResult = await project.updateOne(
+                        { $push: { visionTasks: newVisionTask } }, options
+                    ).exec();
+                }
+                
+                break;
+            case "text":
+                const textTask = task.task as TextTask;
+                tasksCanBeAdded = checkTasksCanBeAdded(project.textTasks, textTask.name);
+                if (tasksCanBeAdded) {
+                    let newTextTask: TextTask = {
+                        name: textTask.name,
+                        taskType: textTask.taskType
+                    };
+                    
+                    updateResult = await project.updateOne(
+                        { $push: { textTasks: newTextTask } }, options
+                    ).exec();
+                }
+                
+                break;
+            case "structural":
+                const structuralTask = task.task as StructuralTask;
+                tasksCanBeAdded = checkTasksCanBeAdded(project.structuralTasks, structuralTask.name);
+                if (tasksCanBeAdded) {
+                    let newStructuralTask: StructuralTask = {
+                        name: structuralTask.name,
+                        taskType: structuralTask.taskType
+                    };
+                    
+                    updateResult = await project.updateOne(
+                        { $push: { structuralTasks: newStructuralTask } }, options
+                    ).exec();
+                }
+                
+                break;
+            default:
+                doProjectError(`The requested category '${ task.type }' is not supported.`);
+                break;
+        }
+        
+        if (!tasksCanBeAdded) doProjectError("The task name already exists.");
+        if (!updateResult) doUncaughtError("Some errors occurred");
+        
+        return updateResult;
+    } catch (error) {
+        throw error;
+    }
+};
+
+const editTask = async (taskName: string, task: TaskBody, project: Document<any, any, Project> & Project & { _id: Types.ObjectId }) => {
+    try {
+        let foundIndex = -1;
+        let updateResult = undefined;
+        const options = { lean: true, new: true, rawResult: true };
+        const projectObj = project.toObject();
+        let tasks: any[] = [];
+        
+        switch (task.type) {
+            case "vision":
+                tasks = projectObj.visionTasks;
+                foundIndex = tasks.findIndex(task => task.name === taskName);
+                if (foundIndex >= 0) {
+                    let targetTask = tasks[foundIndex];
+                    tasks[foundIndex] = Object.assign({}, targetTask, task.task);
+                    
+                    updateResult = await project.updateOne(
+                        { $set: { visionTasks: tasks } }, options
+                    ).exec();
+                }
+                
+                break;
+            case "text":
+                tasks = projectObj.textTasks;
+                foundIndex = tasks.findIndex(task => task.name === taskName);
+                if (foundIndex >= 0) {
+                    let targetTask = tasks[foundIndex];
+                    tasks[foundIndex] = Object.assign({}, targetTask, task.task);
+                    
+                    updateResult = await project.updateOne(
+                        { $set: { textTasks: tasks } }, options
+                    ).exec();
+                }
+                
+                break;
+            case "structural":
+                tasks = projectObj.structuralTasks;
+                foundIndex = tasks.findIndex(task => task.name === taskName);
+                if (foundIndex >= 0) {
+                    let targetTask = tasks[foundIndex];
+                    tasks[foundIndex] = Object.assign({}, targetTask, task.task);
+                    
+                    updateResult = await project.updateOne(
+                        { $set: { structuralTasks: tasks } }, options
+                    ).exec();
+                }
+                
+                break;
+            default:
+                doProjectError(`The requested category '${ task.type }' is not supported.`);
+                break;
+        }
+        
+        if (foundIndex < 0) doProjectError(`The task '${ taskName }' does not exist.`);
+        if (!updateResult) doUncaughtError("Some errors occurred");
+        
+        return updateResult;
+    } catch (error) {
+        throw error;
+    }
+};
+
+const checkTasksRemovable = (length: number): boolean => {
+    const MIN_REMOVABLE_LENGTH = 2;
+    return !(length < MIN_REMOVABLE_LENGTH);
+};
+
+const removeTask = async (type: string, taskName: string, project: Document<any, any, Project> & Project & { _id: Types.ObjectId }) => {
+    try {
+        let tasksRemovable: boolean = false;
+        let updateResult = undefined;
+        /*
+         <updateResult sample>
+         updateResult = {
+          "acknowledged": true,
+          "modifiedCount": 1,
+          "upsertedId": null,
+          "upsertedCount": 0,
+          "matchedCount": 1
+        }
+         */
+        const options = { lean: true, new: true, rawResult: true };
+        
+        switch (type) {
+            case "vision":
+                tasksRemovable = checkTasksRemovable(project.visionTasks.length);
+                if (tasksRemovable) {
+                    updateResult = await project.updateOne(
+                        { $pull: { visionTasks: { name: taskName } } }, options
+                    ).exec();
+                }
+                
+                break;
+            case "text":
+                tasksRemovable = checkTasksRemovable(project.textTasks.length);
+                if (tasksRemovable) {
+                    updateResult = await project.updateOne(
+                        { $push: { textTasks: { name: taskName } } }, options
+                    ).exec();
+                }
+                
+                break;
+            case "structural":
+                tasksRemovable = checkTasksRemovable(project.structuralTasks.length)
+                if (tasksRemovable) {
+                    updateResult = await project.updateOne(
+                        { $push: { structuralTasks: { name: taskName } } }, options
+                    ).exec();
+                }
+                
+                break;
+            default:
+                doProjectError(`The requested category '${ type }' is not supported.`);
+                break;
+        }
+        
+        if (!tasksRemovable) doProjectError("Project must have at least one task.");
+        if (!updateResult) doUncaughtError("Some errors occurred");
+        
+        return updateResult;
+    } catch (error) {
+        throw error;
+    }
+};
 
 interface EditMember {
     inMember: { user: string, role: 'member' | 'attendee' }[];
