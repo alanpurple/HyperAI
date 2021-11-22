@@ -6,6 +6,7 @@ import { ErrorAlert } from './shared/error.alert';
 import { Project } from './project.data';
 
 import { ProjectDialog } from './project.dialog';
+import { DeleteConfirmDialog } from './shared/delete.confirm.dialog';
 import { ProjectService } from './project.service';
 import { UserService } from './user.service';
 import { DataService } from './data.service';
@@ -246,11 +247,16 @@ export class ProjectComponent implements OnInit {
   }
 
   deleteProject(index: number) {
-    this.projectService.deleteProject(this.projects[index].name).subscribe(
-      msg => {
-        this.projects.splice(index, 1);
-        this.confirmDialog.open('project deleted');
-        this.projectTable?.renderRows();
+    this.dialog.open(DeleteConfirmDialog).afterClosed().subscribe(
+      selection => {
+        if (selection)
+          this.projectService.deleteProject(this.projects[index].name).subscribe(
+            msg => {
+              this.projects.splice(index, 1);
+              this.confirmDialog.open('project deleted');
+              this.projectTable?.renderRows();
+            }
+          );
       }
     );
   }
