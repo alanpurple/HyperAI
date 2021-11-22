@@ -2,6 +2,7 @@ import { Component, Inject } from "@angular/core";
 import { MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { Project } from "./project.data";
 import { NameRe } from './shared/validataions';
+import { DataInfo } from './data.info';
 
 @Component({
   selector: 'project-dialog',
@@ -11,7 +12,8 @@ export class ProjectDialog {
   constructor(
     public dialogRef: MatDialogRef<ProjectDialog>,
     @Inject(MAT_DIALOG_DATA) public data: {
-      project: Project, isNew: boolean, availableMembers: string[]
+      project: Project, isNew: boolean, availableMembers: string[], userData: DataInfo[],
+      dataList: DataInfo[], categories: string[]
     }
   ) {
     this.originalAM == this.data.availableMembers;
@@ -35,6 +37,11 @@ export class ProjectDialog {
     textTasks: [],
     structuralTasks: []
   };
+
+  filterData() {
+    const category = this.data.project.category;
+    this.data.dataList = this.data.userData.filter(elem => elem.type == category);
+  }
 
   addMember(index: number) {
     this.data.project.members.push({ user: this.data.availableMembers[index], role: 'attendee' });
