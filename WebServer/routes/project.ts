@@ -1,10 +1,10 @@
-import { NextFunction, Request, Response, Router } from 'express';
+import { Request, Response, Router } from 'express';
 import { Project, ProjectModel, StructuralTask, TextTask, VisionTask } from "../models/project";
 import { ReasonPhrases, StatusCodes, } from 'http-status-codes';
 import { ResponseData } from "../interfaces/ResponseData";
 import { RequestProject } from "../interfaces/ProjectRequest";
 import { Document, Types } from 'mongoose';
-import { UserModel } from "../models/user";
+import { User, UserModel } from "../models/user";
 import { ensureAuthenticated } from "../authentication/authentication";
 
 const logger = require("../logger/logger")("project");
@@ -62,6 +62,10 @@ const checkArray = (target: any) => {
     }
 }
 
+const isAdmin = (accountType: string) => {
+    return accountType === "admin";
+};
+
 /**
  * Validate project model schema
  * @param model
@@ -74,7 +78,9 @@ const validateProjectModel = (model: Document<any, any, Project> & Project & { _
     }
 }
 
-const makeProjectResponse = (isAdmin: boolean, project: Document<any, any, Project> & Project & { _id: Types.ObjectId; }) => {
+const makeProjectResponse = (user: User, project: Document<any, any, Project> & Project & { _id: Types.ObjectId; }) => {
+    let isAdminOrMember = isAdmin(user.accountType) || (user.email !== project.owner["email"]);
+    
     let projectMemberArray = [];
     project.members.forEach(elem => {
         let member = {
@@ -89,7 +95,7 @@ const makeProjectResponse = (isAdmin: boolean, project: Document<any, any, Proje
         dataURI: project.dataURI,
         projectType: project.projectType,
         category: project.category,
-        owner: isAdmin ? project.owner["email"] : "self",
+        owner: isAdminOrMember ? project.owner["email"] : "self",
         members: projectMemberArray,
         visionTasks: project.visionTasks,
         textTasks: project.textTasks,
@@ -174,24 +180,6 @@ const addMember = async (inMembers: { user: string, role: 'member' | 'attendee' 
         throw error;
     }
 };
-
-/**
- * remove project member when user account is being removed (future use)
- *
- * @param userId
- */
-const removeMemberFromAllProjects = async (userId: Types.ObjectId) => {
-    let projects = await ProjectModel.find({ "members.user": userId }).exec();
-    if (projects.length > 0) {
-        projects.forEach(project => {
-            project.updateOne({
-                $pull: { "members": { user: userId } }
-            }, (error) => {
-                throw error;
-            });
-        });
-    }
-}
 
 const removeMember = async (outMembers: string[], project: Document<any, any, Project> & Project & { _id: Types.ObjectId }) => {
     try {
@@ -446,8 +434,7 @@ router.get("/", async (request: Request, response: Response) => {
     }
     
     try {
-        let isAdmin = request.user["accountType"] === "admin";
-        let filter = isAdmin ? {} : { owner: request.user['_id'] };
+        let filter = isAdmin(request.user["accountType"]) ? {} : { $or: [{ owner: request.user['_id'] }, { "members.user": request.user['_id'] }] };
         
         let projects = await ProjectModel
             .find(filter, { _id: false, __v: false })
@@ -463,7 +450,7 @@ router.get("/", async (request: Request, response: Response) => {
             responseData.count = projects.length;
             
             let projectArray = [];
-            projects.forEach(project => projectArray.push(makeProjectResponse(isAdmin, project)));
+            projects.forEach(project => projectArray.push(makeProjectResponse(<User>request.user, project)));
             responseData.data = projectArray;
         } else {
             responseData.code = StatusCodes.NOT_FOUND;
@@ -483,7 +470,7 @@ router.get("/", async (request: Request, response: Response) => {
     }
 });
 
-router.get("/:name", async (request: Request, response: Response, next: NextFunction) => {
+router.get("/:name", async (request: Request, response: Response) => {
     let responseData = new ResponseData();
     
     if (env === 'development') {
@@ -495,9 +482,8 @@ router.get("/:name", async (request: Request, response: Response, next: NextFunc
     try {
         checkPathParamError(request.params.name, "project name");
         
-        let isAdmin = request.user["accountType"] === "admin";
         let filter = { name: decodeURI(request.params.name) };
-        filter = isAdmin ? filter : Object.assign({}, filter, { owner: request.user['_id'] });
+        filter = isAdmin(request.user["accountType"]) ? filter : Object.assign({}, filter, { $or: [{ owner: request.user['_id'] }, { "members.user": request.user['_id'] }] });
         
         let project = await ProjectModel
             .findOne(filter, { _id: 0 })
@@ -510,7 +496,7 @@ router.get("/:name", async (request: Request, response: Response, next: NextFunc
         if (project && Object.keys(project).length > 0) {
             responseData.code = StatusCodes.OK;
             responseData.message = ReasonPhrases.OK;
-            responseData.data = makeProjectResponse(isAdmin, project);
+            responseData.data = makeProjectResponse(<User>request.user, project);
         } else {
             responseData.code = StatusCodes.NOT_FOUND;
             responseData.message = ReasonPhrases.NOT_FOUND;
@@ -528,7 +514,7 @@ router.get("/:name", async (request: Request, response: Response, next: NextFunc
     }
 });
 
-router.post("/", async (request: Request, response: Response, next: NextFunction) => {
+router.post("/", async (request: Request, response: Response) => {
     let responseData = new ResponseData();
     
     if (env === 'development') {
@@ -550,8 +536,7 @@ router.post("/", async (request: Request, response: Response, next: NextFunction
         let project = await ProjectModel.findOne({ name: request.body.name }).exec();
         
         if (!project) {
-            let newProject = await ProjectModel.create(projectModel);
-            
+            await ProjectModel.create(projectModel);
             responseData.success = true;
             responseData.code = StatusCodes.CREATED;
             responseData.message = ReasonPhrases.CREATED;
@@ -567,7 +552,7 @@ router.post("/", async (request: Request, response: Response, next: NextFunction
     }
 });
 
-router.put("/:name/members", async (request: Request, response: Response, next: NextFunction) => {
+router.put("/:name/members", async (request: Request, response: Response) => {
     if (env === 'development') {
         if (!request.user) {
             request.user = testUser;
@@ -582,9 +567,8 @@ router.put("/:name/members", async (request: Request, response: Response, next: 
     try {
         checkPathParamError(request.params.name, "project name");
         
-        let isAdmin = request.user["accountType"] === "admin";
         let filter = { name: decodeURI(request.params.name) };
-        filter = isAdmin ? filter : Object.assign({}, filter, { owner: request.user['_id'] });
+        filter = isAdmin(request.user["accountType"]) ? filter : Object.assign({}, filter, { owner: request.user['_id'] });
         
         let reqMembers: EditMember = request.body;
         
@@ -626,7 +610,7 @@ router.put("/:name/members", async (request: Request, response: Response, next: 
     }
 });
 
-router.put("/:name/task", async (request: Request, response: Response, next: NextFunction) => {
+router.put("/:name/task", async (request: Request, response: Response) => {
     if (env === 'development') {
         if (!request.user) {
             request.user = testUser;
@@ -639,9 +623,8 @@ router.put("/:name/task", async (request: Request, response: Response, next: Nex
     try {
         checkPathParamError(request.params.name, "project name");
         
-        let isAdmin = request.user["accountType"] === "admin";
         let filter = { name: decodeURI(request.params.name) };
-        filter = isAdmin ? filter : Object.assign({}, filter, { owner: request.user['_id'] });
+        filter = isAdmin(request.user["accountType"]) ? filter : Object.assign({}, filter, { owner: request.user['_id'] });
         
         let reqTasks: TaskBody = request.body;
         
@@ -670,7 +653,7 @@ router.put("/:name/task", async (request: Request, response: Response, next: Nex
     }
 });
 
-router.put("/:name/task/:taskName", async (request: Request, response: Response, next: NextFunction) => {
+router.put("/:name/task/:taskName", async (request: Request, response: Response) => {
     if (env === 'development') {
         if (!request.user) {
             request.user = testUser;
@@ -684,9 +667,8 @@ router.put("/:name/task/:taskName", async (request: Request, response: Response,
         checkPathParamError(request.params.name, "project name");
         checkPathParamError(request.params.taskName, "task name");
         
-        let isAdmin = request.user["accountType"] === "admin";
         let filter = { name: decodeURI(request.params.name) };
-        filter = isAdmin ? filter : Object.assign({}, filter, { owner: request.user['_id'] });
+        filter = isAdmin(request.user["accountType"]) ? filter : Object.assign({}, filter, { owner: request.user['_id'] });
         
         let reqTasks: TaskBody = request.body;
         
@@ -715,7 +697,7 @@ router.put("/:name/task/:taskName", async (request: Request, response: Response,
     }
 });
 
-router.delete("/:name/task/:type/:taskName", async (request: Request, response: Response, next: NextFunction) => {
+router.delete("/:name/task/:type/:taskName", async (request: Request, response: Response) => {
     if (env === 'development') {
         if (!request.user) {
             request.user = testUser;
@@ -730,9 +712,8 @@ router.delete("/:name/task/:type/:taskName", async (request: Request, response: 
         checkPathParamError(request.params.type, "project category");
         checkPathParamError(request.params.taskName, "task name");
         
-        let isAdmin = request.user["accountType"] === "admin";
         let filter = { name: decodeURI(request.params.name) };
-        filter = isAdmin ? filter : Object.assign({}, filter, { owner: request.user['_id'] });
+        filter = isAdmin(request.user["accountType"]) ? filter : Object.assign({}, filter, { owner: request.user['_id'] });
         
         let modProject = await ProjectModel.findOne(filter).exec();
         
@@ -759,7 +740,7 @@ router.delete("/:name/task/:type/:taskName", async (request: Request, response: 
     }
 });
 
-router.delete("/", async (request: Request, response: Response, next: NextFunction) => {
+router.delete("/", async (request: Request, response: Response) => {
     if (env === 'development') {
         if (!request.user) {
             request.user = testUser;
@@ -771,9 +752,8 @@ router.delete("/", async (request: Request, response: Response, next: NextFuncti
     try {
         checkArray(request.body.names);
         
-        let isAdmin = request.user["accountType"] === "admin";
         let filter = { name: { $in: request.body.names } };
-        filter = isAdmin ? filter : Object.assign({}, filter, { owner: request.user['_id'] });
+        filter = isAdmin(request.user["accountType"]) ? filter : Object.assign({}, filter, { owner: request.user['_id'] });
         
         let result = await ProjectModel.deleteMany(filter).exec();
         
@@ -796,7 +776,7 @@ router.delete("/", async (request: Request, response: Response, next: NextFuncti
     }
 });
 
-router.delete("/:name", async (request: Request, response: Response, next: NextFunction) => {
+router.delete("/:name", async (request: Request, response: Response) => {
     if (env === 'development') {
         if (!request.user) {
             request.user = testUser;
@@ -808,9 +788,8 @@ router.delete("/:name", async (request: Request, response: Response, next: NextF
     try {
         checkPathParamError(request.params.name, "project name");
         
-        let isAdmin = request.user["accountType"] === "admin";
         let filter = { name: decodeURI(request.params.name) };
-        filter = isAdmin ? filter : Object.assign({}, filter, { owner: request.user['_id'] });
+        filter = isAdmin(request.user["accountType"]) ? filter : Object.assign({}, filter, { owner: request.user['_id'] });
         
         let delProject = await ProjectModel.findOneAndDelete(filter).exec();
         
@@ -843,7 +822,8 @@ interface TaskBody {
 
 const testUser = {
     _id: "6182210d0befc34adfa2c8cf",
-    accountType: "user"
+    accountType: "user",
+    email: "soorong@infinov.com"
 };
 
 interface AddMemberResult {
@@ -856,6 +836,6 @@ interface RemoveMemberResult {
     error: any[];
     removedMembers: string[];
     ignoredMembers: string[];
-};
+}
 
 export default router;
