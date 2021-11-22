@@ -44,7 +44,8 @@ import { UserService } from './user.service';*/
 
 import { LoggedIn, NotLoggedIn, HasNick, IsAdmin, IsNotAdmin } from './check.login';
 import { ErrorAlert, ErrorDialog } from './shared/error.alert';
-import { ConfirmDialog, ConfirmDialogTemplate,ConfirmDialogTemplate2 } from './shared/confirm.dialog';
+import { ConfirmDialog, ConfirmDialogTemplate, ConfirmDialogTemplate2 } from './shared/confirm.dialog';
+import { DeleteConfirmDialog } from './shared/delete.confirm.dialog';
 import { UserInfo, ComingSoonDialog, NickNameConfirmDialog, NickNameTakenDialog } from './user.info';
 
 import { ForbiddenValidatorDirective } from './shared/forbidden-name.directive';
@@ -57,12 +58,13 @@ import { ForbiddenValidatorDirective } from './shared/forbidden-name.directive';
     ErrorDialog, ConfirmDialogTemplate, ConfirmDialogTemplate2, UserInfo,
     ComingSoonDialog, NickNameTakenDialog, NickNameConfirmDialog, ProjectComponent, ProjectDetailComponent,
     ProjectDialog, VisionTaskDialog, TextTaskDialog, StructuralTaskDialog, DataDialog,
-    ForbiddenValidatorDirective
+    ForbiddenValidatorDirective, DeleteConfirmDialog
   ],
   entryComponents: [
     ConfirmDialogTemplate, ConfirmDialogTemplate2, ErrorDialog, ComingSoonDialog,
     NickNameConfirmDialog, NickNameTakenDialog,
-    ProjectDialog, VisionTaskDialog, TextTaskDialog, StructuralTaskDialog,DataDialog
+    ProjectDialog, VisionTaskDialog, TextTaskDialog, StructuralTaskDialog, DataDialog,
+    DeleteConfirmDialog
   ],
   imports: [
     BrowserModule,
