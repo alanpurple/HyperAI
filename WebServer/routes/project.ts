@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response, Router } from 'express';
+import { Request, Response, Router } from 'express';
 import { Project, ProjectModel, StructuralTask, TextTask, VisionTask } from "../models/project";
 import { ReasonPhrases, StatusCodes, } from 'http-status-codes';
 import { ResponseData } from "../interfaces/ResponseData";
@@ -180,24 +180,6 @@ const addMember = async (inMembers: { user: string, role: 'member' | 'attendee' 
         throw error;
     }
 };
-
-/**
- * remove project member when user account is being removed (future use)
- *
- * @param userId
- */
-const removeMemberFromAllProjects = async (userId: Types.ObjectId) => {
-    let projects = await ProjectModel.find({ "members.user": userId }).exec();
-    if (projects.length > 0) {
-        projects.forEach(project => {
-            project.updateOne({
-                $pull: { "members": { user: userId } }
-            }, (error) => {
-                throw error;
-            });
-        });
-    }
-}
 
 const removeMember = async (outMembers: string[], project: Document<any, any, Project> & Project & { _id: Types.ObjectId }) => {
     try {
@@ -488,7 +470,7 @@ router.get("/", async (request: Request, response: Response) => {
     }
 });
 
-router.get("/:name", async (request: Request, response: Response, next: NextFunction) => {
+router.get("/:name", async (request: Request, response: Response) => {
     let responseData = new ResponseData();
     
     if (env === 'development') {
@@ -532,7 +514,7 @@ router.get("/:name", async (request: Request, response: Response, next: NextFunc
     }
 });
 
-router.post("/", async (request: Request, response: Response, next: NextFunction) => {
+router.post("/", async (request: Request, response: Response) => {
     let responseData = new ResponseData();
     
     if (env === 'development') {
@@ -554,8 +536,7 @@ router.post("/", async (request: Request, response: Response, next: NextFunction
         let project = await ProjectModel.findOne({ name: request.body.name }).exec();
         
         if (!project) {
-            let newProject = await ProjectModel.create(projectModel);
-            
+            await ProjectModel.create(projectModel);
             responseData.success = true;
             responseData.code = StatusCodes.CREATED;
             responseData.message = ReasonPhrases.CREATED;
@@ -571,7 +552,7 @@ router.post("/", async (request: Request, response: Response, next: NextFunction
     }
 });
 
-router.put("/:name/members", async (request: Request, response: Response, next: NextFunction) => {
+router.put("/:name/members", async (request: Request, response: Response) => {
     if (env === 'development') {
         if (!request.user) {
             request.user = testUser;
@@ -629,7 +610,7 @@ router.put("/:name/members", async (request: Request, response: Response, next: 
     }
 });
 
-router.put("/:name/task", async (request: Request, response: Response, next: NextFunction) => {
+router.put("/:name/task", async (request: Request, response: Response) => {
     if (env === 'development') {
         if (!request.user) {
             request.user = testUser;
@@ -672,7 +653,7 @@ router.put("/:name/task", async (request: Request, response: Response, next: Nex
     }
 });
 
-router.put("/:name/task/:taskName", async (request: Request, response: Response, next: NextFunction) => {
+router.put("/:name/task/:taskName", async (request: Request, response: Response) => {
     if (env === 'development') {
         if (!request.user) {
             request.user = testUser;
@@ -716,7 +697,7 @@ router.put("/:name/task/:taskName", async (request: Request, response: Response,
     }
 });
 
-router.delete("/:name/task/:type/:taskName", async (request: Request, response: Response, next: NextFunction) => {
+router.delete("/:name/task/:type/:taskName", async (request: Request, response: Response) => {
     if (env === 'development') {
         if (!request.user) {
             request.user = testUser;
@@ -759,7 +740,7 @@ router.delete("/:name/task/:type/:taskName", async (request: Request, response: 
     }
 });
 
-router.delete("/", async (request: Request, response: Response, next: NextFunction) => {
+router.delete("/", async (request: Request, response: Response) => {
     if (env === 'development') {
         if (!request.user) {
             request.user = testUser;
@@ -795,7 +776,7 @@ router.delete("/", async (request: Request, response: Response, next: NextFuncti
     }
 });
 
-router.delete("/:name", async (request: Request, response: Response, next: NextFunction) => {
+router.delete("/:name", async (request: Request, response: Response) => {
     if (env === 'development') {
         if (!request.user) {
             request.user = testUser;
@@ -855,6 +836,6 @@ interface RemoveMemberResult {
     error: any[];
     removedMembers: string[];
     ignoredMembers: string[];
-};
+}
 
 export default router;
