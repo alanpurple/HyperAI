@@ -108,7 +108,10 @@ export class ProjectComponent implements OnInit {
           structuralTasks: []
         },
         isNew: true,
-        availableMembers: this.colleagues
+        availableMembers: this.colleagues,
+        userData: this.userData,
+        dataList: this.dataList,
+        categories:this.categories
       }
     });
     dialogRef.afterClosed().subscribe(project => {
@@ -169,7 +172,7 @@ export class ProjectComponent implements OnInit {
 
   filterData() {
     const category = this.newProject.category;
-    this.dataList = this.userData.filter(elem => elem.type == this.newProject.category);
+    this.dataList = this.userData.filter(elem => elem.type == category);
   }
 
   addMember(index: number) {

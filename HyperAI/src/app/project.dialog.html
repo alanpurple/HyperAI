@@ -1,12 +1,29 @@
-<h2 mat-dialog-title *ngIf="data.isNew">Project create</h2>
-<h2 mat-dialog-title *ngIf="!data.isNew">Project Edit</h2>
+<h2 mat-dialog-title [fxHide]="!data.isNew">Project create</h2>
+<h2 mat-dialog-title [fxHide]="data.isNew">Project Edit</h2>
 <div mat-dialog-content>
-  <form>
+  <form fxLayout="column">
     <mat-form-field appearance="fill">
       <mat-label>Project Name</mat-label>
       <input matInput maxlength="15" placeholder="Name" [(ngModel)]="data.project.name"
              name="name" appForbiddenName [disabled]="!data.isNew">
       <mat-error *ngIf="nameRe.test(data.project.name)">No special characters</mat-error>
+    </mat-form-field>
+    <mat-form-field appearance="fill">
+      <mat-label>Project Category</mat-label>
+      <mat-select [(ngModel)]="data.project.category" name="category"
+                  (selectionChange)="filterData()">
+        <mat-option *ngFor="let category of data.categories" [value]="category">
+          {{category}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="fill">
+      <mat-label>Target Data</mat-label>
+      <mat-select [(ngModel)]="data.project.dataURI" name="datauri">
+        <mat-option *ngFor="let data of data.dataList" [value]="data.name">
+          {{data.name}}
+        </mat-option>
+      </mat-select>
     </mat-form-field>
     <mat-chip-list #memberlist aria-label="members" multiple>
       <mat-chip *ngFor="let member of data.project.members; index as i"
@@ -26,7 +43,7 @@
   </form>
 </div>
 <div mat-dialog-actions>
-  <button mat-button [mat-dialog-close]="data.project" [disabled]="nameRe.test(data.project.name)">Save</button>
-  <button mat-button (click)="cancel()">Cancel</button>
-  <button mat-button (click)="reset()">Reset</button>
+  <button mat-button color="primary" [mat-dialog-close]="data.project" [disabled]="nameRe.test(data.project.name)">Save</button>
+  <button mat-button color="warn" (click)="cancel()">Cancel</button>
+  <button mat-button color="accent" (click)="reset()">Reset</button>
 </div>

@@ -1,4 +1,4 @@
-<div *ngIf="!isMaking">
+<div [fxHide]="isMaking">
   <button mat-fab color="accent" aria-label="create project button"
           (click)="createProjectEasy()">
     <mat-icon>add</mat-icon>
@@ -8,7 +8,7 @@
   </button>
 </div>
 
-<button mat-button color="accent" (click)="createProject()">Create project manually</button>
+<button [fxHide]="isMaking" mat-button color="accent" (click)="createProject()">Create project manually</button>
 
 <table #projectTable mat-table [dataSource]="projects" matSort>
   <ng-container matColumnDef="name">
