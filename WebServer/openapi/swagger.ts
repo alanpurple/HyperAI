@@ -7,7 +7,7 @@ export const swaggerOptions = {
             description: "This is a REST API application made with Express. It retrieves data from Martinie",
             contact: {
                 name: "Martinie",
-                url: "https://martinie.infinov.com",
+                url: "https://martinie.ai",
                 email: "martinie@infinov.com"
             },
             license: {
@@ -19,7 +19,7 @@ export const swaggerOptions = {
         basePath: "/",
         servers: [
             {
-                url: `https://192.168.0.2`,
+                url: `https://martinie.ai`,
                 description: "Development server"
             },
         ],
