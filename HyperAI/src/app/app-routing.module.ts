@@ -16,6 +16,7 @@ import { EdaComponent } from './eda.component';
 import { UserInfo } from './user.info';
 import { ProjectComponent } from './project.component';
 import { ProjectDetailComponent } from './project-detail.component';
+import { PrivacyPolicy } from './privacy-policy';
 
 const routes: Routes = [
   {
@@ -76,6 +77,8 @@ const routes: Routes = [
   }, {
     path: 'prject-manager/:id', component: ProjectDetailComponent,
     canActivate: [LoggedIn, IsNotAdmin]
+  }, {
+    path: 'privacy-policy', component: PrivacyPolicy
   }
 ];
 
