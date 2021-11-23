@@ -19,10 +19,17 @@
         <mat-icon>person</mat-icon>
       </button>
       <mat-menu #accountMenu="matMenu">
-        <button mat-menu-item (click)="showAccountInfo()">Welcome, {{user.nickName}}</button>
-        <button mat-menu-item routerLink="/user-info">User Setting</button>
+        <button mat-menu-item (click)="showAccountInfo()">
+          Welcome, {{user.nickName}}
+          <mat-icon>info</mat-icon>
+        </button>
+        <button mat-menu-item routerLink="/user-info">
+          User Setting
+          <mat-icon>manage_accounts</mat-icon>
+        </button>
         <a mat-menu-item target="_self" href="/account/logout">
-          logout<mat-icon>logout</mat-icon>
+          logout
+          <mat-icon>logout</mat-icon>
         </a>
       </mat-menu>
     </div>
