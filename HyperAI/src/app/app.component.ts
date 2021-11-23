@@ -23,8 +23,6 @@ export class AppComponent implements OnInit {
   ) {
     iconRegistry.addSvgIcon('martinie',
       sanitizer.bypassSecurityTrustResourceUrl('assets/martinie.svg'));
-    iconRegistry.addSvgIcon('martinie2',
-      sanitizer.bypassSecurityTrustResourceUrl('assets/martinie2.svg'));
     if (window.outerWidth < 800) {
       this.sidenavMode = 'over';
       this.isOpened = false;
