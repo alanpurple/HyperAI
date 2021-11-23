@@ -13,7 +13,9 @@
 <table #projectTable mat-table [dataSource]="projects" matSort>
   <ng-container matColumnDef="name">
     <th mat-header-cell *matHeaderCellDef>name</th>
-    <td mat-cell *matCellDef="let row">{{row.name}}</td>
+    <td mat-cell *matCellDef="let row">
+      <button mat-button color="primary" routerLink="/project-manager/{{row.name}}">{{row.name}}</button>
+    </td>
   </ng-container>
   <ng-container matColumnDef="dataURI">
     <th mat-header-cell *matHeaderCellDef>Data</th>
