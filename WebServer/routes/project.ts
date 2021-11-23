@@ -185,15 +185,13 @@ router.put("/:name/members", async (request: Request, response: Response) => {
                 } else {
                     responseData.message = "Project members were modified.";
                 }
+                responseData.data = {
+                    addMemberResult: addMemberResult, removeMemberResult: removeMemberResult
+                };
             } else {
-                responseData.success = false;
-                responseData.code = StatusCodes.BAD_REQUEST;
-                responseData.message = "Errors occurred";
+                doProjectError(`Errors occurred - add: ${addMemberResult.error.join()}, remove: ${removeMemberResult.error.join()}`);
             }
             
-            responseData.data = {
-                addMemberResult: addMemberResult, removeMemberResult: removeMemberResult
-            };
         } else {
             doProjectError("The target project does not exist.");
         }
