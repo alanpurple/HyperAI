@@ -599,7 +599,7 @@ const removeMember = async (outMembers: string[], project: Document<any, any, Pr
                         { $pull: { "members": { user: user._id } } }, options
                     ).exec();
                     
-                    if (updateResult) {
+                    if (!updateResult) {
                         removeMemberResult.error.push(`An error occurred while removing member '${ member }'.`);
                     } else {
                         logger(`User '${ member }' is removed.`);
