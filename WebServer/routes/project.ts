@@ -180,7 +180,11 @@ router.put("/:name/members", async (request: Request, response: Response) => {
             if (addMemberResult.error.length === 0 && removeMemberResult.error.length === 0) {
                 responseData.success = true;
                 responseData.code = StatusCodes.CREATED;
-                responseData.message = "Project members were modified.";
+                if (addMemberResult.ignoredMembers.length > 0 || removeMemberResult.ignoredMembers.length > 0) {
+                    responseData.message = "Some or all requests were ignored.";
+                } else {
+                    responseData.message = "Project members were modified.";
+                }
             } else {
                 responseData.success = false;
                 responseData.code = StatusCodes.BAD_REQUEST;
