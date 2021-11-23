@@ -6,7 +6,9 @@
     </button>
     <span fxFlex></span>
     <button *ngIf="!user" mat-button routerLink="/signup">Sign up</button>
-    <button *ngIf="!user" mat-button routerLink="/login">Sign in </button>
+    <button mat-icon-button color="accent" aria-label="login button" *ngIf="!user" routerLink="/login">
+      <mat-icon>login</mat-icon>
+    </button>
     <div *ngIf="user">
       <!--<mat-menu #alertMenu>
         <button *ngFor="let msg of msgs; let i=index" mat-menu-item (click)="confirmMsg(i)">
@@ -19,10 +21,12 @@
       <mat-menu #accountMenu="matMenu">
         <button mat-menu-item (click)="showAccountInfo()">Welcome, {{user.nickName}}</button>
         <button mat-menu-item routerLink="/user-info">User Setting</button>
-        <a *ngIf="user" mat-button target="_self" href="/account/logout">logout</a>
+        <a mat-menu-item color="accent" target="_self" href="/account/logout">
+          <mat-icon>logout</mat-icon>
+        </a>
       </mat-menu>
     </div>
-    
+
   </mat-toolbar>
   <mat-sidenav-container fxFlex>
     <mat-sidenav #sidemenu [mode]="sidenavMode" [opened]="isOpened">
