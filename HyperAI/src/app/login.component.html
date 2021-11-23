@@ -11,16 +11,14 @@
               [fxHide]="emailChecked">
         Check email existence
       </button>
-      <div [fxHide]="!emailChecked" fxLayout="column">
-        <button mat-raised-button (click)="resetEmail()" type="button" color="accent">
-          reset email
-        </button>
-        <mat-form-field>
-          <input matInput type="password" name="password" placeholder="password"
-                 [(ngModel)]="password" required [autofocus]="emailChecked">
-        </mat-form-field>
-        <button mat-raised-button color="accent" type="submit" value="Submit">Log in</button>
-      </div>
+      <button mat-raised-button [fxHide]="!emailChecked" (click)="resetEmail()" type="button" color="accent">
+        reset email
+      </button>
+      <mat-form-field [fxHide]="!emailChecked">
+        <input matInput type="password" name="password" placeholder="password"
+                [(ngModel)]="password" required>
+      </mat-form-field>
+      <button mat-raised-button [disabled]="!emailChecked" color="accent" type="submit" value="Submit">Log in</button>
     </form>
   </mat-card-content>
 </mat-card>
