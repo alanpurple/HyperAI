@@ -86,7 +86,8 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
               preprocessed: false
             },
             isNew: true
-          }
+          },
+          hasBackdrop: true
         }).afterClosed().subscribe(task => {
           if (task)
             this.projectService.addTask(this.project.name, 'vision', task).subscribe(
@@ -101,7 +102,8 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
         this.dialog.open(TextTaskDialog, {
           data: {
             task: { name: '' }, isNew: true
-          }
+          },
+          hasBackdrop: true
         }).afterClosed().subscribe(
           task => {
             if (task)
@@ -119,7 +121,8 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
           data: {
             task: { name: '', taskType: 'recommendataion' },
             isNew: true
-          }
+          },
+          hasBackdrop: true
         }).afterClosed().subscribe(
           task => {
             if(task)
@@ -157,7 +160,8 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
   editVisionTask(index: number) {
     const task = this.project.visionTasks[index];
     this.dialog.open(VisionTaskDialog, {
-      data: { task: task, isNew: false }
+      data: { task: task, isNew: false },
+      hasBackdrop: true
     }).afterClosed().subscribe(
       modification => {
         if (modification)
@@ -183,7 +187,8 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
   editTextTask(index: number) {
     const task = this.project.textTasks[index];
     this.dialog.open(TextTaskDialog, {
-      data: { task: task, isNew: false }
+      data: { task: task, isNew: false },
+      hasBackdrop: true
     }).afterClosed().subscribe(
       modification => {
         if (modification)
@@ -200,7 +205,8 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
   editStructuralTask(index: number) {
     const task = this.project.structuralTasks[index];
     this.dialog.open(StructuralTaskDialog, {
-      data: { task: task, isNew: false }
+      data: { task: task, isNew: false },
+      hasBackdrop: true
     }).afterClosed().subscribe(
       modification => {
         if (modification)

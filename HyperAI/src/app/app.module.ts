@@ -61,12 +61,12 @@ import { ForbiddenValidatorDirective } from './shared/forbidden-name.directive';
     ProjectDialog, VisionTaskDialog, TextTaskDialog, StructuralTaskDialog, DataDialog,
     ForbiddenValidatorDirective, DeleteConfirmDialog, PrivacyPolicy
   ],
-  entryComponents: [
+  /*entryComponents: [
     ConfirmDialogTemplate, ConfirmDialogTemplate2, ErrorDialog, ComingSoonDialog,
     NickNameConfirmDialog, NickNameTakenDialog,
     ProjectDialog, VisionTaskDialog, TextTaskDialog, StructuralTaskDialog, DataDialog,
     DeleteConfirmDialog
-  ],
+  ],*/
   imports: [
     BrowserModule,
     FormsModule,

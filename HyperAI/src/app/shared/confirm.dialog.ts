@@ -44,11 +44,13 @@ export class ConfirmDialog {
 
     if (this.isArray)
       this.dialog.open(ConfirmDialogTemplate2, {
-        data: msg
+        data: msg,
+        hasBackdrop: true
       });
     else
       this.dialog.open(ConfirmDialogTemplate, {
-        data: msg
+        data: msg,
+        hasBackdrop: true
       });
   }
 }

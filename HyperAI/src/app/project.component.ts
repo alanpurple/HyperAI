@@ -112,7 +112,8 @@ export class ProjectComponent implements OnInit {
         userData: this.userData,
         dataList: this.dataList,
         categories:this.categories
-      }
+      },
+      hasBackdrop: true
     });
     dialogRef.afterClosed().subscribe(project => {
       if(project)
@@ -219,7 +220,8 @@ export class ProjectComponent implements OnInit {
         project: currentProject,
         isNew: false,
         availableMembers: this.colleagues.filter(elem => !projectMembers.includes(elem))
-      }
+      },
+      hasBackdrop: true
     });
     dialogRef.afterClosed().subscribe(project => {
       if (project) {
@@ -250,7 +252,7 @@ export class ProjectComponent implements OnInit {
   }
 
   deleteProject(index: number) {
-    this.dialog.open(DeleteConfirmDialog).afterClosed().subscribe(
+    this.dialog.open(DeleteConfirmDialog, { hasBackdrop:true }).afterClosed().subscribe(
       selection => {
         if (selection)
           this.projectService.deleteProject(this.projects[index].name).subscribe(
