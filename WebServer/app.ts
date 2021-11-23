@@ -107,7 +107,7 @@ io.on('connection', socket =>
 
 app.get(['/', '/data-manager/?', '/login/?', '/signup/?', '/admin-console/?', '/info',
     '/description/?', '/model-suggestion/?', '/train-manager/?', '/eda-manager/?',
-    '/association', '/user-info','/project-manager/?'],
+    '/association', '/user-info','/project-manager/?','/privacy-policy'],
     (req, res) => {
         res.sendFile(path.join(rootPath, 'index.html'));
         if (req.isAuthenticated()){

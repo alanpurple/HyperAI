@@ -31,6 +31,7 @@ import { Association } from './association';
 import { DataPreview } from './data-preview';
 import { ProjectComponent } from './project.component';
 import { ProjectDetailComponent } from './project-detail.component';
+import { PrivacyPolicy } from './privacy-policy';
 
 import { ProjectDialog } from './project.dialog';
 import { StructuralTaskDialog, TextTaskDialog, VisionTaskDialog } from './task.dialog';
@@ -58,7 +59,7 @@ import { ForbiddenValidatorDirective } from './shared/forbidden-name.directive';
     ErrorDialog, ConfirmDialogTemplate, ConfirmDialogTemplate2, UserInfo,
     ComingSoonDialog, NickNameTakenDialog, NickNameConfirmDialog, ProjectComponent, ProjectDetailComponent,
     ProjectDialog, VisionTaskDialog, TextTaskDialog, StructuralTaskDialog, DataDialog,
-    ForbiddenValidatorDirective, DeleteConfirmDialog
+    ForbiddenValidatorDirective, DeleteConfirmDialog, PrivacyPolicy
   ],
   entryComponents: [
     ConfirmDialogTemplate, ConfirmDialogTemplate2, ErrorDialog, ComingSoonDialog,
