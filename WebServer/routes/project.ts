@@ -180,16 +180,18 @@ router.put("/:name/members", async (request: Request, response: Response) => {
             if (addMemberResult.error.length === 0 && removeMemberResult.error.length === 0) {
                 responseData.success = true;
                 responseData.code = StatusCodes.CREATED;
-                responseData.message = "Project members were modified.";
+                if (addMemberResult.ignoredMembers.length > 0 || removeMemberResult.ignoredMembers.length > 0) {
+                    responseData.message = "Some or all requests were ignored.";
+                } else {
+                    responseData.message = "Project members were modified.";
+                }
+                responseData.data = {
+                    addMemberResult: addMemberResult, removeMemberResult: removeMemberResult
+                };
             } else {
-                responseData.success = false;
-                responseData.code = StatusCodes.BAD_REQUEST;
-                responseData.message = "Errors occurred";
+                doProjectError(`Errors occurred - add: ${addMemberResult.error.join()}, remove: ${removeMemberResult.error.join()}`);
             }
             
-            responseData.data = {
-                addMemberResult: addMemberResult, removeMemberResult: removeMemberResult
-            };
         } else {
             doProjectError("The target project does not exist.");
         }
@@ -595,7 +597,7 @@ const removeMember = async (outMembers: string[], project: Document<any, any, Pr
                         { $pull: { "members": { user: user._id } } }, options
                     ).exec();
                     
-                    if (updateResult) {
+                    if (!updateResult) {
                         removeMemberResult.error.push(`An error occurred while removing member '${ member }'.`);
                     } else {
                         logger(`User '${ member }' is removed.`);
