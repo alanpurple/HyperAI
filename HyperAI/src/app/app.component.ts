@@ -5,6 +5,8 @@ import { Router } from '@angular/router';
 import { UserData } from './user.data';
 import { UserService } from './user.service';
 import { ConfirmDialog } from './shared/confirm.dialog';
+import { MatIconRegistry } from '@angular/material/icon';
+import { DomSanitizer } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-root',
@@ -15,8 +17,14 @@ export class AppComponent implements OnInit {
   constructor(
     private router: Router,
     private userService: UserService,
-    private confirmDialog: ConfirmDialog
+    private confirmDialog: ConfirmDialog,
+    private iconRegistry: MatIconRegistry,
+    private sanitizer: DomSanitizer
   ) {
+    iconRegistry.addSvgIcon('martinie',
+      sanitizer.bypassSecurityTrustResourceUrl('assets/martinie.svg'));
+    iconRegistry.addSvgIcon('martinie2',
+      sanitizer.bypassSecurityTrustResourceUrl('assets/martinie2.svg'));
     if (window.outerWidth < 800) {
       this.sidenavMode = 'over';
       this.isOpened = false;
