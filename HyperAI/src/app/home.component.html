@@ -2,7 +2,12 @@
   <mat-grid-tile *ngFor="let project of projects">
     <mat-card>
       <mat-card-header>
-        <mat-card-title>{{project.name}}</mat-card-title>
+        <mat-card-title>
+          {{project.name}}
+          <button mat-icon-button color="accent" routerLink="/project-manager/{{project.name}}">
+            <mat-icon>create</mat-icon>
+          </button>
+        </mat-card-title>
         <mat-card-subtitle>{{project.category}}</mat-card-subtitle>
       </mat-card-header>
       <mat-card-content>
