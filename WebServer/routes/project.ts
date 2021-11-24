@@ -195,7 +195,7 @@ router.put("/:name/members", async (request: Request, response: Response) => {
             }
             
         } else {
-            doProjectError("The target project does not exist.");
+            doUnauthorizedError("Insufficient permission to edit project member.");
         }
     } catch (error) {
         makeErrorResult(error, responseData);
@@ -238,7 +238,7 @@ router.put("/:name/task", async (request: Request, response: Response) => {
                 responseData.message = "Uncaught error occurred.";
             }
         } else {
-            doProjectError("The target project does not exist.");
+            doUnauthorizedError("Insufficient permission to add project task.");
         }
     } catch (error) {
         makeErrorResult(error, responseData);
@@ -282,7 +282,7 @@ router.put("/:name/task/:taskName", async (request: Request, response: Response)
                 responseData.message = "Uncaught error occurred.";
             }
         } else {
-            doProjectError("The target project does not exist.");
+            doUnauthorizedError("Insufficient permission to edit project task.");
         }
     } catch (error) {
         makeErrorResult(error, responseData);
@@ -325,7 +325,7 @@ router.delete("/:name/task/:type/:taskName", async (request: Request, response: 
                 responseData.message = "Uncaught error occurred.";
             }
         } else {
-            doProjectError("The target project does not exist.");
+            doUnauthorizedError("Insufficient permission to delete project task.");
         }
     } catch (error) {
         makeErrorResult(error, responseData);
@@ -395,7 +395,7 @@ router.delete("/:name", async (request: Request, response: Response) => {
             responseData.code = StatusCodes.OK;
             responseData.message = ReasonPhrases.OK;
         } else {
-            doProjectError("The target project does not exist.");
+            doUnauthorizedError("Insufficient permission to delete project.");
         }
     } catch (error) {
         makeErrorResult(error, responseData);
@@ -413,8 +413,19 @@ class ProjectError extends Error {
     }
 }
 
+class UnauthorizedError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = "UnauthorizedError";
+    }
+}
+
 const doProjectError = (message: string) => {
     throw new ProjectError(message);
+};
+
+const doUnauthorizedError = (message: string) => {
+    throw new UnauthorizedError(message);
 };
 
 const doUncaughtError = (message: string) => {
@@ -434,6 +445,8 @@ const makeErrorResult = (error, responseData: ResponseData) => {
     responseData.success = false;
     if (error.name === "ValidationError" || error.name === "CastError" || error.name === "ProjectError") {
         responseData.code = StatusCodes.BAD_REQUEST;
+    } else if (error.name === "UnauthorizedError") {
+        responseData.code = StatusCodes.UNAUTHORIZED;
     } else {
         responseData.code = StatusCodes.INTERNAL_SERVER_ERROR;
     }
