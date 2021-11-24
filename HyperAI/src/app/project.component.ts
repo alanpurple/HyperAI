@@ -53,7 +53,7 @@ export class ProjectComponent implements OnInit {
 
   roles = ['member', 'attendee'];
   categories = ['various', 'vision', 'text', 'structural'];
-  displayedColumns = ['name', 'dataURI', 'projectType', 'category', 'edit', 'delete'];
+  displayedColumns = ['name','owner', 'dataURI', 'projectType', 'category', 'edit', 'delete'];
 
   userData: DataInfo[] = [];
   dataList: DataInfo[] = [];
@@ -66,8 +66,8 @@ export class ProjectComponent implements OnInit {
     this.projectService.getProjects().subscribe(
       projects => this.projects = projects,
       err => {
-        if(err.status!=404)
-         this.errorAlert.open(err);
+        if (err.status != 404)
+          this.errorAlert.open(err);
       }
     );
     this.userService.getColleagues().subscribe(

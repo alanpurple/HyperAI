@@ -1,5 +1,5 @@
 <button mat-fab color="accent" aria-label="add task button"
-        (click)="addTask()">
+        (click)="addTask()" [disabled]="project.owner!='self'">
   <mat-icon>add</mat-icon>
 </button>
 <div fxLayout="row">
