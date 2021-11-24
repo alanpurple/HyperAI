@@ -21,7 +21,7 @@
     "@angular/router": "~13.0.2",
     "@swimlane/ngx-charts": "^19.1.0",
     "angular-plotly.js": "^4.0.4",
-    "gojs": "^2.1.53",
+    "gojs": "^2.1.54",
     "gojs-angular": "^2.0.4",
     "plotly.js-dist-min": "^2.6.3",
     "rxjs": "~7.4.0",

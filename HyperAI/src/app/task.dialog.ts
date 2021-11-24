@@ -12,14 +12,13 @@ import { NameRe } from './shared/validataions';
 export class VisionTaskDialog {
   constructor(
     public dialogRef: MatDialogRef<VisionTaskDialog>,
-    @Inject(MAT_DIALOG_DATA) public task: VisionTask,
-    @Inject(MAT_DIALOG_DATA) public isNew: boolean
+    @Inject(MAT_DIALOG_DATA) public data: { task: VisionTask, isNew: boolean }
   ) { }
 
   nameRe = NameRe;
 
   cancel() {
-
+    this.dialogRef.close();
   }
   reset() {
 
@@ -33,14 +32,13 @@ export class VisionTaskDialog {
 export class StructuralTaskDialog {
   constructor(
     public dialogRef: MatDialogRef<VisionTaskDialog>,
-    @Inject(MAT_DIALOG_DATA) public task: StructuralTask,
-    @Inject(MAT_DIALOG_DATA) public isNew: boolean
+    @Inject(MAT_DIALOG_DATA) public data: { task: StructuralTask, isNew: boolean }
   ) { }
 
   nameRe = NameRe;
 
   cancel() {
-
+    this.dialogRef.close();
   }
   reset() {
 
@@ -54,14 +52,13 @@ export class StructuralTaskDialog {
 export class TextTaskDialog {
   constructor(
     public dialogRef: MatDialogRef<TextTaskDialog>,
-    @Inject(MAT_DIALOG_DATA) public task: TextTask,
-    @Inject(MAT_DIALOG_DATA) public isNew: boolean
+    @Inject(MAT_DIALOG_DATA) public data: { task: TextTask, isNew: boolean }
   ) { }
 
   nameRe = NameRe;
 
   cancel() {
-
+    this.dialogRef.close();
   }
   reset() {
 
