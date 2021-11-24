@@ -169,12 +169,14 @@ router.put("/:name/members", async (request: Request, response: Response) => {
             .exec();
         
         if (modProject) {
+            const removable = checkMemberRemovability(modProject.members.map(member => member.user["email"]), reqMembers.inMember.map(e => e.user));
+            
             if (reqMembers.inMember.length > 0) {
                 addMemberResult = await addMember(reqMembers.inMember, modProject);
             }
             
             if (reqMembers.outMember.length > 0) {
-                removeMemberResult = await removeMember(reqMembers.outMember, modProject);
+                removeMemberResult = await removeMember(reqMembers.outMember, modProject, removable);
             }
             
             if (addMemberResult.error.length === 0 && removeMemberResult.error.length === 0) {
@@ -534,6 +536,11 @@ const convertToProjectSchema = async (user, reqProject: RequestProject) => {
     return projectSchema;
 };
 
+const checkMemberRemovability = (current: string[], add: string[]) => {
+    const difference: string[] = add.filter(e => !current.includes(e));
+    return difference.length > 0
+};
+
 const addMember = async (inMembers: { user: string, role: 'member' | 'attendee' }[], project: Document<any, any, Project> & Project & { _id: Types.ObjectId }) => {
     try {
         let addMemberResult: AddMemberResult = { error: [], addedMembers: [], ignoredMembers: [] };
@@ -579,7 +586,7 @@ const addMember = async (inMembers: { user: string, role: 'member' | 'attendee' 
     }
 };
 
-const removeMember = async (outMembers: string[], project: Document<any, any, Project> & Project & { _id: Types.ObjectId }) => {
+const removeMember = async (outMembers: string[], project: Document<any, any, Project> & Project & { _id: Types.ObjectId }, removable: boolean) => {
     try {
         let removeMemberResult: RemoveMemberResult = { error: [], ignoredMembers: [], removedMembers: [] };
         const options = { lean: true, new: true, rawResult: true };
@@ -588,7 +595,7 @@ const removeMember = async (outMembers: string[], project: Document<any, any, Pr
         let currentMemberEmails: string[] = project.members.map(member => member.user["email"]);
         const intersection: string[] = currentMemberEmails.filter(e => outMembers.includes(e));
         
-        if (intersection.length > 0 && (currentMemberEmails.length > intersection.length)) {
+        if (intersection.length > 0 && (currentMemberEmails.length > intersection.length) || removable) {
             for (let member of outMembers) {
                 let user = await UserModel.findOne({ email: member }).exec();
                 
