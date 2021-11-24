@@ -1,29 +1,45 @@
-import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { UserService } from './user.service';
 import { ErrorAlert } from './shared/error.alert';
 
 import { NameRe } from './shared/validataions';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-signup',
   templateUrl: './signup.component.html',
   styleUrls: ['./signup.component.sass']
 })
-export class SignupComponent implements OnInit {
+export class SignupComponent implements OnInit, OnDestroy {
 
   constructor(
     private router: Router,
+    private route: ActivatedRoute,
     private userService: UserService,
     private errorAlert: ErrorAlert
   ) { }
+
   organizations: string[] = [];
+  private sub: Subscription | null = null;
+
   ngOnInit() {
+    this.sub = this.route.params.subscribe(params => {
+      if (params['id']) {
+        this.email = decodeURI(params['id']);
+        this.emailChecked = true;
+      }
+    })
     this.userService.getOrganizations().subscribe(
       orgs => this.organizations = orgs,
       err => this.errorAlert.open(err)
     );
+  }
+
+  ngOnDestroy() {
+    if (this.sub)
+      this.sub.unsubscribe();
   }
 
   organization: string | undefined = undefined;
