@@ -50,6 +50,7 @@ import { DeleteConfirmDialog } from './shared/delete.confirm.dialog';
 import { UserInfo, ComingSoonDialog, NickNameConfirmDialog, NickNameTakenDialog } from './user.info';
 
 import { ForbiddenValidatorDirective } from './shared/forbidden-name.directive';
+import { NotfoundComponent } from './notfound.component';
 
 @NgModule({
   declarations: [
@@ -59,7 +60,7 @@ import { ForbiddenValidatorDirective } from './shared/forbidden-name.directive';
     ErrorDialog, ConfirmDialogTemplate, ConfirmDialogTemplate2, UserInfo,
     ComingSoonDialog, NickNameTakenDialog, NickNameConfirmDialog, ProjectComponent, ProjectDetailComponent,
     ProjectDialog, VisionTaskDialog, TextTaskDialog, StructuralTaskDialog, DataDialog,
-    ForbiddenValidatorDirective, DeleteConfirmDialog, PrivacyPolicy
+    ForbiddenValidatorDirective, DeleteConfirmDialog, PrivacyPolicy, NotfoundComponent
   ],
   /*entryComponents: [
     ConfirmDialogTemplate, ConfirmDialogTemplate2, ErrorDialog, ComingSoonDialog,

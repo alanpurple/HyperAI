@@ -17,6 +17,7 @@ import { UserInfo } from './user.info';
 import { ProjectComponent } from './project.component';
 import { ProjectDetailComponent } from './project-detail.component';
 import { PrivacyPolicy } from './privacy-policy';
+import { NotfoundComponent } from './notfound.component';
 
 const routes: Routes = [
   {
@@ -82,6 +83,8 @@ const routes: Routes = [
     canActivate: [LoggedIn, IsNotAdmin]
   }, {
     path: 'privacy-policy', component: PrivacyPolicy
+  }, {
+    path: 'notfound', component: NotfoundComponent
   }
 ];
 

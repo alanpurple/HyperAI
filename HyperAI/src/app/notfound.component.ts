@@ -1,0 +1,16 @@
+import { Component } from '@angular/core';
+import { Router } from '@angular/router';
+
+@Component({
+  selector: 'app-notfound',
+  templateUrl: './notfound.component.html',
+  styleUrls: ['./notfound.component.sass']
+})
+export class NotfoundComponent{
+
+  constructor(private router: Router) { }
+
+  returnToHome() {
+    this.router.navigate(['/']);
+  }
+}

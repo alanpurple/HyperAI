@@ -106,7 +106,7 @@ io.on('connection', socket =>
 );
 
 app.get(['/', '/data-manager/?', '/login(/:id)?', '/signup(/:id)?', '/admin-console/?', '/info',
-    '/description/?', '/model-suggestion/?', '/train-manager/?', '/eda-manager/?',
+    '/description/?', '/model-suggestion/?', '/train-manager/?', '/eda-manager/?','/notfound',
     '/association', '/user-info','/project-manager(/:name)?','/project-manager/:name/auto','/privacy-policy'],
     (req, res) => {
         res.sendFile(path.join(rootPath, 'index.html'));
@@ -133,10 +133,8 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {explorer: true}));
 // error handlers
 
 // catch 404 and forward to error handler
-app.use((req, res, next) => {
-    const err = new Error('Not Found');
-    err['status'] = 404;
-    next(err);
+app.use((req, res) => {
+    res.redirect('/notfound');
 });
 
 // development error handler
