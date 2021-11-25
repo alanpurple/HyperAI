@@ -64,8 +64,10 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
           });
         }
         , err => {
-          if (err.status == 404)
+          if (err.status == 404) {
+            this.confirmDialog.open('Cannot find the project ' + params['id']);
             this.router.navigate(['/project-manager']);
+          }
           else
             this.errorAlert.open(err);
         }
