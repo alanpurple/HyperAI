@@ -16,9 +16,37 @@ export interface Project {
 const VisionTaskSchema = new Schema<VisionTask>({
     name: String,
     taskType: { type: String, enum: ['preprocessing', 'segmentation', 'classification', 'detection'], required:true },
-    includeMask: Boolean,
     completed: Boolean,
-    preprocessed: String // output folder, only for preprocessing task
+    preprocessed: String, // output folder, only for preprocessing task
+
+    /**
+   * options for preprocessing
+   * */
+    include_mask: Boolean,
+    train_dir: String,
+    val_dir: String,
+    test_dir: String,
+    train_anno: String,
+    val_anno: String,
+
+    /**
+     * optins for segmentation
+     * */
+    batch_size: Number,
+    no_xla: Boolean,
+    use_amp: Boolean,
+
+    // currently only one type(R-CNN) param set is available
+    model_params: {
+        type: {
+            min_level: Number,
+            max_level: Number,
+            skip_crowd: Boolean,
+            use_category: Boolean,
+            augment_input_data: Boolean
+        }
+    },
+    tb_port:Number
 }, { _id: false });
 
 const TextTaskSchema = new Schema<TextTask>({
@@ -116,9 +144,37 @@ schema.pre('updateOne', { document: true, query: false }, function (next) {
 export interface VisionTask {
     name: string;
     taskType: 'preprocessing' | 'segmentation' | 'classification' | 'detection';
-    includeMask: boolean;
     completed: boolean;
     preprocessed: string; // preprocessed output folder, only for preprocessing task
+
+    /**
+   * options for preprocessing
+   * */
+    include_mask: boolean | undefined;
+    train_dir: string | undefined;
+    val_dir: string | undefined;
+    test_dir: string | undefined;
+    train_anno: string | undefined;
+    val_anno: string | undefined;
+
+    /**
+     * optins for segmentation
+     * */
+    batch_size: number | undefined;
+    no_xla: boolean | undefined;
+    use_amp: boolean | undefined;
+    // currently only one type(R-CNN) param set is available
+    model_params: VisionModelParams | null;
+    tb_port: number | undefined;
+}
+
+// temporary, currently for Masked R-CNN
+export interface VisionModelParams {
+    min_level: number;
+    max_level: number;
+    skip_crowd: boolean;
+    use_category: boolean;
+    augment_input_data: boolean;
 }
 
 export interface TextTask {

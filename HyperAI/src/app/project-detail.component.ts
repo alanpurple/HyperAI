@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Location } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { ConfirmDialog } from './shared/confirm.dialog';
 import { ErrorAlert } from './shared/error.alert';
@@ -20,6 +21,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
     public dialog: MatDialog,
     private confirmDialog: ConfirmDialog,
     private errorAlert: ErrorAlert,
+    private location: Location,
     private route: ActivatedRoute,
     private router: Router,
     private projectService: ProjectService
@@ -55,6 +57,11 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
             default:
               this.errorAlert.open('unreachable part');
           }
+          this.route.url.subscribe(elems => {
+            if (elems.length == 3 && elems[2]?.path == 'auto')
+              this.autoGenerate();
+            this.location.go('/project-manager/' + elems[1]);
+          });
         }
         , err => {
           if (err.status == 404)
@@ -218,6 +225,11 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
           );
       }
     );
+  }
+
+  autoGenerate() {
+    if (this.tasks.length==0)
+      this.confirmDialog.open('auto generate test');
   }
 
 }

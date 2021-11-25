@@ -78,6 +78,9 @@ const routes: Routes = [
     path: 'project-manager/:id', component: ProjectDetailComponent,
     canActivate: [LoggedIn, IsNotAdmin]
   }, {
+    path: 'project-manager/:id/auto', component: ProjectDetailComponent,
+    canActivate: [LoggedIn, IsNotAdmin]
+  }, {
     path: 'privacy-policy', component: PrivacyPolicy
   }
 ];

@@ -9,6 +9,12 @@
       <mat-error *ngIf="nameRe.test(data.task.name)">No Special characters</mat-error>
     </mat-form-field>
   </form>
+  <form *ngIf="data.task.taskType=='preprocessing'">
+
+  </form>
+  <form *ngIf="data.task.taskType=='segmentation'">
+
+  </form>
 </div>
 <div mat-dialog-actions>
   <button mat-button [mat-dialog-close]="data.task" [disabled]="nameRe.test(data.task.name)">Save</button>

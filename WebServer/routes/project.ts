@@ -654,11 +654,21 @@ const addTask = async (task: TaskBody, project: Document<any, any, Project> & Pr
                 tasksCanBeAdded = checkTasksCanBeAdded(project.visionTasks, visionTask.name);
                 if (tasksCanBeAdded) {
                     let newVisionTask: VisionTask = {
-                        completed: visionTask.completed,
-                        includeMask: visionTask.includeMask,
+                        completed: false,
                         name: visionTask.name,
                         preprocessed: visionTask.preprocessed,
-                        taskType: visionTask.taskType
+                        taskType: visionTask.taskType,
+                        include_mask: visionTask.include_mask,
+                        train_dir: visionTask.train_dir,
+                        val_dir: visionTask.val_dir,
+                        test_dir: visionTask.test_dir,
+                        train_anno: visionTask.train_anno,
+                        val_anno: visionTask.val_anno,
+                        batch_size: visionTask.batch_size,
+                        no_xla: visionTask.no_xla,
+                        use_amp: visionTask.use_amp,
+                        model_params: visionTask.model_params,
+                        tb_port: visionTask.tb_port
                     };
                     
                     updateResult = await project.updateOne(

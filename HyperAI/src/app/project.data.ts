@@ -15,9 +15,37 @@ export interface Project {
 export interface VisionTask {
   name: string;
   taskType: 'preprocessing' | 'segmentation' | 'classification' | 'detection';
-  includeMask: boolean;
   completed: boolean;
   preprocessed: string; // preprocessed output folder, only for preprocessing task
+
+  /**
+   * options for preprocessing
+   * */
+  include_mask: boolean | undefined;
+  train_dir: string | undefined;
+  val_dir: string | undefined;
+  test_dir: string | undefined;
+  train_anno: string | undefined;
+  val_anno: string | undefined;
+
+  /**
+   * optins for segmentation
+   * */
+  batch_size: number | undefined;
+  no_xla: boolean | undefined;
+  use_amp: boolean | undefined;
+  // currently only one type(R-CNN) param set is available
+  model_params: VisionModelParams | null;
+  tb_port: number | undefined;
+}
+
+// temporary, currently for Masked R-CNN
+export interface VisionModelParams {
+  min_level: number;
+  max_level: number;
+  skip_crowd: boolean;
+  use_category: boolean;
+  augment_input_data: boolean;
 }
 
 export interface TextTask {
