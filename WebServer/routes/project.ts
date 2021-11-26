@@ -144,6 +144,20 @@ router.post("/", async (request: Request, response: Response) => {
     }
 });
 
+router.get('/:name/automl', async (req: Request, res: Response) => {
+    const projectName = req.params.name;
+    try {
+        let project = await ProjectModel.findOne({ name: projectName });
+
+        await project.save();
+        res.send('automl finished processing');
+    }
+    catch (err) {
+        console.error(err);
+        res.sendStatus(500);
+    }
+})
+
 router.put("/:name/members", async (request: Request, response: Response) => {
     if (env === 'development') {
         if (!request.user) {

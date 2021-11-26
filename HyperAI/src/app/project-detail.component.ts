@@ -230,8 +230,12 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
   }
 
   autoGenerate() {
-    if (this.tasks.length==0)
-      this.confirmDialog.open('auto generate test');
+    if (this.tasks.length == 0) {
+      this.projectService.autoMl(this.project.name).subscribe(
+        msg => { },
+        err => this.errorAlert.open('automl failed, server error')
+      )
+    }
   }
 
 }

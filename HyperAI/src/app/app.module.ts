@@ -25,7 +25,6 @@ import { InfoComponent } from './info.component';
 import { DescComponent } from './desc.component';
 import { TrainComponent } from './train.component';
 import { DataComponent } from './data.component';
-import { ModelComponent } from './model.component';
 import { EdaComponent } from './eda.component';
 import { Association } from './association';
 import { DataPreview } from './data-preview';
@@ -56,7 +55,7 @@ import { NotfoundComponent } from './notfound.component';
   declarations: [
     AppComponent, SignupComponent, LoginComponent, HomeComponent,
     AdminConsole, InfoComponent, DescComponent, TrainComponent,
-    DataComponent, ModelComponent, EdaComponent, Association, DataPreview,
+    DataComponent, EdaComponent, Association, DataPreview,
     ErrorDialog, ConfirmDialogTemplate, ConfirmDialogTemplate2, UserInfo,
     ComingSoonDialog, NickNameTakenDialog, NickNameConfirmDialog, ProjectComponent, ProjectDetailComponent,
     ProjectDialog, VisionTaskDialog, TextTaskDialog, StructuralTaskDialog, DataDialog,

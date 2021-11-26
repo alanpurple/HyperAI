@@ -10,7 +10,6 @@ import { HomeComponent } from './home.component';
 import { InfoComponent } from './info.component';
 import { LoginComponent } from './login.component';
 import { SignupComponent } from './signup.component';
-import { ModelComponent } from './model.component';
 import { TrainComponent } from './train.component';
 import { EdaComponent } from './eda.component';
 import { UserInfo } from './user.info';
@@ -56,10 +55,6 @@ const routes: Routes = [
   },
   {
     path: 'association', component: Association,
-    canActivate: [LoggedIn]
-  },
-  {
-    path: 'model-suggestion', component: ModelComponent,
     canActivate: [LoggedIn]
   },
   {

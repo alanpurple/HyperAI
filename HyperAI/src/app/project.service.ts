@@ -40,7 +40,11 @@ export class ProjectService {
   }
 
   deleteTask(name: string, type: 'structural' | 'text' | 'vision',taskName:string): Observable<string> {
-    return this.http.delete('/project/' + name + '/task/'+type+'/'+taskName, { responseType: "text" });
+    return this.http.delete('/project/' + name + '/task/'+type+'/'+taskName, { responseType: 'text' });
+  }
+
+  autoMl(name: string): Observable<string> {
+    return this.http.get('/project/' + name + '/automl', { responseType: 'text' });
   }
 }
 
