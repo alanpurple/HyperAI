@@ -7,7 +7,7 @@ import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
                 <h3 mat-dialog-title>{{data}}</h3>
                 <mat-dialog-content>Returning to home.</mat-dialog-content>
                 <div mat-dialog-actions>
-                <button mat-button mat-dialog-close>Confirm</button>
+                <button mat-button color="accent" mat-dialog-close>Confirm</button>
                 </div>
               `
 })
