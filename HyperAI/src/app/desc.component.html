@@ -1,5 +1,5 @@
 <mat-form-field>
-  <mat-select [(ngModel)]="selectedTable" placeholder="테이블 선택" (selectionChange)="resetInspection()">
+  <mat-select [(ngModel)]="selectedTable" placeholder="Select Data" (selectionChange)="resetInspection()">
     <mat-option *ngFor="let table of tables" [value]="table">
       {{table}}
     </mat-option>

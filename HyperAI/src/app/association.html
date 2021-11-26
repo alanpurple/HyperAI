@@ -4,7 +4,7 @@
 </mat-radio-group>
 <br>
 <mat-form-field>
-  <mat-select [(ngModel)]="selectedTable" placeholder="테이블 선택" (selectionChange)="getSummary()">
+  <mat-select [(ngModel)]="selectedTable" placeholder="Select data" (selectionChange)="getSummary()">
     <mat-option *ngFor="let table of tableNames" [value]="table">
       {{table}}
     </mat-option>
@@ -14,7 +14,7 @@
 <mat-spinner *ngIf="gettingData"></mat-spinner>
 
 <mat-form-field *ngIf="this.summary.length">
-  <mat-select [(ngModel)]="source" placeholder="Source attribute 선택"
+  <mat-select [(ngModel)]="source" placeholder="Select Source attribute"
               (selectionChange)="resetSource()">
     <mat-option *ngFor="let column of summary" [value]="column">
       {{column.name}}
@@ -23,7 +23,7 @@
 </mat-form-field>
 
 <mat-form-field *ngIf="source">
-  <mat-select [(ngModel)]="target" placeholder="Target attribute 선택" (selectionChange)="resetAssociation()">
+  <mat-select [(ngModel)]="target" placeholder="Select Target attribute" (selectionChange)="resetAssociation()">
     <mat-option *ngFor="let column of summary" [value]="column" [disabled]="!isValid(column)">
       {{column.name}}
     </mat-option>
