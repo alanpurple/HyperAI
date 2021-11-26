@@ -16,6 +16,8 @@ async function addData() {
         let numRows = actualTables[0].find(data => data['TABLE_NAME'] == sample)['TABLE_ROWS'];
         return {
             name: sample,
+            uri: 'mysqlx://localhost/hyperai/' + sample,
+            locationType: 'local',
             numRows: numRows,
             type: 'structural'
         }
