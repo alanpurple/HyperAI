@@ -77,7 +77,7 @@ const rootPath = path.join(__dirname, '../wwwroot');
 
 // no authentication for mongodb currently, need to be updated
 const options = {
-    mongoUrl: 'mongodb://martinie.ai/hyperai',
+    mongoUrl: 'mongodb://hyperai:alan1234@martinie.ai/hyperai',
     ttl: 24 * 60 * 60
 };
 
