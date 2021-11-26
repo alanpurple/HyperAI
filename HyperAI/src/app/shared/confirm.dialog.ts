@@ -7,7 +7,7 @@ import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
                     <div *ngFor="let elem of data">{{elem}}<br></div>
                 </h3>
                 <div mat-dialog-actions>
-                <button mat-button mat-dialog-close>Confirm</button>
+                <button mat-button color="accent" mat-dialog-close>Confirm</button>
                 </div>
               `
 })
@@ -19,7 +19,7 @@ export class ConfirmDialogTemplate2 {
   template: `
                 <h3 mat-dialog-title>{{data}}</h3>
                 <div mat-dialog-actions>
-                <button mat-button mat-dialog-close>Confirm</button>
+                <button mat-button color="accent" mat-dialog-close>Confirm</button>
                 </div>
               `
 })
