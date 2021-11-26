@@ -43,8 +43,8 @@ export class ProjectService {
     return this.http.delete('/project/' + name + '/task/'+type+'/'+taskName, { responseType: 'text' });
   }
 
-  autoMl(name: string): Observable<string> {
-    return this.http.get('/project/' + name + '/automl', { responseType: 'text' });
+  autoMl(name: string): Observable<StructuralTask[] | VisionTask[] | TextTask[]> {
+    return this.http.get<StructuralTask[] | VisionTask[] | TextTask[]>('/project/' + name + '/automl');
   }
 }
 

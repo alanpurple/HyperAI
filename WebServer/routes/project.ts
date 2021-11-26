@@ -148,9 +148,13 @@ router.get('/:name/automl', async (req: Request, res: Response) => {
     const projectName = req.params.name;
     try {
         let project = await ProjectModel.findOne({ name: projectName });
-
+        let tasks: any[];
+        switch (project.category) {
+            case 'structural':
+                tasks = project.structuralTasks;
+        }
         await project.save();
-        res.send('automl finished processing');
+        res.send(tasks);
     }
     catch (err) {
         console.error(err);

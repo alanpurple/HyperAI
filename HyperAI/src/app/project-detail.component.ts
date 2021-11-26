@@ -232,7 +232,22 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
   autoGenerate() {
     if (this.tasks.length == 0) {
       this.projectService.autoMl(this.project.name).subscribe(
-        msg => { },
+        tasks => {
+          switch (this.project.category) {
+            case 'vision':
+              this.project.visionTasks = tasks as VisionTask[];
+              break;
+            case 'text':
+              this.project.textTasks = tasks as TextTask[];
+              break;
+            case 'structural':
+              this.project.structuralTasks = tasks as StructuralTask[];
+              break;
+            default:
+              this.errorAlert.open('unreachable part');
+          }
+          this.confirmDialog.open('AutoML generation process completed');
+        },
         err => this.errorAlert.open('automl failed, server error')
       )
     }
