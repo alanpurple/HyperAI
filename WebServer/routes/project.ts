@@ -42,7 +42,7 @@ router.get("/", async (request: Request, response: Response) => {
             responseData.count = projects.length;
             
             let projectArray = [];
-            projects.forEach(project => projectArray.push(makeProjectResponse(<User>request.user, project)));
+            projects.forEach(project => projectArray.push(makeProjectResponse(request.user as User, project)));
             responseData.data = projectArray;
         } else {
             responseData.code = StatusCodes.NOT_FOUND;
