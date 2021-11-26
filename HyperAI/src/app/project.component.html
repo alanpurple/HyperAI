@@ -18,7 +18,9 @@
       <button mat-icon-button color="primary" routerLink="/project-manager/{{row.name}}">
         <mat-icon>create</mat-icon>
       </button>
-      <button mat-raised-button color="warn" routerLink="/project-manager/{{row.name}}/auto">
+      <button mat-raised-button color="warn"
+              [disabled]="row.visionTasks?.length>0||row.structuralTasks?.length>0||row.textTasks?.length>0"
+              routerLink="/project-manager/{{row.name}}/auto">
         AutoML
       </button>
     </td>
