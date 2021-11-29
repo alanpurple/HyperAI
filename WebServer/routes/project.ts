@@ -433,7 +433,6 @@ router.delete("/:name/task/:type/:taskName", async (request: Request, response: 
     }
     
     let responseData = new ResponseData();
-    let updateResult = undefined;
     
     try {
         checkPathParamError(request.params.name, "project name");
@@ -446,16 +445,10 @@ router.delete("/:name/task/:type/:taskName", async (request: Request, response: 
         let modProject = await ProjectModel.findOne(filter).exec();
         
         if (modProject) {
-            updateResult = await removeTask(decodeURI(request.params.type), decodeURI(request.params.taskName), modProject);
+            await removeTask(decodeURI(request.params.type), decodeURI(request.params.taskName), modProject);
             
-            if (updateResult) {
-                responseData.success = true;
-                responseData.code = StatusCodes.CREATED;
-            } else {
-                responseData.success = false;
-                responseData.code = StatusCodes.INTERNAL_SERVER_ERROR;
-                responseData.message = "Uncaught error occurred.";
-            }
+            responseData.success = true;
+            responseData.code = StatusCodes.CREATED;
         } else {
             doUnauthorizedError("Insufficient permission to delete project task.");
         }
@@ -912,66 +905,31 @@ const editTask = async (taskName: string, task: TaskBody, project: Document<any,
     }
 };
 
-const checkTasksRemovable = (length: number): boolean => {
-    const MIN_REMOVABLE_LENGTH = 2;
-    return !(length < MIN_REMOVABLE_LENGTH);
-};
-
 const removeTask = async (type: string, taskName: string, project: Document<any, any, Project> & Project & { _id: Types.ObjectId }) => {
-    try {
-        let tasksRemovable: boolean = false;
-        let updateResult = undefined;
-        /*
-         <updateResult sample>
-         updateResult = {
-          "acknowledged": true,
-          "modifiedCount": 1,
-          "upsertedId": null,
-          "upsertedCount": 0,
-          "matchedCount": 1
-        }
-         */
-        const options = { lean: true, new: true, rawResult: true };
+    const options = { lean: true, new: true, rawResult: true };
+    
+    switch (type) {
+        case "vision":
+            await project.updateOne(
+                { $pull: { visionTasks: { name: taskName } } }, options
+            ).exec();
+            
+            break;
+        case "text":
+            await project.updateOne(
+                { $pull: { textTasks: { name: taskName } } }, options
+            ).exec();
         
-        switch (type) {
-            case "vision":
-                tasksRemovable = checkTasksRemovable(project.visionTasks.length);
-                if (tasksRemovable) {
-                    updateResult = await project.updateOne(
-                        { $pull: { visionTasks: { name: taskName } } }, options
-                    ).exec();
-                }
-                
-                break;
-            case "text":
-                tasksRemovable = checkTasksRemovable(project.textTasks.length);
-                if (tasksRemovable) {
-                    updateResult = await project.updateOne(
-                        { $pull: { textTasks: { name: taskName } } }, options
-                    ).exec();
-                }
-                
-                break;
-            case "structural":
-                tasksRemovable = checkTasksRemovable(project.structuralTasks.length)
-                if (tasksRemovable) {
-                    updateResult = await project.updateOne(
-                        { $pull: { structuralTasks: { name: taskName } } }, options
-                    ).exec();
-                }
-                
-                break;
-            default:
-                doProjectError(`The requested category '${ type }' is not supported.`);
-                break;
-        }
-        
-        if (!tasksRemovable) doProjectError("Project must have at least one task.");
-        if (!updateResult) doUncaughtError("Some errors occurred");
-        
-        return updateResult;
-    } catch (error) {
-        throw error;
+            break;
+        case "structural":
+            await project.updateOne(
+                { $pull: { structuralTasks: { name: taskName } } }, options
+            ).exec();
+            
+            break;
+        default:
+            doProjectError(`The requested category '${ type }' is not supported.`);
+            break;
     }
 };
 
