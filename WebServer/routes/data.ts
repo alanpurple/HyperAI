@@ -73,17 +73,24 @@ router.get('/compact/:isopen/:name/:attr1/:attr2', (req, res) => {
 router.get('/', async (req: Request, res: Response) => {
     const user = req.user as User;
     const userData = user.data.flatMap(elem => {
-        let data = [{ name: elem.name, numRows: elem.numRows }];
-        if (elem.cleansed) data.push(elem.cleansed);
-        if (elem.preprocessed) data.push(elem.preprocessed);
+        let data = [{ name: elem.name, numRows: elem.numRows, type: elem.type }];
+        if (elem.cleansed) data.push({
+            name: elem.cleansed.name,
+            numRows: elem.cleansed.numRows,
+            type: elem.type
+        });
+        if (elem.preprocessed) data.push({
+            name: elem.preprocessed.name,
+            numRows: elem.preprocessed.numRows,
+            type: elem.type
+        });
         return data;
     });
     const result = userData.map(data => {
         return {
             name: data.name,
             numRows: data.numRows,
-            // only structural is avilable in this context (hopefully for now)
-            type: 'structural'
+            type: data.type
         }
     });
     res.send(result);

@@ -16,6 +16,7 @@ export interface DataBasic {
     name: string;
     createdAt: Date;
     numRows: number;
+    type: 'structural' | 'sound' | 'text' | 'vision';
 }
 
 const BasicSchema = new Schema<DataBasic>({
