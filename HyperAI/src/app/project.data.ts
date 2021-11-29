@@ -57,7 +57,7 @@ export interface VisionModelParams {
 
 export interface TextTask {
   name: string;
-  desciption: string;
+  description: string;
   taskType: 'tokenization' | 'vectorization' | 'train' | 'test' | 'deploy'
 }
 
