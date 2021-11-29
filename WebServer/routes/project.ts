@@ -947,7 +947,7 @@ const removeTask = async (type: string, taskName: string, project: Document<any,
                 tasksRemovable = checkTasksRemovable(project.textTasks.length);
                 if (tasksRemovable) {
                     updateResult = await project.updateOne(
-                        { $push: { textTasks: { name: taskName } } }, options
+                        { $pull: { textTasks: { name: taskName } } }, options
                     ).exec();
                 }
                 
@@ -956,7 +956,7 @@ const removeTask = async (type: string, taskName: string, project: Document<any,
                 tasksRemovable = checkTasksRemovable(project.structuralTasks.length)
                 if (tasksRemovable) {
                     updateResult = await project.updateOne(
-                        { $push: { structuralTasks: { name: taskName } } }, options
+                        { $pull: { structuralTasks: { name: taskName } } }, options
                     ).exec();
                 }
                 
