@@ -184,11 +184,11 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
       });
   }
 
-  deleteTask(name: string) {
-    this.projectService.deleteTask(this.project.name, this.project.category, name).subscribe(
+  deleteTask(i: number) {
+    const task = this.tasks[i];
+    this.projectService.deleteTask(this.project.name, this.project.category, task.name).subscribe(
       msg => {
-        const id = this.tasks.findIndex(elem => elem.name == name);
-        this.tasks.splice(id, 1);
+        this.tasks.splice(i, 1);
         this.confirmDialog.open('task deleted');
       }, err => this.errorAlert.open(err)
     );

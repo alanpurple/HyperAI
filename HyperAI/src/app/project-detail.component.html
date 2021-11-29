@@ -18,8 +18,8 @@
         </mat-form-field>
       </mat-card-content>
       <mat-card-actions>
-        <button mat-button color="primary" click="editTask(i)">Edit</button>
-        <button mat-button color="warn" click="deleteTask(task.name)">Delete</button>
+        <button mat-button color="primary" (click)="editTask(i)">Edit</button>
+        <button mat-button color="warn" (click)="deleteTask(i)">Delete</button>
       </mat-card-actions>
     </mat-card>
     <mat-icon *ngIf="!isLast">double_arrow</mat-icon>
