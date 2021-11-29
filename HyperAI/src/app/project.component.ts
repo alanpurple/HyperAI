@@ -172,7 +172,7 @@ export class ProjectComponent implements OnInit {
       projectType: 'single',
       category: 'structural',
       objective: 'classification',
-      owner: '',
+      owner: 'self',
       members: [],
       visionTasks: [],
       textTasks: [],

@@ -32,7 +32,7 @@ export class ProjectDialog {
     projectType: 'single',
     category: 'structural',
     objective: 'classification',
-    owner: '',
+    owner: 'self',
     members: [],
     visionTasks: [],
     textTasks: [],
