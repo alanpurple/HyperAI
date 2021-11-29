@@ -101,6 +101,24 @@
     </div>
   </mat-step>
   <mat-step>
+    <form>
+      <ng-template matStepLabel>Objective</ng-template>
+      <mat-form-field appearance="fill">
+        <mat-label>Objective</mat-label>
+        <mat-select [(ngModel)]="newProject.objective" name="objective">
+          <mat-option *ngFor="let objective of objectives" [value]="objective">
+            {{objective}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </form>
+    <div>
+      <button mat-button matStepperPrevious>Back</button>
+      <button mat-button matStepperNext>Next</button>
+      <button mat-button color="warn" (click)="stepper.reset(); resetMaking()">Reset process</button>
+    </div>
+  </mat-step>
+  <mat-step>
     <ng-template matStepLabel>Data</ng-template>
     <form>
       <mat-form-field apperance="fill">

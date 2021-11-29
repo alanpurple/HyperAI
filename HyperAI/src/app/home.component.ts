@@ -33,10 +33,7 @@ export class HomeComponent implements OnInit {
         else
           this.confirmDialog.open('unknown account type');
         this.projectService.getProjects().subscribe(
-          projects => {
-            this.projects = projects;
-            console.dir(projects);
-          },
+          projects => this.projects = projects,
           err => {
             if (err.status != 404)
               this.errorAlert.open(err);

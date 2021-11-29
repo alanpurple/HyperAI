@@ -43,6 +43,7 @@ export class ProjectComponent implements OnInit {
     dataURI: '',
     projectType: 'single',
     category: 'structural',
+    objective: 'classification',
     owner: '',
     members: [],
     visionTasks: [],
@@ -53,6 +54,12 @@ export class ProjectComponent implements OnInit {
 
   roles = ['member', 'attendee'];
   categories = ['various', 'vision', 'text', 'structural'];
+  objectives = ['classification' , 'regression',
+    // only for text
+    'qna' ,
+    // only for vision
+    'segmentation' , 'object detection' ,
+    'clustering' , 'anomaly detection' , 'translation' , 'recommendation']
   displayedColumns = ['name','owner', 'dataURI', 'projectType', 'category', 'edit', 'delete'];
 
   userData: DataInfo[] = [];
@@ -111,7 +118,8 @@ export class ProjectComponent implements OnInit {
         availableMembers: this.colleagues,
         userData: this.userData,
         dataList: this.dataList,
-        categories:this.categories
+        categories: this.categories,
+        objectives: this.objectives
       },
       hasBackdrop: true
     });
@@ -144,6 +152,7 @@ export class ProjectComponent implements OnInit {
       dataURI: '',
       projectType: 'single',
       category: 'structural',
+      objective: 'classification',
       owner: '',
       members: [],
       visionTasks: [],
@@ -162,6 +171,7 @@ export class ProjectComponent implements OnInit {
       dataURI: '',
       projectType: 'single',
       category: 'structural',
+      objective: 'classification',
       owner: '',
       members: [],
       visionTasks: [],
@@ -198,6 +208,7 @@ export class ProjectComponent implements OnInit {
           dataURI: '',
           projectType: 'single',
           category: 'structural',
+          objective: 'classification',
           owner: '',
           members: [],
           visionTasks: [],
@@ -219,7 +230,9 @@ export class ProjectComponent implements OnInit {
       data: {
         project: currentProject,
         isNew: false,
-        availableMembers: this.colleagues.filter(elem => !projectMembers.includes(elem))
+        availableMembers: this.colleagues.filter(elem => !projectMembers.includes(elem)),
+        categories: this.categories,
+        objectives: this.objectives
       },
       hasBackdrop: true
     });

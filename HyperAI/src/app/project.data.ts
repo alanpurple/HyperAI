@@ -4,7 +4,13 @@ export interface Project {
   updatedAt: Date;
   dataURI: string;
   projectType: 'single' | 'sequential' | 'multiple_comparison';
-  category: 'vision' | 'text' | 'structural';
+  category: 'vision' | 'text' | 'structural' | 'various';
+  objective: 'classification' | 'regression' |
+              // only for text
+              'qna' |
+              // only for vision
+              'segmentation' | 'object detection' |
+              'clustering' | 'anomaly detection' | 'translation' | 'recommendation';
   owner: string;  // self for user, email for admin
   members: { user: string /*email*/, role: 'attendee' | 'member' }[]; // one and only owner, others are all attendee(for now)
   visionTasks: VisionTask[];  // use only when taskType is 'vision'
@@ -14,7 +20,8 @@ export interface Project {
 
 export interface VisionTask {
   name: string;
-  taskType: 'preprocessing' | 'segmentation' | 'classification' | 'detection';
+  description: string;
+  taskType: 'preprocess' | 'train' | 'test' | 'deploy';
   completed: boolean;
   preprocessed: string; // preprocessed output folder, only for preprocessing task
 
@@ -50,12 +57,14 @@ export interface VisionModelParams {
 
 export interface TextTask {
   name: string;
-  taskType: 'tokenization' | 'vectorization' | 'classification' | 'translation' | 'qna'
+  desciption: string;
+  taskType: 'tokenization' | 'vectorization' | 'train' | 'test' | 'deploy'
 }
 
 export interface StructuralTask {
   name: string;
-  taskType: 'recommendation' | 'clustering' | 'classification' | 'regression';
+  description: string;
+  taskType: 'preprocess' | 'train' | 'test' | 'deploy';
 }
 
 export interface EditMember {

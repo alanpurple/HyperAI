@@ -6,6 +6,12 @@ export interface Project {
     dataURI: string;
     projectType: 'single' | 'sequential' | 'multiple_comparison';
     category: 'various' | 'vision' | 'text' | 'structural';
+    objective: 'classification' | 'regression' |
+                // only for text
+                'qna' |
+                // only for vision
+                'segmentation' | 'object detection' |
+                'clustering' | 'anomaly detection' | 'translation' | 'recommendation';
     owner: Types.ObjectId;
     members: { user: Types.ObjectId, role: 'attendee' | 'member' }[]; // one and only owner, others are all attendee(for now)
     visionTasks: VisionTask[];  // use only when category is 'vision'
@@ -15,9 +21,11 @@ export interface Project {
 
 const VisionTaskSchema = new Schema<VisionTask>({
     name: String,
-    taskType: { type: String, enum: ['preprocessing', 'segmentation', 'classification', 'detection'], required:true },
+    description: String,
+    taskType: { type: String, enum: ['preprocess', 'train', 'test', 'deploy'], required: true },
     completed: Boolean,
-    preprocessed: String, // output folder, only for preprocessing task
+    //preprocessed output is len 3 of [train,val,test] or len 2 of [train,test]
+    preprocessed: [String], // output folder, only for preprocessing task
 
     /**
    * options for preprocessing
@@ -46,17 +54,19 @@ const VisionTaskSchema = new Schema<VisionTask>({
             augment_input_data: Boolean
         }
     },
-    tb_port:Number
+    tb_port: Number
 }, { _id: false });
 
 const TextTaskSchema = new Schema<TextTask>({
     name: String,
-    taskType: { type: String, enum: ['tokenization' , 'vectorization' , 'classification' , 'translation' , 'qna']}
+    description: String,
+    taskType: { type: String, enum: ['tokenization', 'vectorization', 'train', 'test', 'deploy'] }
 }, { _id: false });
 
 const StructuralTaskSchema = new Schema<StructuralTask>({
     name: String,
-    taskType: { type: String, enum: ['recommendation', 'clustering', 'classification', 'regression'], required: true }
+    description: String,
+    taskType: { type: String, enum: ['preprocess', 'train', 'test', 'deploy'], required: true }
 }, { _id: false });
 
 const schema = new Schema<Project>({
@@ -64,6 +74,11 @@ const schema = new Schema<Project>({
     dataURI: { type: String, required:true },
     projectType: { type: String, enum: ['single', 'sequential', 'multiple_comparison'] },
     category: { type: String, enum: ['various', 'vision', 'text', 'structural'] },
+    objective: {
+        type: String, enum: [
+            'classification', 'segmentation', 'regression', 'qna','translation', 'object detection',
+            'clustering', 'anomaly detection', 'recommendation']
+    },
     owner: {type:'ObjectId',ref:'User',required:true},
     members: {
         type: [{
@@ -143,9 +158,11 @@ schema.pre('updateOne', { document: true, query: false }, function (next) {
 
 export interface VisionTask {
     name: string;
-    taskType: 'preprocessing' | 'segmentation' | 'classification' | 'detection';
+    description: string;
+    taskType: 'preprocess' | 'train' | 'test' | 'deploy';
     completed: boolean;
-    preprocessed: string; // preprocessed output folder, only for preprocessing task
+    // usually train,val,test, or train, test
+    preprocessed: string[]; // preprocessed output folder, only for preprocessing task
 
     /**
    * options for preprocessing
@@ -158,7 +175,7 @@ export interface VisionTask {
     val_anno: string | undefined;
 
     /**
-     * optins for segmentation
+     * optins for segmentation train
      * */
     batch_size: number | undefined;
     no_xla: boolean | undefined;
@@ -179,12 +196,14 @@ export interface VisionModelParams {
 
 export interface TextTask {
     name: string;
-    taskType: 'tokenization' | 'vectorization' | 'classification' | 'translation' | 'qna'
+    description: string;
+    taskType: 'tokenization' | 'vectorization' | 'train' | 'test' | 'deploy';
 }
 
 export interface StructuralTask {
     name: string;
-    taskType: 'recommendation' | 'clustering' | 'classification' | 'regression';
+    description: string;
+    taskType: 'preprocess' | 'train' | 'test' | 'deploy';
 }
 
 export const ProjectModel = model<Project>('Project', schema);

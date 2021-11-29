@@ -13,7 +13,7 @@ export class ProjectDialog {
     public dialogRef: MatDialogRef<ProjectDialog>,
     @Inject(MAT_DIALOG_DATA) public data: {
       project: Project, isNew: boolean, availableMembers: string[], userData: DataInfo[],
-      dataList: DataInfo[], categories: string[]
+      dataList: DataInfo[], categories: string[],objectives:string[]
     }
   ) {
     this.originalAM == this.data.availableMembers;
@@ -31,6 +31,7 @@ export class ProjectDialog {
     dataURI: '',
     projectType: 'single',
     category: 'structural',
+    objective: 'classification',
     owner: '',
     members: [],
     visionTasks: [],

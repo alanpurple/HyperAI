@@ -18,6 +18,14 @@
       </mat-select>
     </mat-form-field>
     <mat-form-field appearance="fill">
+      <mat-label>Project Objective</mat-label>
+      <mat-select [(ngModel)]="data.project.objective" name="objective">
+        <mat-option *ngFor="let objective of data.objectives" [value]="objective">
+          {{objective}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="fill">
       <mat-label>Target Data</mat-label>
       <mat-select [(ngModel)]="data.project.dataURI" name="datauri">
         <mat-option *ngFor="let data of data.dataList" [value]="data.name">

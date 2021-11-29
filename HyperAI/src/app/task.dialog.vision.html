@@ -9,10 +9,10 @@
       <mat-error *ngIf="nameRe.test(data.task.name)">No Special characters</mat-error>
     </mat-form-field>
   </form>
-  <form *ngIf="data.task.taskType=='preprocessing'">
+  <form *ngIf="data.task.taskType=='preprocess'">
 
   </form>
-  <form *ngIf="data.task.taskType=='segmentation'">
+  <form *ngIf="data.task.taskType=='train'">
 
   </form>
 </div>

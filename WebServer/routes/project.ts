@@ -144,15 +144,131 @@ router.post("/", async (request: Request, response: Response) => {
     }
 });
 
+/***********************
+ * ***** caution!!  automl function is only temporary and not generally applicable ( yet )
+ * 
+ * AutoML is a very very sophisticated job and cannot be implemented easily,  and should be carefully designed and studied before development start
+ * 
+ * this routine is just a temporary medication for demo and not be used for real job.
+ * this codes is just for the future roadmap
+ * 
+ * *********************/
 router.get('/:name/automl', async (req: Request, res: Response) => {
     const projectName = req.params.name;
     try {
         let project = await ProjectModel.findOne({ name: projectName });
+        if (project.category == 'various') {
+            res.status(501).send('various type is not supported yet');
+            return;
+        }
         let tasks: any[];
         switch (project.category) {
             case 'structural':
-                tasks = project.structuralTasks;
+                res.status(501).send('not implemented yet');
+                return;
+                /*tasks = project.structuralTasks;
+                tasks.push([{
+                    }
+                ])
+                break;*/
+            case 'text':
+                res.status(501).send('not implemented yet');
+                return;
+                /*tasks = project.textTasks;
+                break;*/
+            case 'vision':
+                tasks = project.visionTasks;
+                if (project.objective != 'segmentation') {
+                    res.status(501).send('not implemented yet');
+                    return;
+                }
+                project.visionTasks.push({
+                    name: 'masked rcnn preprocessing',
+                    description: 'make tfrecord',
+                    taskType: 'preprocess',
+                    include_mask: true,
+                    train_dir: 'train2017',
+                    val_dir: 'val2017',
+                    test_dir: 'test2017',
+                    train_anno: 'annotations/captions_train2017.json',
+                    val_anno: 'annotations/captions_val2017.json',
+                    // unused params
+                    batch_size: 0,
+                    no_xla: false,
+                    use_amp: false,
+                    preprocessed: ['train2017','val2017','test2017'],
+                    completed: false,
+                    model_params: null,
+                    tb_port: undefined
+                });
+                project.visionTasks.push({
+                    name: 'masked rcnn training',
+                    description: 'seg training using tensorflow',
+                    taskType: 'train',
+                    // redundant and meaningless since preprocessing defines this
+                    include_mask: true,
+                    train_dir: '',
+                    val_dir: '',
+                    test_dir: '',
+                    train_anno: '',
+                    val_anno: '',
+                    batch_size: 512,
+                    no_xla: false,
+                    use_amp: true,
+                    preprocessed: [],
+                    completed: false,
+                    model_params: {
+                        min_level: 2,
+                        max_level: 6,
+                        augment_input_data: true,
+                        skip_crowd: true,
+                        use_category: true
+                    },
+                    tb_port: 6006
+                });
+                project.visionTasks.push({
+                    name: 'mask rcnn test',
+                    description: 'test trained model',
+                    taskType: 'test',
+                    include_mask: false,
+                    train_dir: '',
+                    val_dir: '',
+                    test_dir: '',
+                    train_anno: '',
+                    val_anno: '',
+                    batch_size: 0,
+                    no_xla: false,
+                    use_amp: false,
+                    preprocessed: [],
+                    completed: false,
+                    model_params: null,
+                    tb_port: undefined
+                });
+                project.visionTasks.push({
+                    name: 'rcnn deploy',
+                    description: 'deploy mask rcnn to tfx',
+                    taskType: 'deploy',
+                    include_mask: false,
+                    train_dir: '',
+                    val_dir: '',
+                    test_dir: '',
+                    train_anno: '',
+                    val_anno: '',
+                    batch_size: 0,
+                    no_xla: false,
+                    use_amp: false,
+                    preprocessed: [],
+                    completed: false,
+                    model_params: null,
+                    tb_port: undefined
+                });
+                break;
+            // currently unreachable code
+            //case 'various':
+            //    break;
+
         }
+        console.dir(tasks);
         await project.save();
         res.send(tasks);
     }
@@ -557,6 +673,7 @@ const convertToProjectSchema = async (user, reqProject: RequestProject) => {
         name: reqProject.name,
         owner: user["_id"],
         projectType: reqProject.projectType,
+        objective: reqProject.objective,
         structuralTasks: reqProject.structuralTasks,
         textTasks: reqProject.textTasks,
         visionTasks: reqProject.visionTasks
@@ -664,6 +781,7 @@ const addTask = async (task: TaskBody, project: Document<any, any, Project> & Pr
                 if (tasksCanBeAdded) {
                     let newVisionTask: VisionTask = {
                         completed: false,
+                        description: visionTask.description,
                         name: visionTask.name,
                         preprocessed: visionTask.preprocessed,
                         taskType: visionTask.taskType,
@@ -692,6 +810,7 @@ const addTask = async (task: TaskBody, project: Document<any, any, Project> & Pr
                 if (tasksCanBeAdded) {
                     let newTextTask: TextTask = {
                         name: textTask.name,
+                        description: textTask.description,
                         taskType: textTask.taskType
                     };
                     
@@ -707,6 +826,7 @@ const addTask = async (task: TaskBody, project: Document<any, any, Project> & Pr
                 if (tasksCanBeAdded) {
                     let newStructuralTask: StructuralTask = {
                         name: structuralTask.name,
+                        description: structuralTask.description,
                         taskType: structuralTask.taskType
                     };
                     

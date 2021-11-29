@@ -31,6 +31,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
 
   project: Project = {
     name: '', dataURI: '', projectType: 'sequential', category: 'structural',
+    objective: 'classification',
     members: [], owner: 'self', structuralTasks: [], textTasks: [], visionTasks: [],
     createdAt: new Date(), updatedAt:new Date()
   };
@@ -82,7 +83,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
   }
 
   addTask() {
-    let dialogRef: MatDialogRef<VisionTaskDialog | TextTaskDialog | StructuralTaskDialog> | null = null;
+    //let dialogRef: MatDialogRef<VisionTaskDialog | TextTaskDialog | StructuralTaskDialog> | null = null;
     switch (this.project.category) {
       case 'vision':
         this.dialog.open(VisionTaskDialog, {
@@ -235,14 +236,17 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
         tasks => {
           switch (this.project.category) {
             case 'vision':
-              this.project.visionTasks = tasks as VisionTask[];
+              Array.prototype.push.apply(this.project.visionTasks, tasks);
               break;
             case 'text':
-              this.project.textTasks = tasks as TextTask[];
+              Array.prototype.push.apply(this.project.textTasks, tasks);
               break;
             case 'structural':
-              this.project.structuralTasks = tasks as StructuralTask[];
+              Array.prototype.push.apply(this.project.structuralTasks, tasks);
               break;
+            case 'various':
+              this.confirmDialog.open('sorry, automl for various type is not supported yet');
+              return;
             default:
               this.errorAlert.open('unreachable part');
           }

@@ -31,16 +31,16 @@ export class ProjectService {
     return this.http.delete('/project/' + name, { responseType: 'text' });
   }
 
-  addTask(name: string, type: 'structural'|'text'|'vision', task: StructuralTask | VisionTask | TextTask): Observable<string> {
+  addTask(name: string, type: 'structural' | 'text' | 'vision' | 'various', task: StructuralTask | VisionTask | TextTask): Observable<string> {
     return this.http.put('/project/' + name + '/task', { type: type, task: task }, { responseType: 'text' });
   }
 
-  editTask(name: string, type: 'structural' | 'text' | 'vision', taskName: string, modification: object) {
+  editTask(name: string, type: 'structural' | 'text' | 'vision' | 'various', taskName: string, modification: object) {
     return this.http.put('/project/' + name + '/task/' + taskName, { type: type, modification: modification });
   }
 
-  deleteTask(name: string, type: 'structural' | 'text' | 'vision',taskName:string): Observable<string> {
-    return this.http.delete('/project/' + name + '/task/'+type+'/'+taskName, { responseType: 'text' });
+  deleteTask(name: string, type: 'structural' | 'text' | 'vision' | 'various', taskName: string): Observable<string> {
+    return this.http.delete('/project/' + name + '/task/' + type + '/' + taskName, { responseType: 'text' });
   }
 
   autoMl(name: string): Observable<StructuralTask[] | VisionTask[] | TextTask[]> {
