@@ -8,6 +8,14 @@
              name="name" appForbiddenName>
       <mat-error *ngIf="nameRe.test(data.task.name)">No Special characters</mat-error>
     </mat-form-field>
+    <mat-form-field appearance="fill">
+      <mat-label>Task Type</mat-label>
+      <mat-select name="task_type" [(ngModel)]="data.task.taskType" [disabled]="!data.isNew">
+        <mat-option *ngFor="let type of taskTypes" [value]="type">
+          {{type}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
     <mat-form-field>
       <mat-label>Description</mat-label>
       <textarea matInput [(ngModel)]="data.task.description"></textarea>

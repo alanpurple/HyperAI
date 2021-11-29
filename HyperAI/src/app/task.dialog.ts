@@ -15,6 +15,8 @@ export class VisionTaskDialog {
     @Inject(MAT_DIALOG_DATA) public data: { task: VisionTask, isNew: boolean }
   ) { }
 
+  taskTypes = ['preprocess', 'train', 'test', 'deploy'];
+
   nameRe = NameRe;
 
   cancel() {
@@ -35,6 +37,8 @@ export class StructuralTaskDialog {
     @Inject(MAT_DIALOG_DATA) public data: { task: StructuralTask, isNew: boolean }
   ) { }
 
+  taskTypes = ['preprocess', 'train', 'test', 'deploy'];
+
   nameRe = NameRe;
 
   cancel() {
@@ -54,6 +58,8 @@ export class TextTaskDialog {
     public dialogRef: MatDialogRef<TextTaskDialog>,
     @Inject(MAT_DIALOG_DATA) public data: { task: TextTask, isNew: boolean }
   ) { }
+
+  taskTypes = ['tokenization', 'vectorization', 'train', 'test', 'deploy'];
 
   nameRe = NameRe;
 

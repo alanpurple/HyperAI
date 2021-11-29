@@ -90,7 +90,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
           data: {
             task: {
               name: '',
-              taskType: 'preprocessing',
+              taskType: 'preprocess',
               includeMask: false,
               completed: false,
               preprocessed: false
@@ -111,7 +111,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
       case 'text':
         this.dialog.open(TextTaskDialog, {
           data: {
-            task: { name: '' }, isNew: true
+            task: { name: '',taskType:'tokenization' }, isNew: true
           },
           hasBackdrop: true
         }).afterClosed().subscribe(
@@ -129,7 +129,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
       case 'structural':
         this.dialog.open(StructuralTaskDialog, {
           data: {
-            task: { name: '', taskType: 'recommendataion' },
+            task: { name: '', taskType: 'preprocess' },
             isNew: true
           },
           hasBackdrop: true
