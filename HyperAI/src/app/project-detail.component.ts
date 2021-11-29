@@ -169,13 +169,14 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
 
   editVisionTask(index: number) {
     const task = this.project.visionTasks[index];
+    const taskName = task.name;
     this.dialog.open(VisionTaskDialog, {
       data: { task: task, isNew: false },
       hasBackdrop: true
     }).afterClosed().subscribe(
       modification => {
         if (modification)
-          this.projectService.editTask(this.project.name, 'vision', task.name, modification).subscribe(
+          this.projectService.editTask(this.project.name, 'vision', taskName, modification).subscribe(
             msg => {
               Object.assign(this.project.visionTasks[index], modification);
               this.confirmDialog.open('task modified');
@@ -184,25 +185,16 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
       });
   }
 
-  deleteTask(i: number) {
-    const task = this.tasks[i];
-    this.projectService.deleteTask(this.project.name, this.project.category, task.name).subscribe(
-      msg => {
-        this.tasks.splice(i, 1);
-        this.confirmDialog.open('task deleted');
-      }, err => this.errorAlert.open(err)
-    );
-  }
-
   editTextTask(index: number) {
     const task = this.project.textTasks[index];
+    const taskName = task.name;
     this.dialog.open(TextTaskDialog, {
       data: { task: task, isNew: false },
       hasBackdrop: true
     }).afterClosed().subscribe(
       modification => {
         if (modification)
-          this.projectService.editTask(this.project.name, 'text', task.name, modification).subscribe(
+          this.projectService.editTask(this.project.name, 'text', taskName, modification).subscribe(
             msg => {
               Object.assign(this.project.textTasks[index], modification);
               this.confirmDialog.open('task modified');
@@ -214,19 +206,30 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
 
   editStructuralTask(index: number) {
     const task = this.project.structuralTasks[index];
+    const taskName = task.name;
     this.dialog.open(StructuralTaskDialog, {
       data: { task: task, isNew: false },
       hasBackdrop: true
     }).afterClosed().subscribe(
       modification => {
         if (modification)
-          this.projectService.editTask(this.project.name, 'structural', task.name, modification).subscribe(
+          this.projectService.editTask(this.project.name, 'structural', taskName, modification).subscribe(
             msg => {
               Object.assign(this.project.structuralTasks[index], modification);
               this.confirmDialog.open('task modified');
             }, err => this.errorAlert.open(err)
           );
       }
+    );
+  }
+
+  deleteTask(i: number) {
+    const task = this.tasks[i];
+    this.projectService.deleteTask(this.project.name, this.project.category, task.name).subscribe(
+      msg => {
+        this.tasks.splice(i, 1);
+        this.confirmDialog.open('task deleted');
+      }, err => this.errorAlert.open(err)
     );
   }
 
