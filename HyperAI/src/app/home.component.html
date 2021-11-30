@@ -1,6 +1,5 @@
-<mat-grid-list *ngIf="isUser" cols="5" rowHeight="1:1">
-  <mat-grid-tile *ngFor="let project of projects">
-    <mat-card class="mat-elevation-z8">
+<div *ngIf="isUser" fxLayout="row wrap" fxLayoutGap="10px">
+    <mat-card class="mat-elevation-z8" *ngFor="let project of projects">
       <mat-card-header>
         <mat-card-title>
           {{project.name}}
@@ -22,8 +21,7 @@
         </mat-chip-list>
       </mat-card-content>
     </mat-card>
-  </mat-grid-tile>
-</mat-grid-list>
+</div>
 
 <mat-card *ngIf="isUser&&projects.length==0">
   <mat-card-header>

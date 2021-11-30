@@ -5,8 +5,8 @@
 <button mat-raised-button color="warn" (click)="autoGenerate()" [disabled]="tasks.length>0">
   Generate pipeline using AutoML
 </button>
-<mat-grid-list cols="5">
-  <mat-grid-tile *ngFor="let task of tasks; index as i; last as isLast">
+<div fxLayout="row wrap" fxLayoutGap="10px">
+  <ng-container *ngFor="let task of tasks; index as i; last as isLast">
     <mat-card class="mat-elevation-z10">
       <mat-card-header>
         <mat-card-title>{{task.name}}</mat-card-title>
@@ -23,5 +23,5 @@
       </mat-card-actions>
     </mat-card>
     <mat-icon *ngIf="!isLast">double_arrow</mat-icon>
-  </mat-grid-tile>
-</mat-grid-list>
+  </ng-container>
+</div>
