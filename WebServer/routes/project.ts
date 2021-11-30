@@ -339,6 +339,7 @@ router.put("/:name/members", async (request: Request, response: Response) => {
 });
 
 router.put("/:name/task", async (request: Request, response: Response) => {
+    logger(request.body);
     if (env === 'development') {
         if (!request.user) {
             request.user = testUser;
@@ -346,7 +347,6 @@ router.put("/:name/task", async (request: Request, response: Response) => {
     }
     
     let responseData = new ResponseData();
-    let updateResult = undefined;
     
     try {
         checkPathParamError(request.params.name, "project name");
@@ -359,16 +359,10 @@ router.put("/:name/task", async (request: Request, response: Response) => {
         let modProject = await ProjectModel.findOne(filter).exec();
         
         if (modProject) {
-            updateResult = await addTask(reqTasks, modProject);
+            await addTask(reqTasks, modProject);
             
-            if (updateResult) {
-                responseData.success = true;
-                responseData.code = StatusCodes.CREATED;
-            } else {
-                responseData.success = false;
-                responseData.code = StatusCodes.INTERNAL_SERVER_ERROR;
-                responseData.message = "Uncaught error occurred.";
-            }
+            responseData.success = true;
+            responseData.code = StatusCodes.CREATED;
         } else {
             doUnauthorizedError("Insufficient permission to add project task.");
         }
@@ -382,6 +376,7 @@ router.put("/:name/task", async (request: Request, response: Response) => {
 });
 
 router.put("/:name/task/:taskName", async (request: Request, response: Response) => {
+    logger(request.body);
     if (env === 'development') {
         if (!request.user) {
             request.user = testUser;
@@ -389,7 +384,6 @@ router.put("/:name/task/:taskName", async (request: Request, response: Response)
     }
     
     let responseData = new ResponseData();
-    let updateResult = undefined;
     
     try {
         checkPathParamError(request.params.name, "project name");
@@ -403,16 +397,10 @@ router.put("/:name/task/:taskName", async (request: Request, response: Response)
         let modProject = await ProjectModel.findOne(filter).exec();
         
         if (modProject) {
-            updateResult = await editTask(decodeURI(request.params.taskName), reqTasks, modProject);
+            await editTask(decodeURI(request.params.taskName), reqTasks, modProject);
             
-            if (updateResult) {
-                responseData.success = true;
-                responseData.code = StatusCodes.CREATED;
-            } else {
-                responseData.success = false;
-                responseData.code = StatusCodes.INTERNAL_SERVER_ERROR;
-                responseData.message = "Uncaught error occurred.";
-            }
+            responseData.success = true;
+            responseData.code = StatusCodes.CREATED;
         } else {
             doUnauthorizedError("Insufficient permission to edit project task.");
         }
@@ -551,10 +539,6 @@ const doProjectError = (message: string) => {
 
 const doUnauthorizedError = (message: string) => {
     throw new UnauthorizedError(message);
-};
-
-const doUncaughtError = (message: string) => {
-    throw new Error(message);
 };
 
 /**
@@ -762,147 +746,131 @@ const removeMember = async (outMembers: string[], project: Document<any, any, Pr
 const checkTasksCanBeAdded = (tasks: Array<any>, taskName: string) => !(tasks.findIndex(elem => elem.name === taskName) >= 0);
 
 const addTask = async (task: TaskBody, project: Document<any, any, Project> & Project & { _id: Types.ObjectId }) => {
-    try {
-        let tasksCanBeAdded: boolean = false;
-        let updateResult = undefined;
-        const options = { lean: true, new: true, rawResult: true };
-        
-        switch (task.type) {
-            case "vision":
-                const visionTask = task.task as VisionTask;
-                tasksCanBeAdded = checkTasksCanBeAdded(project.visionTasks, visionTask.name);
-                if (tasksCanBeAdded) {
-                    let newVisionTask: VisionTask = {
-                        completed: false,
-                        description: visionTask.description,
-                        name: visionTask.name,
-                        preprocessed: visionTask.preprocessed,
-                        taskType: visionTask.taskType,
-                        include_mask: visionTask.include_mask,
-                        train_dir: visionTask.train_dir,
-                        val_dir: visionTask.val_dir,
-                        test_dir: visionTask.test_dir,
-                        train_anno: visionTask.train_anno,
-                        val_anno: visionTask.val_anno,
-                        batch_size: visionTask.batch_size,
-                        no_xla: visionTask.no_xla,
-                        use_amp: visionTask.use_amp,
-                        model_params: visionTask.model_params,
-                        tb_port: visionTask.tb_port
-                    };
-                    
-                    updateResult = await project.updateOne(
-                        { $push: { visionTasks: newVisionTask } }, options
-                    ).exec();
-                }
+    let tasksCanBeAdded: boolean = false;
+    const options = { lean: true, new: true, rawResult: true };
+    
+    switch (task.type) {
+        case "vision":
+            const visionTask = task.task as VisionTask;
+            tasksCanBeAdded = checkTasksCanBeAdded(project.visionTasks, visionTask.name);
+            if (tasksCanBeAdded) {
+                let newVisionTask: VisionTask = {
+                    completed: false,
+                    description: visionTask.description,
+                    name: visionTask.name,
+                    preprocessed: visionTask.preprocessed,
+                    taskType: visionTask.taskType,
+                    include_mask: visionTask.include_mask,
+                    train_dir: visionTask.train_dir,
+                    val_dir: visionTask.val_dir,
+                    test_dir: visionTask.test_dir,
+                    train_anno: visionTask.train_anno,
+                    val_anno: visionTask.val_anno,
+                    batch_size: visionTask.batch_size,
+                    no_xla: visionTask.no_xla,
+                    use_amp: visionTask.use_amp,
+                    model_params: visionTask.model_params,
+                    tb_port: visionTask.tb_port
+                };
                 
-                break;
-            case "text":
-                const textTask = task.task as TextTask;
-                tasksCanBeAdded = checkTasksCanBeAdded(project.textTasks, textTask.name);
-                if (tasksCanBeAdded) {
-                    let newTextTask: TextTask = {
-                        name: textTask.name,
-                        description: textTask.description,
-                        taskType: textTask.taskType
-                    };
-                    
-                    updateResult = await project.updateOne(
-                        { $push: { textTasks: newTextTask } }, options
-                    ).exec();
-                }
+                await project.updateOne(
+                    { $push: { visionTasks: newVisionTask } }, options
+                ).exec();
+            }
+            
+            break;
+        case "text":
+            const textTask = task.task as TextTask;
+            tasksCanBeAdded = checkTasksCanBeAdded(project.textTasks, textTask.name);
+            if (tasksCanBeAdded) {
+                let newTextTask: TextTask = {
+                    name: textTask.name,
+                    description: textTask.description,
+                    taskType: textTask.taskType
+                };
                 
-                break;
-            case "structural":
-                const structuralTask = task.task as StructuralTask;
-                tasksCanBeAdded = checkTasksCanBeAdded(project.structuralTasks, structuralTask.name);
-                if (tasksCanBeAdded) {
-                    let newStructuralTask: StructuralTask = {
-                        name: structuralTask.name,
-                        description: structuralTask.description,
-                        taskType: structuralTask.taskType
-                    };
-                    
-                    updateResult = await project.updateOne(
-                        { $push: { structuralTasks: newStructuralTask } }, options
-                    ).exec();
-                }
+                await project.updateOne(
+                    { $push: { textTasks: newTextTask } }, options
+                ).exec();
+            }
+            
+            break;
+        case "structural":
+            const structuralTask = task.task as StructuralTask;
+            tasksCanBeAdded = checkTasksCanBeAdded(project.structuralTasks, structuralTask.name);
+            if (tasksCanBeAdded) {
+                let newStructuralTask: StructuralTask = {
+                    name: structuralTask.name,
+                    description: structuralTask.description,
+                    taskType: structuralTask.taskType
+                };
                 
-                break;
-            default:
-                doProjectError(`The requested category '${ task.type }' is not supported.`);
-                break;
-        }
-        
-        if (!tasksCanBeAdded) doProjectError("The task name already exists.");
-        if (!updateResult) doUncaughtError("Some errors occurred");
-        
-        return updateResult;
-    } catch (error) {
-        throw error;
+                await project.updateOne(
+                    { $push: { structuralTasks: newStructuralTask } }, options
+                ).exec();
+            }
+            
+            break;
+        default:
+            doProjectError(`The requested category '${ task.type }' is not supported.`);
+            break;
     }
+    
+    if (!tasksCanBeAdded) doProjectError("The task name already exists.");
 };
 
 const editTask = async (taskName: string, task: TaskBody, project: Document<any, any, Project> & Project & { _id: Types.ObjectId }) => {
-    try {
-        let foundIndex = -1;
-        let updateResult = undefined;
-        const options = { lean: true, new: true, rawResult: true };
-        const projectObj = project.toObject();
-        let tasks: any[] = [];
-        
-        switch (task.type) {
-            case "vision":
-                tasks = projectObj.visionTasks;
-                foundIndex = tasks.findIndex(task => task.name === taskName);
-                if (foundIndex >= 0) {
-                    let targetTask = tasks[foundIndex];
-                    tasks[foundIndex] = Object.assign({}, targetTask, task.task);
-                    
-                    updateResult = await project.updateOne(
-                        { $set: { visionTasks: tasks } }, options
-                    ).exec();
-                }
+    let foundIndex = -1;
+    const options = { lean: true, new: true, rawResult: true };
+    const projectObj = project.toObject();
+    let tasks: any[] = [];
+    
+    switch (task.type) {
+        case "vision":
+            tasks = projectObj.visionTasks;
+            foundIndex = tasks.findIndex(task => task.name === taskName);
+            if (foundIndex >= 0) {
+                let targetTask = tasks[foundIndex];
+                tasks[foundIndex] = Object.assign({}, targetTask, task.modification);
                 
-                break;
-            case "text":
-                tasks = projectObj.textTasks;
-                foundIndex = tasks.findIndex(task => task.name === taskName);
-                if (foundIndex >= 0) {
-                    let targetTask = tasks[foundIndex];
-                    tasks[foundIndex] = Object.assign({}, targetTask, task.task);
-                    
-                    updateResult = await project.updateOne(
-                        { $set: { textTasks: tasks } }, options
-                    ).exec();
-                }
+                await project.updateOne(
+                    { $set: { visionTasks: tasks } }, options
+                ).exec();
+            }
+            
+            break;
+        case "text":
+            tasks = projectObj.textTasks;
+            foundIndex = tasks.findIndex(task => task.name === taskName);
+            if (foundIndex >= 0) {
+                let targetTask = tasks[foundIndex];
+                tasks[foundIndex] = Object.assign({}, targetTask, task.modification);
                 
-                break;
-            case "structural":
-                tasks = projectObj.structuralTasks;
-                foundIndex = tasks.findIndex(task => task.name === taskName);
-                if (foundIndex >= 0) {
-                    let targetTask = tasks[foundIndex];
-                    tasks[foundIndex] = Object.assign({}, targetTask, task.task);
-                    
-                    updateResult = await project.updateOne(
-                        { $set: { structuralTasks: tasks } }, options
-                    ).exec();
-                }
+                await project.updateOne(
+                    { $set: { textTasks: tasks } }, options
+                ).exec();
+            }
+            
+            break;
+        case "structural":
+            tasks = projectObj.structuralTasks;
+            foundIndex = tasks.findIndex(task => task.name === taskName);
+            if (foundIndex >= 0) {
+                let targetTask = tasks[foundIndex];
+                tasks[foundIndex] = Object.assign({}, targetTask, task.modification);
                 
-                break;
-            default:
-                doProjectError(`The requested category '${ task.type }' is not supported.`);
-                break;
-        }
-        
-        if (foundIndex < 0) doProjectError(`The task '${ taskName }' does not exist.`);
-        if (!updateResult) doUncaughtError("Some errors occurred");
-        
-        return updateResult;
-    } catch (error) {
-        throw error;
+                await project.updateOne(
+                    { $set: { structuralTasks: tasks } }, options
+                ).exec();
+            }
+            
+            break;
+        default:
+            doProjectError(`The requested category '${ task.type }' is not supported.`);
+            break;
     }
+    
+    if (foundIndex < 0) doProjectError(`The task '${ taskName }' does not exist.`);
 };
 
 const removeTask = async (type: string, taskName: string, project: Document<any, any, Project> & Project & { _id: Types.ObjectId }) => {
@@ -940,7 +908,8 @@ interface EditMember {
 
 interface TaskBody {
     type: 'structural' | 'text' | 'vision';
-    task: object
+    task: object,
+    modification: object
 }
 
 const testUser = {
