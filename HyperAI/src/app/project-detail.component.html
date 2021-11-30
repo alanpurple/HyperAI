@@ -6,8 +6,8 @@
   Generate pipeline using AutoML
 </button>
 <div fxLayout="row wrap" fxLayoutGap="10px">
-  <ng-container *ngFor="let task of tasks; index as i; last as isLast">
-    <mat-card class="mat-elevation-z10">
+  <div *ngFor="let task of tasks; index as i; last as isLast" fxLayout="row" fxFlex="24" fxFlex.gt-lg="19" fxFlex.sm="49" fxFlex.xs="100">
+    <mat-card class="mat-elevation-z10" fxFlex="90">
       <mat-card-header>
         <mat-card-title>{{task.name}}</mat-card-title>
       </mat-card-header>
@@ -22,6 +22,6 @@
         <button mat-button color="warn" (click)="deleteTask(i)">Delete</button>
       </mat-card-actions>
     </mat-card>
-    <mat-icon *ngIf="!isLast">double_arrow</mat-icon>
-  </ng-container>
+    <mat-icon *ngIf="!isLast" fxFlex="10">double_arrow</mat-icon>
+  </div>
 </div>
