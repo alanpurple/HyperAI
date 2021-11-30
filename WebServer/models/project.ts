@@ -8,10 +8,10 @@ export interface Project {
     category: 'various' | 'vision' | 'text' | 'structural';
     objective: 'classification' | 'regression' |
                 // only for text
-                'qna' |
+                'qna' | 'translation' |
                 // only for vision
                 'segmentation' | 'object detection' |
-                'clustering' | 'anomaly detection' | 'translation' | 'recommendation';
+                'clustering' | 'anomaly detection' |  'recommendation';
     owner: Types.ObjectId;
     members: { user: Types.ObjectId, role: 'attendee' | 'member' }[]; // one and only owner, others are all attendee(for now)
     visionTasks: VisionTask[];  // use only when category is 'vision'

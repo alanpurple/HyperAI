@@ -7,10 +7,10 @@ export interface Project {
   category: 'vision' | 'text' | 'structural' | 'various';
   objective: 'classification' | 'regression' |
               // only for text
-              'qna' |
+              'qna' | 'translation' |
               // only for vision
               'segmentation' | 'object detection' |
-              'clustering' | 'anomaly detection' | 'translation' | 'recommendation';
+              'clustering' | 'anomaly detection' |  'recommendation';
   owner: string;  // self for user, email for admin
   members: { user: string /*email*/, role: 'attendee' | 'member' }[]; // one and only owner, others are all attendee(for now)
   visionTasks: VisionTask[];  // use only when taskType is 'vision'

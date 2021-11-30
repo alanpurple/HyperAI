@@ -20,7 +20,7 @@
     <mat-form-field appearance="fill">
       <mat-label>Project Objective</mat-label>
       <mat-select [(ngModel)]="data.project.objective" name="objective">
-        <mat-option *ngFor="let objective of data.objectives" [value]="objective">
+        <mat-option *ngFor="let objective of data.objectives" [value]="objective" [disabled]="isValidObjective(objective)">
           {{objective}}
         </mat-option>
       </mat-select>

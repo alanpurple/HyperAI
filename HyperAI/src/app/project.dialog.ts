@@ -62,4 +62,12 @@ export class ProjectDialog {
     this.data.project = this.originalData;
     this.data.availableMembers = this.originalAM;
   }
+
+  isValidObjective(objective: string) {
+    if (['qna', 'translation'].includes(objective) && this.data.project.category != 'text')
+      return true;
+    if (['segmentation', 'object detection'].includes(objective) && this.data.project.category != 'vision')
+      return true;
+    return false;
+  }
 }

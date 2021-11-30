@@ -56,10 +56,10 @@ export class ProjectComponent implements OnInit {
   categories = ['various', 'vision', 'text', 'structural'];
   objectives = ['classification' , 'regression',
     // only for text
-    'qna' ,
+    'qna', 'translation',
     // only for vision
     'segmentation' , 'object detection' ,
-    'clustering' , 'anomaly detection' , 'translation' , 'recommendation']
+    'clustering' , 'anomaly detection' , 'recommendation']
   displayedColumns = ['name','owner', 'dataURI', 'projectType', 'category', 'edit', 'delete'];
 
   userData: DataInfo[] = [];
@@ -277,5 +277,13 @@ export class ProjectComponent implements OnInit {
           );
       }
     );
+  }
+
+  isValidObjective(objective: string) {
+    if (['qna', 'translation'].includes(objective) && this.newProject.category != 'text')
+      return true;
+    if (['segmentation', 'object detection'].includes(objective) && this.newProject.category != 'vision')
+      return true;
+    return false;
   }
 }
