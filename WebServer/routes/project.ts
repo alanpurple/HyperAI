@@ -116,7 +116,11 @@ router.post("/", async (request: Request, response: Response) => {
     }
     
     try {
-        const projectSchema = await convertToProjectSchema(request.user, request.body);
+        const reqProject: RequestProject = request.body;
+        
+        if (!isValidObjective(reqProject.objective, reqProject.category)) doProjectError("The objective cannot be used for the specified category.");
+        
+        const projectSchema = await convertToProjectSchema(request.user, reqProject);
         if (!projectSchema) {
             doProjectError("Failed to parse request data.");
         }
@@ -901,6 +905,13 @@ const removeTask = async (type: string, taskName: string, project: Document<any,
     }
 };
 
+const isValidObjective = (objective: string, category: string) => {
+    if (['qna', 'translation'].includes(objective) && category != 'text')
+        return false;
+    
+    return !(['segmentation', 'object detection'].includes(objective) && category != 'vision');
+};
+
 interface EditMember {
     inMember: { user: string, role: 'member' | 'attendee' }[];
     outMember: string[];
@@ -913,7 +924,7 @@ interface TaskBody {
 }
 
 const testUser = {
-    _id: "6182210d0befc34adfa2c8cf",
+    _id: "61a0533e89ecce461e25089e",
     accountType: "user",
     email: "soorong@infinov.com"
 };
