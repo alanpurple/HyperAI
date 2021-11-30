@@ -281,9 +281,9 @@ export class ProjectComponent implements OnInit {
 
   isValidObjective(objective: string) {
     if (['qna', 'translation'].includes(objective) && this.newProject.category != 'text')
-      return true;
+      return false;
     if (['segmentation', 'object detection'].includes(objective) && this.newProject.category != 'vision')
-      return true;
-    return false;
+      return false;
+    return true;
   }
 }
