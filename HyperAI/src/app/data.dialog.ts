@@ -1,5 +1,4 @@
 import { Component } from "@angular/core";
-import { MatDialogRef } from "@angular/material/dialog";
 import { DataInfo } from "./data.info";
 
 
@@ -8,9 +7,7 @@ import { DataInfo } from "./data.info";
   templateUrl: './data.dialog.html'
 })
 export class DataDialog {
-  constructor(
-    public dialogRef: MatDialogRef<DataDialog>
-  ) { }
+  constructor() { }
 
   data: DataInfo = {
     name: '',
@@ -25,10 +22,6 @@ export class DataDialog {
 
   types = ['structural', 'sound', 'text', 'vision'];
   locationTypes = ['db uri', 'local', 'smb', 'datalake', 'aws s3'];
-
-  cancel() {
-    this.dialogRef.close();
-  }
 
   reset() {
     this.data = {

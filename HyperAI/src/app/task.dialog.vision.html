@@ -30,6 +30,6 @@
 </div>
 <div mat-dialog-actions>
   <button mat-button [mat-dialog-close]="data.task" [disabled]="nameRe.test(data.task.name)">Save</button>
-  <button mat-button (click)="cancel()">Cancel</button>
+  <button mat-button mat-dialog-close>Cancel</button>
   <button mat-button (click)="reset()">Reset</button>
 </div>

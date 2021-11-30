@@ -6,7 +6,6 @@ import { MAT_DIALOG_DEFAULT_OPTIONS } from '@angular/material/dialog';
 import { FormsModule } from '@angular/forms';
 import { MatModule } from './mat.module';
 
-// not working ( hopefully only for now )
 import * as PlotlyJS from 'plotly.js-dist-min';
 import { PlotlyModule } from 'angular-plotly.js';
 PlotlyModule.plotlyjs = PlotlyJS;

@@ -52,6 +52,6 @@
 </div>
 <div mat-dialog-actions>
   <button mat-button color="primary" [mat-dialog-close]="data.project" [disabled]="nameRe.test(data.project.name)">Save</button>
-  <button mat-button color="warn" (click)="cancel()">Cancel</button>
+  <button mat-button color="warn" mat-dialog-close>Cancel</button>
   <button mat-button color="accent" (click)="reset()">Reset</button>
 </div>

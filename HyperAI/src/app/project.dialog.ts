@@ -1,5 +1,5 @@
 import { Component, Inject } from "@angular/core";
-import { MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
+import { MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { Project } from "./project.data";
 import { NameRe } from './shared/validataions';
 import { DataInfo } from './data.info';
@@ -10,7 +10,6 @@ import { DataInfo } from './data.info';
 })
 export class ProjectDialog {
   constructor(
-    public dialogRef: MatDialogRef<ProjectDialog>,
     @Inject(MAT_DIALOG_DATA) public data: {
       project: Project, isNew: boolean, availableMembers: string[], userData: DataInfo[],
       dataList: DataInfo[], categories: string[],objectives:string[]
@@ -52,10 +51,6 @@ export class ProjectDialog {
   removeMember(index: number) {
     this.data.availableMembers.push(this.data.project.members[index].user);
     this.data.project.members.splice(index, 1);
-  }
-
-  cancel() {
-    this.dialogRef.close();
   }
 
   reset() {

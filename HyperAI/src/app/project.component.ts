@@ -101,7 +101,7 @@ export class ProjectComponent implements OnInit {
 
   //using dialog
   createProject() {
-    const dialogRef = this.dialog.open(ProjectDialog, {
+    this.dialog.open(ProjectDialog, {
       data: {
         project: {
           name: '',
@@ -122,9 +122,8 @@ export class ProjectComponent implements OnInit {
         objectives: this.objectives
       },
       hasBackdrop: true
-    });
-    dialogRef.afterClosed().subscribe(project => {
-      if(project)
+    }).afterClosed().subscribe(project => {
+      if (project)
         this.projectService.createProject(project).subscribe(
           msg => {
             this.projects.push(project);
@@ -133,8 +132,7 @@ export class ProjectComponent implements OnInit {
           },
           err => this.errorAlert.open(err)
         );
-    }
-    );
+    });
   }
 
   availableMembers: string[] = [];
@@ -226,7 +224,7 @@ export class ProjectComponent implements OnInit {
   editProject(index: number) {
     const currentProject = this.projects[index];
     const projectMembers = currentProject.members.map(elem => elem.user);
-    const dialogRef = this.dialog.open(ProjectDialog, {
+    this.dialog.open(ProjectDialog, {
       data: {
         project: currentProject,
         isNew: false,
@@ -235,8 +233,7 @@ export class ProjectComponent implements OnInit {
         objectives: this.objectives
       },
       hasBackdrop: true
-    });
-    dialogRef.afterClosed().subscribe(project => {
+    }).afterClosed().subscribe(project => {
       if (project) {
         let inMember: { user: string, role: 'attendee' | 'member' }[] = [];
         let outMember: string[] = [];
