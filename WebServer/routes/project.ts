@@ -56,7 +56,7 @@ router.get("/", async (request: Request, response: Response) => {
         if (responseData.success) {
             response.send(responseData.data); // send data only
         } else {
-            response.send(responseData);
+            response.send(responseData.message);
         }
         response.end();
     }
@@ -100,7 +100,7 @@ router.get("/:name", async (request: Request, response: Response) => {
         if (responseData.success) {
             response.send(responseData.data); // send data only
         } else {
-            response.send(responseData);
+            response.send(responseData.message);
         }
         response.end();
     }
@@ -143,7 +143,7 @@ router.post("/", async (request: Request, response: Response) => {
         makeErrorResult(error, responseData);
     } finally {
         response.status(responseData.code);
-        response.send(responseData);
+        response.send(responseData.message);
         response.end();
     }
 });
@@ -337,7 +337,7 @@ router.put("/:name/members", async (request: Request, response: Response) => {
         makeErrorResult(error, responseData);
     } finally {
         response.status(responseData.code);
-        response.send(responseData);
+        response.send(responseData.message);
         response.end();
     }
 });
@@ -374,7 +374,7 @@ router.put("/:name/task", async (request: Request, response: Response) => {
         makeErrorResult(error, responseData);
     } finally {
         response.status(responseData.code);
-        response.send(responseData);
+        response.send(responseData.message);
         response.end();
     }
 });
@@ -412,7 +412,7 @@ router.put("/:name/task/:taskName", async (request: Request, response: Response)
         makeErrorResult(error, responseData);
     } finally {
         response.status(responseData.code);
-        response.send(responseData);
+        response.send(responseData.message);
         response.end();
     }
 });
@@ -448,7 +448,7 @@ router.delete("/:name/task/:type/:taskName", async (request: Request, response: 
         makeErrorResult(error, responseData);
     } finally {
         response.status(responseData.code);
-        response.send(responseData);
+        response.send(responseData.message);
         response.end();
     }
 });
@@ -484,7 +484,7 @@ router.delete("/", async (request: Request, response: Response) => {
         makeErrorResult(error, responseData);
     } finally {
         response.status(responseData.code);
-        response.send(responseData);
+        response.send(responseData.message);
         response.end();
     }
 });
@@ -518,7 +518,7 @@ router.delete("/:name", async (request: Request, response: Response) => {
         makeErrorResult(error, responseData);
     } finally {
         response.status(responseData.code);
-        response.send(responseData);
+        response.send(responseData.message);
         response.end();
     }
 });
