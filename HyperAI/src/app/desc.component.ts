@@ -25,7 +25,7 @@ export class DescComponent implements OnInit {
   ngOnInit(): void {
     this.dataService.getDataMy().subscribe(
       data => this.tables = data.filter(elem => elem.type == 'structural').map(elem => elem.name),
-      err => this.errorAlert.open(err)
+      err => this.errorAlert.open(err.error)
     );
     this.summaryDataSource = new SummaryDataSource(this.edaService);
   }
@@ -53,7 +53,7 @@ export class DescComponent implements OnInit {
       .subscribe(data => {
         this.summaries = data;
         this.processing = false;
-      }, err => this.errorAlert.open(err));
+      }, err => this.errorAlert.open(err.error));
   }
 
 }

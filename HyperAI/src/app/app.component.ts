@@ -55,7 +55,7 @@ export class AppComponent implements OnInit {
         },
         error => {
           if (error.status != 401)
-            console.error(error._body);
+            console.error(error.error);
         });
   }
 

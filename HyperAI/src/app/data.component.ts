@@ -34,7 +34,7 @@ export class DataComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     this.userService.getUser().subscribe(user => { this.isAdmin = user.accountType == 'admin' },
-      err => this.errorAlert.open(err));
+      err => this.errorAlert.open(err.error));
   }
 
   ngAfterViewInit() {
@@ -50,7 +50,7 @@ export class DataComponent implements OnInit, AfterViewInit {
     this.dataDB.getDataPublic().subscribe(data => {
       this.isLoadingPublic = false;
       this.openData = data;
-    }, err => this.errorAlert.open(err));
+    }, err => this.errorAlert.open(err.error));
   }
 
   loadMy() {
@@ -60,7 +60,7 @@ export class DataComponent implements OnInit, AfterViewInit {
     this.dataDB.getDataMy().subscribe(data => {
       this.isLoadingMy = false;
       this.myData = data;
-    }, err => this.errorAlert.open(err));
+    }, err => this.errorAlert.open(err.error));
   }
 
   dataDB: DataDatabase | null = null;
@@ -82,7 +82,7 @@ export class DataComponent implements OnInit, AfterViewInit {
       this.file = null;
       this.loadMy();
       this.confirmDialog.open('data uplodaed');
-    }, err => this.errorAlert.open(err));
+    }, err => this.errorAlert.open(err.error));
   }
 
   uploading: boolean = false;
@@ -96,7 +96,7 @@ export class DataComponent implements OnInit, AfterViewInit {
       this.file = null;
       this.loadOpen();
       this.confirmDialog.open('open data added');
-    }, err => this.errorAlert.open(err));
+    }, err => this.errorAlert.open(err.error));
   }
 
   onFileSelected(event: Event) {

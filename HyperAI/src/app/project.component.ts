@@ -74,7 +74,7 @@ export class ProjectComponent implements OnInit {
       projects => this.projects = projects,
       err => {
         if (err.status != 404)
-          this.errorAlert.open(err);
+          this.errorAlert.open(err.error);
       }
     );
     this.userService.getColleagues().subscribe(
@@ -82,7 +82,7 @@ export class ProjectComponent implements OnInit {
       err => {
         //not found
         if (err.status != 404)
-          this.errorAlert.open(err);
+          this.errorAlert.open(err.error);
       }
     );
     this.dataService.getDataPublic().subscribe(
@@ -93,9 +93,9 @@ export class ProjectComponent implements OnInit {
             this.userData = this.userData.concat(user.data);
             this.filterData();
           },
-          err => this.errorAlert.open(err)
+          err => this.errorAlert.open(err.error)
         );
-      }, err => this.errorAlert.open(err)
+      }, err => this.errorAlert.open(err.error)
     );
   }
 
@@ -130,7 +130,7 @@ export class ProjectComponent implements OnInit {
             this.projectTable?.renderRows();
             this.confirmDialog.open('project created successfully');
           },
-          err => this.errorAlert.open(err)
+          err => this.errorAlert.open(err.error)
         );
     });
   }
@@ -256,7 +256,7 @@ export class ProjectComponent implements OnInit {
             this.confirmDialog.open('project edited');
             this.projectTable?.renderRows();
           },
-            err => this.errorAlert.open(err));
+            err => this.errorAlert.open(err.error));
       }
     });
   }

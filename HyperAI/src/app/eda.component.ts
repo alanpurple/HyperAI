@@ -66,7 +66,7 @@ export class EdaComponent implements OnInit {
       this.cleansedTable?.renderRows();
       this.preprocessedTable?.renderRows();
     },
-      err => this.errorAlert.open(err));
+      err => this.errorAlert.open(err.error));
   }
 
   user: UserData = new UserData();
@@ -136,7 +136,7 @@ export class EdaComponent implements OnInit {
         else
           throw new Error('unreachable points');
       },
-      err => this.errorAlert.open(err)
+      err => this.errorAlert.open(err.error)
     )
   }
 

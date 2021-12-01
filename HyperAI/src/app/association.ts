@@ -73,8 +73,8 @@ export class Association implements OnInit {
               this.tableNames = this.myTables = datalist.filter(data => data.type == 'structural').map(data => data.name);
             });
         }
-        , err => this.errorAlert.open(err));
-    }, err => this.errorAlert.open(err));
+        , err => this.errorAlert.open(err.error));
+    }, err => this.errorAlert.open(err.error));
   }
 
   getSummary() {
@@ -85,7 +85,7 @@ export class Association implements OnInit {
       .subscribe(data => {
         this.gettingData = false;
         this.summary = data;
-      }, err => this.errorAlert.open(err));
+      }, err => this.errorAlert.open(err.error));
     this.source = null;
     this.target = null;
     this.resetAssociation();
@@ -232,7 +232,7 @@ export class Association implements OnInit {
           }
           else
             this.errorAlert.open('something is going totally mass');
-        }, err => this.errorAlert.open(err));
+        }, err => this.errorAlert.open(err.error));
     else if (type == 2)
       this.lrService.elasticnetcv({
         tableName: this.selectedTable,
@@ -285,7 +285,7 @@ export class Association implements OnInit {
               + this.source.name + ' and ' + this.target.name;
             this.type = type;
           });
-      }, err => this.errorAlert.open(err));
+      }, err => this.errorAlert.open(err.error));
     else
       this.errorAlert.open('type should be among 0,1,and 2: current value is ' + type);
   }

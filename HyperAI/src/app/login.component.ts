@@ -49,7 +49,7 @@ export class LoginComponent implements OnInit, OnDestroy {
           if (err.status == 404)
             this.router.navigate(['/signup', encodeURI(this.email)]);
           else
-            this.errorAlert.open(err);
+            this.errorAlert.open(err.error);
         });
   }
 

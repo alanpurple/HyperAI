@@ -33,7 +33,7 @@ export class SignupComponent implements OnInit, OnDestroy {
     })
     this.userService.getOrganizations().subscribe(
       orgs => this.organizations = orgs,
-      err => this.errorAlert.open(err)
+      err => this.errorAlert.open(err.error)
     );
   }
 
@@ -59,7 +59,7 @@ export class SignupComponent implements OnInit, OnDestroy {
             this.emailChecked = true;
           }
           else
-            this.errorAlert.open(err);
+            this.errorAlert.open(err.error);
         });
   }
 

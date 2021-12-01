@@ -75,7 +75,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
             this.router.navigate(['/project-manager']);
           }
           else
-            this.errorAlert.open(err);
+            this.errorAlert.open(err.error);
         }
       )
     })
@@ -109,7 +109,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
               msg => {
                 this.project.visionTasks.push(task);
                 this.confirmDialog.open('task added');
-              }, err => this.errorAlert.open(err)
+              }, err => this.errorAlert.open(err.error)
             );
         });
         break;
@@ -126,7 +126,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
                 msg => {
                   this.project.textTasks.push(task);
                   this.confirmDialog.open('task added');
-                }, err => this.errorAlert.open(err)
+                }, err => this.errorAlert.open(err.error)
               );
           }
         );
@@ -145,7 +145,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
                 msg => {
                   this.project.structuralTasks.push(task);
                   this.confirmDialog.open('task added');
-                }, err => this.errorAlert.open(err)
+                }, err => this.errorAlert.open(err.error)
               );
           }
         );
@@ -185,7 +185,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
             msg => {
               Object.assign(this.project.visionTasks[index], modification);
               this.confirmDialog.open('task modified');
-            }, err => this.errorAlert.open(err)
+            }, err => this.errorAlert.open(err.error)
           );
       });
   }
@@ -203,7 +203,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
             msg => {
               Object.assign(this.project.textTasks[index], modification);
               this.confirmDialog.open('task modified');
-            }, err => this.errorAlert.open(err)
+            }, err => this.errorAlert.open(err.error)
           );
       }
     );
@@ -222,7 +222,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
             msg => {
               Object.assign(this.project.structuralTasks[index], modification);
               this.confirmDialog.open('task modified');
-            }, err => this.errorAlert.open(err)
+            }, err => this.errorAlert.open(err.error)
           );
       }
     );
@@ -234,7 +234,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
       msg => {
         this.tasks.splice(i, 1);
         this.confirmDialog.open('task deleted');
-      }, err => this.errorAlert.open(err)
+      }, err => this.errorAlert.open(err.error)
     );
   }
 

@@ -36,7 +36,7 @@ export class HomeComponent implements OnInit {
           projects => this.projects = projects,
           err => {
             if (err.status != 404)
-              this.errorAlert.open(err);
+              this.errorAlert.open(err.error);
           }
         );
       }

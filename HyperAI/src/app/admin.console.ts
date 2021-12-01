@@ -30,11 +30,11 @@ export class AdminConsole implements OnInit {
   ngOnInit(): void {
     this.adminService.getUsers().subscribe(
       users => this.users = users,
-      err => this.errorAlert.open(err)
+      err => this.errorAlert.open(err.error)
     );
     this.projectService.getProjects().subscribe(
       projects => this.projects = projects,
-      err => this.errorAlert.open(err)
+      err => this.errorAlert.open(err.error)
     );
   }
 
