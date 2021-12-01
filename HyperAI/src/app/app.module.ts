@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { ErrorHandler, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { HttpClientModule } from '@angular/common/http';
 import { FlexLayoutModule } from '@angular/flex-layout';
@@ -49,6 +49,7 @@ import { UserInfo, ComingSoonDialog, NickNameConfirmDialog, NickNameTakenDialog 
 
 import { ForbiddenValidatorDirective } from './shared/forbidden-name.directive';
 import { NotfoundComponent } from './notfound.component';
+import { MyErrorHandler } from './my.error.handler';
 
 @NgModule({
   declarations: [
@@ -79,7 +80,8 @@ import { NotfoundComponent } from './notfound.component';
     GojsAngularModule
   ],
   providers: [ConfirmDialog, LoggedIn, NotLoggedIn, IsAdmin, IsNotAdmin, ErrorAlert, HasNick,
-    { provide: MAT_DIALOG_DEFAULT_OPTIONS, useValue: { hasBackdrop: false } }],
+    { provide: MAT_DIALOG_DEFAULT_OPTIONS, useValue: { hasBackdrop: false } },
+    { provide: ErrorHandler, useClass: MyErrorHandler }],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
