@@ -76,9 +76,9 @@ export class EdaComponent implements OnInit {
   preprocessedData: EdaData[] = [];
 
   displayedColumnsAll: string[] = ['name', 'type', 'numRows', 'status'];
-  displayedColumns: string[] = ['name', 'type', 'numRows'];
+  displayedColumns: string[] = ['name', 'numRows'];
   displayedColumns1: string[] = ['name', 'type', 'numRows', 'cleanse'];
-  displayedColumns2: string[] = ['name', 'type', 'numRows', 'preprocess'];
+  displayedColumns2: string[] = ['name', 'numRows', 'preprocess'];
 
   isLoading: boolean = false;
 
