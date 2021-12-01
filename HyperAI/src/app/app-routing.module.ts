@@ -80,6 +80,8 @@ const routes: Routes = [
     path: 'privacy-policy', component: PrivacyPolicy
   }, {
     path: 'notfound', component: NotfoundComponent
+  }, {
+    path: '**', component: NotfoundComponent
   }
 ];
 
