@@ -39,7 +39,7 @@
       <ng-container matColumnDef="cleanse">
         <th mat-header-cell *matHeaderCellDef>Cleanse</th>
         <td mat-cell *matCellDef="let row">
-          <button mat-button color="accent" (click)="cleanse(row.parentId,row.name)" [disabled]="!!user.data[row.parentId].cleansed">
+          <button mat-button color="accent" (click)="cleanse(row.parentId,row.name)" [disabled]="!!user.data[row.parentId].cleansed||user.data[row.parentId].type!='structural'">
             Execute Cleansing
           </button>
         </td>
@@ -49,15 +49,11 @@
       <tr mat-row *matRowDef="let row; columns: displayedColumns1;"></tr>
     </table>
   </mat-tab>
-  <mat-tab label="Cleansed/Clean Data">
+  <mat-tab label="Cleansed/Clean Data(structural)">
     <table #cleansed mat-table [dataSource]="cleansedData" matSort>
       <ng-container matColumnDef="name">
         <th mat-header-cell *matHeaderCellDef>name</th>
         <td mat-cell *matCellDef="let row">{{row.name}}</td>
-      </ng-container>
-      <ng-container matColumnDef="type">
-        <th mat-header-cell *matHeaderCellDef>type</th>
-        <td mat-cell *matCellDef="let row">{{row.type}}</td>
       </ng-container>
       <ng-container matColumnDef="numRows">
         <th mat-header-cell *matHeaderCellDef>size</th>
@@ -81,10 +77,6 @@
       <ng-container matColumnDef="name">
         <th mat-header-cell *matHeaderCellDef>name</th>
         <td mat-cell *matCellDef="let row">{{row.name}}</td>
-      </ng-container>
-      <ng-container matColumnDef="type">
-        <th mat-header-cell *matHeaderCellDef>type</th>
-        <td mat-cell *matCellDef="let row">{{row.type}}</td>
       </ng-container>
       <ng-container matColumnDef="numRows">
         <th mat-header-cell *matHeaderCellDef>size</th>

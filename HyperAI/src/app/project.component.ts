@@ -216,8 +216,9 @@ export class ProjectComponent implements OnInit {
         this.confirmDialog.open('project created successfully');
         this.isMaking = false;
         this.dataList = [];
-      }
-    )
+      },
+      err => this.errorAlert.open(err.error)
+    );
   }
 
   //only dialog
