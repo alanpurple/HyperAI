@@ -59,9 +59,14 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
               this.errorAlert.open('unreachable part');
           }
           this.route.url.subscribe(elems => {
-            if (elems.length == 3 && elems[2]?.path == 'auto')
-              this.autoGenerate();
-            this.location.go('/project-manager/' + elems[1]);
+            if (elems.length == 3 && elems[2]?.path == 'auto') {
+              if (this.tasks.length > 0)
+                this.location.back();
+              else {
+                this.autoGenerate();
+                this.location.go('/project-manager/' + elems[1]);
+              }
+            }
           });
         }
         , err => {
