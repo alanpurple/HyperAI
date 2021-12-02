@@ -14,7 +14,7 @@
     </mat-form-field>
     <mat-form-field>
       <mat-label>Name</mat-label>
-      <input matInput type="text" name="name" [(ngModel)]="data.user.name">
+      <input matInput #nameInput="ngModel" type="text" name="name" [(ngModel)]="data.user.name">
     </mat-form-field>
     <mat-form-field>
       <mat-label>Organization</mat-label>
@@ -32,7 +32,8 @@
   </form>
 </div>
 <div mat-dialog-actions>
-  <button mat-button color="primary" [mat-dialog-close]="data.user" [disabled]="userForm.invalid">Save</button>
+  <button *ngIf="data.isNew" mat-button color="primary" (click)="save()" [disabled]="userForm.invalid">Save</button>
+  <button *ngIf="!data.isNew" mat-button color="primary" (click)="save()" [disabled]="userForm.invalid||(!nameInput.dirty&&!password)">Save</button>
   <button mat-button color="warn" mat-dialog-close>Cancel</button>
   <button mat-button color="accent" (click)="reset()">Reset</button>
 </div>

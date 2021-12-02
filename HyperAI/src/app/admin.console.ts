@@ -156,23 +156,15 @@ export class AdminConsole implements OnInit, AfterViewInit {
       .afterClosed().subscribe(
         data => {
           if (data) {
-            if (data.data.name != currentUser.name || data.password) {
-              let postData:any = {};
-              if (data.data.name != currentUser.name)
-                postData['name'] = data.data.name;
-              if (data.password)
-                postData['password'] = data.password;
-              this.adminService.editUser(email, postData).subscribe(
-                msg => {
-                  if (data.data.name != currentUser.name) {
-                    this.users[index].name = data.data.name;
-                    this.userDS.data = this.users;
-                  }
-                  this.confirmDialog.open('user edited');
-                }, err => this.errorAlert.open(err.error));
-            }
-            else
-              this.confirmDialog.open('nothings changed');
+            let postData: any = {};
+            if (data.data.name)
+              postData['name'] = data.data.name;
+            if (data.password)
+              postData['password'] = data.password;
+            this.adminService.editUser(email, postData).subscribe(
+              msg => {
+                this.confirmDialog.open('user edited');
+              }, err => this.errorAlert.open(err.error));
           }
         });
   }
