@@ -634,6 +634,13 @@ const makeProjectResponse = (user: User, project: Document<any, any, Project> & 
 const convertToProjectSchema = async (user, reqProject: RequestProject) => {
     logger(user);
     logger(reqProject);
+    let admin = isAdmin(user.accountType);
+    
+    if (admin) {
+        let owner = await UserModel.findOne({ email: reqProject.owner }).exec();
+        
+        reqProject.owner = owner['_id'];
+    }
     
     let members: { user: Types.ObjectId; role: "attendee" | "member" }[] = [];
     
@@ -652,7 +659,7 @@ const convertToProjectSchema = async (user, reqProject: RequestProject) => {
         dataURI: reqProject.dataURI,
         members: members,
         name: reqProject.name,
-        owner: user["_id"],
+        owner: admin ? reqProject.owner : user["_id"],
         projectType: reqProject.projectType,
         objective: reqProject.objective,
         structuralTasks: reqProject.structuralTasks,
@@ -708,7 +715,7 @@ const addMember = async (inMembers: { user: string, role: 'member' | 'attendee' 
     }
 };
 
-const removeMember = async (outMembers: string[], project: Document<any, any, Project> & Project & { _id: Types.ObjectId }) => {
+export const removeMember = async (outMembers: string[], project: Document<any, any, Project> & Project & { _id: Types.ObjectId }) => {
     try {
         let removeMemberResult: RemoveMemberResult = { error: [], ignoredMembers: [], removedMembers: [] };
         const options = { lean: true, new: true, rawResult: true };
