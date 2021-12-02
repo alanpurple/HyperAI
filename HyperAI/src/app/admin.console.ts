@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { MatTable } from '@angular/material/table';
 import { AdminService } from './admin.service';
 import { Project } from './project.data';
 import { ProjectService } from './project.service';
@@ -28,7 +29,10 @@ export class AdminConsole implements OnInit {
   projects: Project[] = [];
 
   userColumns = ['email', 'name', 'organization', 'nickName'];
-  projectColumns = ['name', 'createdAt', 'updatedAt', 'dataURI', 'projectType', 'category', 'objective', 'owner'];
+  projectColumns = ['name', 'owner', 'createdAt', 'updatedAt', 'dataURI', 'projectType', 'category', 'objective'];
+
+  @ViewChild('projectTable') projectTable: MatTable<Project> | null = null;
+  @ViewChild('userTable') userTable: MatTable<UserData> | null = null;
 
   ngOnInit(): void {
     this.adminService.getUsers().subscribe(

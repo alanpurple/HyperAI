@@ -79,7 +79,8 @@ import { MyErrorHandler } from './my.error.handler';
     NgxChartsModule,
     GojsAngularModule
   ],
-  providers: [ConfirmDialog, LoggedIn, NotLoggedIn, IsAdmin, IsNotAdmin, ErrorAlert, HasNick,
+  providers: [ConfirmDialog, LoggedIn, NotLoggedIn, IsAdmin, IsNotAdmin,
+    ErrorAlert, HasNick, DeleteConfirmDialog,
     { provide: MAT_DIALOG_DEFAULT_OPTIONS, useValue: { hasBackdrop: false } },
     { provide: ErrorHandler, useClass: MyErrorHandler }],
   bootstrap: [AppComponent]
