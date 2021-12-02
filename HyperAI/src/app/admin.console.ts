@@ -11,6 +11,7 @@ import { DeleteConfirmDialog } from './shared/delete.confirm.dialog';
 import { ErrorAlert } from './shared/error.alert';
 import { UserData } from './user.data';
 import { UserDialog } from './user.dialog';
+import { UserService } from './user.service';
 
 @Component({
   selector: 'app-admin',
@@ -22,6 +23,7 @@ export class AdminConsole implements OnInit, AfterViewInit {
   constructor(
     private projectService: ProjectService,
     private adminService: AdminService,
+    private userService: UserService,
     private errorAlert: ErrorAlert,
     private confirmDialog: ConfirmDialog,
     private deleteConfirm: DeleteConfirmDialog,
@@ -36,6 +38,7 @@ export class AdminConsole implements OnInit, AfterViewInit {
 
   users: UserData[] = [];
   projects: Project[] = [];
+  organizations: string[] = [];
 
   userColumns = ['email', 'name', 'organization', 'nickName','edit','delete'];
   projectColumns = ['name', 'owner', 'dataURI', 'projectType', 'category', 'objective','edit','delete'];
@@ -74,6 +77,10 @@ export class AdminConsole implements OnInit, AfterViewInit {
       },
       err => this.errorAlert.open(err.error)
     );
+    this.userService.getOrganizations().subscribe(
+      orgs => this.organizations = orgs,
+      err => this.errorAlert.open(err.error)
+    );
   }
 
   formatDate(date: any) {
@@ -92,7 +99,10 @@ export class AdminConsole implements OnInit, AfterViewInit {
 
   createUser() {
     this.dialog.open(UserDialog, {
-      data: { user: {} as UserData, isNew: true }
+      data: {
+        user: new UserData(), isNew: true,
+        organizations: this.organizations
+      }
     }).afterClosed()
       .subscribe(user => {
         if (user) {
