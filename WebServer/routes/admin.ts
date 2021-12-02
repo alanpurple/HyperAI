@@ -42,7 +42,7 @@ router.get("/user", async (request: Request, response: Response, next: NextFunct
         
         response.status(StatusCodes.INTERNAL_SERVER_ERROR);
     } finally {
-        response.send(responseData);
+        response.send(responseData.data);
         response.end();
     }
 });
@@ -75,7 +75,7 @@ router.get("/user/:email", async (request: Request, response: Response, next: Ne
         
         response.status(StatusCodes.INTERNAL_SERVER_ERROR);
     } finally {
-        response.send(responseData);
+        response.send(responseData.data);
         response.end();
     }
 });
