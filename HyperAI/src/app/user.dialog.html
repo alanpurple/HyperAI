@@ -7,6 +7,11 @@
       <input matInput type="email" placeholder="email"
              [(ngModel)]="data.user.email" [disabled]="!data.isNew">
     </mat-form-field>
+    <mat-form-field appearance="fill">
+      <mat-label>Password</mat-label>
+      <input matInput type="password" placeholder="password"
+             [(ngModel)]="password" [disabled]="!data.isNew">
+    </mat-form-field>
     <mat-form-field>
       <mat-label>Name</mat-label>
       <input matInput type="text" name="name" [(ngModel)]="data.user.name">

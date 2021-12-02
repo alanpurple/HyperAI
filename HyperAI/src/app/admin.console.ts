@@ -104,14 +104,14 @@ export class AdminConsole implements OnInit, AfterViewInit {
         organizations: this.organizations
       }
     }).afterClosed()
-      .subscribe(user => {
-        if (user) {
-          this.adminService.createUser(user).subscribe(
+      .subscribe(data => {
+        if (data) {
+          this.adminService.createUser(data.data,data.password).subscribe(
             msg => {
-              this.users.push(user);
+              this.users.push(data.data);
               this.userDS.data = this.users;
               this.confirmDialog.open('user created');
-            }
+            }, err => this.errorAlert.open(err.error)
           );
         }
       });

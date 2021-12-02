@@ -13,8 +13,8 @@ export class AdminService {
     return this.http.get<UserData[]>('/admin/user');
   }
 
-  createUser(data: UserData): Observable<string> {
-    return this.http.post('/admin/user', data, { responseType: 'text' });
+  createUser(data: UserData, password: string): Observable<string> {
+    return this.http.post('/admin/user', { data: data, password: password }, { responseType: 'text' });
   }
 
   editUser(email: string, modification: any): Observable<string>{
