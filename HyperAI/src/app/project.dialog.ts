@@ -25,8 +25,8 @@ export class ProjectDialog {
     private errorAlert: ErrorAlert
   ) {
     this.originalAM == this.data.availableMembers;
-    if(!this.data.isNew)
-      this.originalData = this.data.project;
+    if (!this.data.isNew)
+      this.originalData = JSON.parse(JSON.stringify(this.data.project));
   }
 
   originalAM: string[] = [];

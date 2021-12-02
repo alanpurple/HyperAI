@@ -1,3 +1,17 @@
+<form fxLayout="column">
+  <mat-form-field appearance="fill">
+    <mat-label>Name</mat-label>
+    <input matInput type="text" name="name" [(ngModel)]="project.name" placeholder="name" disabled>
+  </mat-form-field>
+  <mat-form-field appearance="fill">
+    <mat-label>Category</mat-label>
+    <input matInput type="text" name="category" [(ngModel)]="project.category" placeholder="category" disabled>
+  </mat-form-field>
+  <mat-form-field appearance="fill">
+    <mat-label>Objective</mat-label>
+    <input matInput type="text" name="objective" [(ngModel)]="project.objective" placeholder="objective" disabled>
+  </mat-form-field>
+</form>
 <button mat-fab color="accent" aria-label="add task button"
         (click)="addTask()" [disabled]="project.owner!='self'">
   <mat-icon>add</mat-icon>

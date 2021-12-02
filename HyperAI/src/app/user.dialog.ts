@@ -14,7 +14,7 @@ export class UserDialog {
     }
   ) {
     if (!data.isNew)
-      this.originalData = data.user;
+      this.originalData = JSON.parse(JSON.stringify(data.user));
   }
   originalData: UserData = new UserData();
   password: string = '';
@@ -27,9 +27,17 @@ export class UserDialog {
   save() {
     if (this.data.isNew)
       this.dialogRef.close({ data: this.data.user, password: this.password });
-    else if (this.password)
-      this.dialogRef.close({ data: this.data.user, password: this.password });
-    else
-      this.dialogRef.close({ data: this.data.user });
+    else if (this.password) {
+      if (this.data.user.name != this.originalData.name)
+        this.dialogRef.close({ data: { name: this.data.user.name }, password: this.password });
+      else
+        this.dialogRef.close({ password: this.password });
+    }
+    else {
+      if (this.data.user.name != this.originalData.name)
+        this.dialogRef.close({ data: { name: this.data.user.name } });
+      else
+        this.dialogRef.close({ data: {} });
+    }
   }
 }

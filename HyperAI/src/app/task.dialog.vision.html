@@ -1,7 +1,7 @@
 <h2 *ngIf="data.isNew" mat-dialog-title>Task create</h2>
 <h2 *ngIf="!data.isNew" mat-dialog-title>Task Edit</h2>
 <div mat-dialog-content>
-  <form fxLayout="column">
+  <form fxLayout="column" #taskForm="ngForm">
     <mat-form-field>
       <mat-label>Task Name</mat-label>
       <input matInput maxlength="15" placeholder="name" [(ngModel)]="data.task.name"
@@ -22,14 +22,19 @@
     </mat-form-field>
   </form>
   <form *ngIf="data.task.taskType=='preprocess'">
-
   </form>
   <form *ngIf="data.task.taskType=='train'">
-
   </form>
 </div>
 <div mat-dialog-actions>
-  <button mat-button [mat-dialog-close]="data.task" [disabled]="nameRe.test(data.task.name)">Save</button>
+  <button *ngIf="data.isNew" mat-button [mat-dialog-close]="data.task"
+          [disabled]="nameRe.test(data.task.name)||taskForm.invalid">
+    Save
+  </button>
+  <button *ngIf="!data.isNew" mat-button [mat-dialog-close]="data.task"
+          [disabled]="nameRe.test(data.task.name)||!taskForm.dirty">
+    Save
+  </button>
   <button mat-button mat-dialog-close>Cancel</button>
   <button mat-button (click)="reset()">Reset</button>
 </div>
