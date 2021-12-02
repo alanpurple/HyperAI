@@ -120,7 +120,18 @@ export class AdminConsole implements OnInit, AfterViewInit {
   createProject() {
     this.dialog.open(ProjectDialog, {
       data: {
-        project: {} as Project, isNew: true,
+        project: {
+          name: '',
+          dataURI: '',
+          projectType: 'single',
+          category: 'structural',
+          owner: 'self',
+          members: [],
+          visionTasks: [],
+          textTasks: [],
+          structuralTasks: []}, isNew: true,
+        categories: this.categories,
+        objectives: this.objectives,
         isAdmin: true, users: this.users.map(elem => elem.email)
       }
     }).afterClosed().subscribe(project => {
