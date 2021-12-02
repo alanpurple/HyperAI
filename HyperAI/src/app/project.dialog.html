@@ -8,10 +8,18 @@
              name="name" appForbiddenName [disabled]="!data.isNew">
       <mat-error *ngIf="nameRe.test(data.project.name)">No special characters</mat-error>
     </mat-form-field>
+    <mat-form-field appearance="fill" [fxShow]="data.isAdmin">
+      <mat-label>Project Owner</mat-label>
+      <mat-select [(ngModel)]="data.project.owner" name="owner" [disabled]="!data.isNew">
+        <mat-option *ngFor="let user of data.users" [value]="user">
+          {{user}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
     <mat-form-field appearance="fill">
       <mat-label>Project Category</mat-label>
       <mat-select [(ngModel)]="data.project.category" name="category"
-                  (selectionChange)="filterData()">
+                  (selectionChange)="filterData()" [disabled]="!data.isNew">
         <mat-option *ngFor="let category of data.categories" [value]="category">
           {{category}}
         </mat-option>
@@ -19,7 +27,7 @@
     </mat-form-field>
     <mat-form-field appearance="fill">
       <mat-label>Project Objective</mat-label>
-      <mat-select [(ngModel)]="data.project.objective" name="objective">
+      <mat-select [(ngModel)]="data.project.objective" name="objective" [disabled]="!data.isNew">
         <mat-option *ngFor="let objective of data.objectives" [value]="objective" [disabled]="!isValidObjective(objective)">
           {{objective}}
         </mat-option>
@@ -27,7 +35,7 @@
     </mat-form-field>
     <mat-form-field appearance="fill">
       <mat-label>Target Data</mat-label>
-      <mat-select [(ngModel)]="data.project.dataURI" name="datauri">
+      <mat-select [(ngModel)]="data.project.dataURI" name="datauri" [disabled]="!data.isNew">
         <mat-option *ngFor="let data of data.dataList" [value]="data.name">
           {{data.name}}
         </mat-option>

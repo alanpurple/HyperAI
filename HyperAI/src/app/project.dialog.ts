@@ -12,7 +12,9 @@ export class ProjectDialog {
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: {
       project: Project, isNew: boolean, availableMembers: string[], userData: DataInfo[],
-      dataList: DataInfo[], categories: string[],objectives:string[]
+      dataList: DataInfo[], categories: string[], objectives: string[], isAdmin: boolean,
+      //only for admin
+      users: string[]
     }
   ) {
     this.originalAM == this.data.availableMembers;

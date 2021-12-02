@@ -42,8 +42,6 @@ export class ProjectComponent implements OnInit, AfterViewInit {
   projectDS = new MatTableDataSource([] as Project[]);
   @ViewChild(MatSort) sort: MatSort | null = null;
 
-  //@ViewChild('projectTable') projectTable: MatTable<Project> | null = null;
-
   ngAfterViewInit() {
     this.projectDS.sort = this.sort;
   }
@@ -68,12 +66,12 @@ export class ProjectComponent implements OnInit, AfterViewInit {
 
   roles = ['member', 'attendee'];
   categories = ['various', 'vision', 'text', 'structural'];
-  objectives = ['classification' , 'regression',
+  objectives = ['classification', 'regression',
     // only for text
     'qna', 'translation',
     // only for vision
-    'segmentation' , 'object detection' ,
-    'clustering' , 'anomaly detection' , 'recommendation']
+    'segmentation', 'object detection',
+    'clustering', 'anomaly detection', 'recommendation'];
   displayedColumns = ['name','owner', 'dataURI', 'projectType', 'category', 'edit', 'delete'];
 
   userData: DataInfo[] = [];

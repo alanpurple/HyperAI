@@ -13,11 +13,19 @@ export class AdminService {
     return this.http.get<UserData[]>('/admin/user');
   }
 
+  createUser(data: UserData): Observable<string> {
+    return this.http.post('/admin/user', data, { responseType: 'text' });
+  }
+
   editUser(email: string, modification: any): Observable<string>{
     return this.http.put('/admin/user/' + email, modification, { responseType: 'text' });
   }
 
   deleteUser(email: string): Observable<string> {
     return this.http.delete('/admin/user/' + email, { responseType: 'text' });
+  }
+
+  getColleagues(email: string): Observable<string[]> {
+    return this.http.get<string[]>('/account/colleagues/' + email);
   }
 }

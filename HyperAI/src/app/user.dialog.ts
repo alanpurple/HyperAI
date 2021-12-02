@@ -8,6 +8,16 @@ import { UserData } from "./user.data";
 })
 export class UserDialog {
   constructor(
-    @Inject(MAT_DIALOG_DATA) public data: { user: UserData, isNew: boolean }
-  ) { }
+    @Inject(MAT_DIALOG_DATA) public data: {
+      user: UserData, isNew: boolean, organizations: string[]
+    }
+  ) {
+    if (!data.isNew)
+      this.originalData = data.user;
+  }
+  originalData: UserData = new UserData();
+
+  reset() {
+    this.data.user = this.originalData;
+  }
 }

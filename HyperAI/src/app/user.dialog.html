@@ -1,7 +1,30 @@
 <h2 mat-dialog-title [fxHide]="!data.isNew">User Create</h2>
 <h2 mat-dialog-title [fxHide]="data.isNew">User Edit</h2>
 <div mat-dialog-content>
-
+  <form fxLayout="column">
+    <mat-form-field appearance="fill">
+      <mat-label>Email</mat-label>
+      <input matInput type="email" placeholder="email"
+             [(ngModel)]="data.user.email" [disabled]="!data.isNew">
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>Name</mat-label>
+      <input matInput type="text" name="name" [(ngModel)]="data.user.name">
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>Organization</mat-label>
+      <mat-select [(ngModel)]="data.user.organization" name="organization">
+        <mat-option *ngFor="let organization of data.organizations" [value]="organization">
+          {{organization}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-radio-group aria-label="account type" [(ngModel)]="data.user.accountType"
+                     [disabled]="!data.isNew">
+      <mat-radio-button value="admin">Admin</mat-radio-button>
+      <mat-radio-button value="user">User</mat-radio-button>
+    </mat-radio-group>
+  </form>
 </div>
 <div mat-dialog-actions>
   <button mat-button color="primary" [mat-dialog-close]="data.user">Save</button>

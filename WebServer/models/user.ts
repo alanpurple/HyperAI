@@ -19,6 +19,7 @@ export interface User {
     hasNickName: boolean;
     accountType: 'admin' | 'user';
     email: string;
+    emailVerified: boolean;
     data: DataInfo[];
     comparePassword(password: string, callback: any);
     runningTasks: RunningTasks[];
@@ -39,6 +40,8 @@ const schema = new Schema<User>({
     hasNickName: { type: Boolean, default: true },
     accountType: { type: String, enum: ['admin', 'user'] },
     email: { type: String, unique: true, index: true, required: true },
+    //To do: email verification not implemented yet, so default to true temporarily
+    emailVerified: { type: Boolean,default:true },
     data: [DataSchema],
     runningTasks: [runningTaskSchema]
 });
