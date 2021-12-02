@@ -1,7 +1,7 @@
 <h2 mat-dialog-title [fxHide]="!data.isNew">User Create</h2>
 <h2 mat-dialog-title [fxHide]="data.isNew">User Edit</h2>
 <div mat-dialog-content>
-  <form fxLayout="column">
+  <form fxLayout="column" #userForm="ngForm">
     <mat-form-field appearance="fill">
       <mat-label>Email</mat-label>
       <input matInput type="email" placeholder="email" name="email"
@@ -32,7 +32,7 @@
   </form>
 </div>
 <div mat-dialog-actions>
-  <button mat-button color="primary" [mat-dialog-close]="data.user">Save</button>
+  <button mat-button color="primary" [mat-dialog-close]="data.user" [disabled]="userForm.invalid">Save</button>
   <button mat-button color="warn" mat-dialog-close>Cancel</button>
   <button mat-button color="accent" (click)="reset()">Reset</button>
 </div>

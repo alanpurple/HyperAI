@@ -1,16 +1,17 @@
 <h2 mat-dialog-title [fxHide]="!data.isNew">Project create</h2>
 <h2 mat-dialog-title [fxHide]="data.isNew">Project Edit</h2>
 <div mat-dialog-content>
-  <form fxLayout="column">
+  <form fxLayout="column" #projectForm="ngForm">
     <mat-form-field appearance="fill">
       <mat-label>Project Name</mat-label>
       <input matInput maxlength="15" placeholder="Name" [(ngModel)]="data.project.name"
-             name="name" appForbiddenName [disabled]="!data.isNew">
+             name="name" appForbiddenName required [disabled]="!data.isNew">
       <mat-error *ngIf="nameRe.test(data.project.name)">No special characters</mat-error>
     </mat-form-field>
     <mat-form-field appearance="fill" [fxShow]="data.isAdmin">
       <mat-label>Project Owner</mat-label>
-      <mat-select [(ngModel)]="data.project.owner" name="owner" [disabled]="!data.isNew">
+      <mat-select [(ngModel)]="data.project.owner" name="owner"
+                  (selectionChange)="onUserChange()" [disabled]="!data.isNew">
         <mat-option *ngFor="let user of data.users" [value]="user">
           {{user}}
         </mat-option>
@@ -48,7 +49,7 @@
         <button matChipRemove><mat-icon>cancel</mat-icon></button>
       </mat-chip>
     </mat-chip-list>
-    <mat-form-field>
+    <mat-form-field [fxHide]="data.isNew">
       <mat-label>Colleagues</mat-label>
       <mat-select name="member">
         <mat-option *ngFor="let member of data.availableMembers; index as i" [value]="member" (click)="addMember(i)">
@@ -59,7 +60,7 @@
   </form>
 </div>
 <div mat-dialog-actions>
-  <button mat-button color="primary" [mat-dialog-close]="data.project" [disabled]="nameRe.test(data.project.name)">Save</button>
+  <button mat-button color="primary" [mat-dialog-close]="data.project" [disabled]="nameRe.test(data.project.name)||projectForm.invalid">Save</button>
   <button mat-button color="warn" mat-dialog-close>Cancel</button>
   <button mat-button color="accent" (click)="reset()">Reset</button>
 </div>
