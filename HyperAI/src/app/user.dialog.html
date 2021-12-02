@@ -4,13 +4,13 @@
   <form fxLayout="column">
     <mat-form-field appearance="fill">
       <mat-label>Email</mat-label>
-      <input matInput type="email" placeholder="email"
-             [(ngModel)]="data.user.email" [disabled]="!data.isNew">
+      <input matInput type="email" placeholder="email" name="email"
+             [(ngModel)]="data.user.email" [readonly]="!data.isNew" required>
     </mat-form-field>
     <mat-form-field appearance="fill">
       <mat-label>Password</mat-label>
-      <input matInput type="password" placeholder="password"
-             [(ngModel)]="password" [disabled]="!data.isNew">
+      <input matInput type="password" placeholder="password" name="password"
+             [(ngModel)]="password" [required]="data.isNew">
     </mat-form-field>
     <mat-form-field>
       <mat-label>Name</mat-label>
@@ -18,13 +18,13 @@
     </mat-form-field>
     <mat-form-field>
       <mat-label>Organization</mat-label>
-      <mat-select [(ngModel)]="data.user.organization" name="organization">
+      <mat-select [(ngModel)]="data.user.organization" name="organization" [disabled]="!data.isNew">
         <mat-option *ngFor="let organization of data.organizations" [value]="organization">
           {{organization}}
         </mat-option>
       </mat-select>
     </mat-form-field>
-    <mat-radio-group aria-label="account type" [(ngModel)]="data.user.accountType"
+    <mat-radio-group aria-label="account type" [(ngModel)]="data.user.accountType" name="account type"
                      [disabled]="!data.isNew">
       <mat-radio-button value="admin">Admin</mat-radio-button>
       <mat-radio-button value="user">User</mat-radio-button>
