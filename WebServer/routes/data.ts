@@ -189,6 +189,7 @@ router.post('/', multerRead.single('data'), (req: Request, res: Response) => {
                 $push: {
                     data: {
                         name: tableName,
+                        uri: tableName,
                         numRows: result.numrows,
                         // only 'structural' is available for now
                         type: 'structural'
