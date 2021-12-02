@@ -1,5 +1,5 @@
 import { Component, Inject } from "@angular/core";
-import { MAT_DIALOG_DATA } from "@angular/material/dialog";
+import { MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { UserData } from "./user.data";
 
 @Component({
@@ -8,6 +8,7 @@ import { UserData } from "./user.data";
 })
 export class UserDialog {
   constructor(
+    public dialogRef: MatDialogRef<UserDialog>,
     @Inject(MAT_DIALOG_DATA) public data: {
       user: UserData, isNew: boolean, organizations: string[]
     }
@@ -16,8 +17,17 @@ export class UserDialog {
       this.originalData = data.user;
   }
   originalData: UserData = new UserData();
+  password: string = '';
 
   reset() {
     this.data.user = this.originalData;
+    this.password = '';
+  }
+
+  save() {
+    if (this.data.isNew)
+      this.dialogRef.close({ data: this.data.user, password: this.password });
+    else
+      this.dialogRef.close(this.data.user);
   }
 }
