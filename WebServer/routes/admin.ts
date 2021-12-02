@@ -6,11 +6,12 @@ import { ResponseData } from "../interfaces/ResponseData";
 import { AdminError } from "../interfaces/Errors";
 import { ProjectModel } from "../models/project";
 import { removeMember } from './project';
+import { ensureAdminAuthenticated } from "../authentication/authentication";
 
 const debug = Debug("admin");
 const router = Router();
 
-// router.all("*", ensureAdminAuthenticated);
+router.all("*", ensureAdminAuthenticated);
 
 router.get("/user", async (request: Request, response: Response, next: NextFunction) => {
     const responseData = new ResponseData();
@@ -38,6 +39,7 @@ router.get("/user", async (request: Request, response: Response, next: NextFunct
 });
 
 router.get("/user/:email", async (request: Request, response: Response, next: NextFunction) => {
+    console.log(request.body);
     const responseData = new ResponseData();
     
     try {
@@ -90,6 +92,7 @@ router.post("/user", async (request: Request, response: Response) => {
 );
 
 router.put("/user/:email", async (request: Request, response: Response) => {
+    console.log(request.body);
     const responseData = new ResponseData();
     
     try {
@@ -128,6 +131,7 @@ router.delete("/user", async (request: Request, response: Response, next: NextFu
 });
 
 router.delete("/user/:email", async (request: Request, response: Response) => {
+    console.log(request.body);
     const responseData = new ResponseData();
     
     try {
