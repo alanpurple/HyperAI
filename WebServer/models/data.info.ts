@@ -27,7 +27,7 @@ const BasicSchema = new Schema<DataBasic>({
 
 export const DataSchema = new Schema<DataInfo>({
     name: { type: String, unique: true, required: true },
-    uri: String,
+    uri: { type: String, unique: true, required: true },
     locationType: { type: String, enum: ['db uri', 'local', 'smb', 'datalake', 'aws s3'], required: true },
     createdAt: Date,
     type: { type: String, enum: ['structural', 'sound', 'text', 'vision'], required: true },
