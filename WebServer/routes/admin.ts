@@ -2,16 +2,10 @@ import { NextFunction, Request, Response, Router } from 'express';
 import { User, UserModel } from "../models/user";
 import { ReasonPhrases, StatusCodes, } from 'http-status-codes';
 import Debug from "debug";
-import { ensureAdminAuthenticated } from "../authentication/authentication";
 import { ResponseData } from "../interfaces/ResponseData";
-import { sequelize as database } from "../connect-rdb";
-import { QueryTypes, QueryInterface, QueryInterfaceDropTableOptions } from "sequelize";
 import { AdminError } from "../interfaces/Errors";
 import { ProjectModel } from "../models/project";
-import { DeleteResult } from 'mongodb';
 import { removeMember } from './project';
-import * as passport from 'passport'
-import { Strategy as LocalStrategy } from 'passport-local';
 
 const debug = Debug("admin");
 const router = Router();
@@ -72,13 +66,15 @@ router.post("/user", async (request: Request, response: Response) => {
     const responseData = new ResponseData();
     
     try {
-        const reqUser: User = request.body;
+        const reqUser: User = request.body.data;
+        reqUser.password = request.body.password;
+        
         let user = await UserModel.findOne({ email: reqUser.email }).exec();
         
         if (!user) {
             let userModel = new UserModel(reqUser);
             await UserModel.create(userModel);
-
+            
             responseData.success = true;
             responseData.code = StatusCodes.CREATED;
             responseData.message = ReasonPhrases.CREATED;
@@ -106,9 +102,9 @@ router.put("/user/:email", async (request: Request, response: Response) => {
             
             await user.updateOne(userObj).exec();
             
-            responseData.success = false;
-            responseData.code = StatusCodes.NOT_IMPLEMENTED;
-            responseData.message = ReasonPhrases.NOT_IMPLEMENTED;
+            responseData.success = true;
+            responseData.code = StatusCodes.CREATED;
+            responseData.message = ReasonPhrases.CREATED;
         } else {
             new AdminError('User not found').throw();
         }
