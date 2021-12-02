@@ -7,6 +7,8 @@ import { AdminError } from "../interfaces/Errors";
 import { ProjectModel } from "../models/project";
 import { removeMember } from './project';
 import { ensureAdminAuthenticated } from "../authentication/authentication";
+import * as bcrypt from 'bcrypt';
+const NUM_ROUNDS = 10;
 
 const debug = Debug("admin");
 const router = Router();
@@ -103,7 +105,11 @@ router.put("/user/:email", async (request: Request, response: Response) => {
             let userObj = user.toObject();
             userObj = Object.assign({}, userObj, modification);
             
-            await user.updateOne(userObj).exec();
+            // await user.updateOne(userObj);
+    
+            userObj.password = await bcrypt.hash(userObj.password, NUM_ROUNDS);
+            console.log(userObj.password);
+            await UserModel.findOneAndUpdate({ email: request.params.email }, userObj);
             
             responseData.success = true;
             responseData.code = StatusCodes.CREATED;
