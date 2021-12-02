@@ -23,13 +23,19 @@ export class AdminConsole implements OnInit {
     private confirmDialog: ConfirmDialog,
     private deleteConfirm: DeleteConfirmDialog,
     public dialog: MatDialog
-  ) { }
+  ) {
+    if (window.outerWidth < 1200)
+      this.isSmallDevice = true;
+    else
+      Array.prototype.push.apply(this.projectColumns,['createdAt','updatedAt'])
+  }
 
   users: UserData[] = [];
   projects: Project[] = [];
 
   userColumns = ['email', 'name', 'organization', 'nickName'];
-  projectColumns = ['name', 'owner', 'createdAt', 'updatedAt', 'dataURI', 'projectType', 'category', 'objective'];
+  projectColumns = ['name', 'owner', 'dataURI', 'projectType', 'category', 'objective'];
+  isSmallDevice = false;
 
   @ViewChild('projectTable') projectTable: MatTable<Project> | null = null;
   @ViewChild('userTable') userTable: MatTable<UserData> | null = null;

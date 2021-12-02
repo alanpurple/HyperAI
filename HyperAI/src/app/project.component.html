@@ -10,9 +10,9 @@
 
 <button [fxHide]="isMaking" mat-button color="accent" (click)="createProject()">Create project manually</button>
 
-<table #projectTable [fxHide]="isMaking" mat-table [dataSource]="projects" matSort class="mat-elevation-z5">
+<table [fxHide]="isMaking" mat-table [dataSource]="projectDS" matSort #sort="matSort" class="mat-elevation-z5">
   <ng-container matColumnDef="name">
-    <th mat-header-cell *matHeaderCellDef>name</th>
+    <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="sort by name">name</th>
     <td mat-cell *matCellDef="let row">
       {{row.name}}
       <button mat-icon-button color="primary" routerLink="/project-manager/{{row.name}}">
@@ -26,27 +26,43 @@
     </td>
   </ng-container>
   <ng-container matColumnDef="owner">
-    <th mat-header-cell *matHeaderCellDef>owner</th>
+    <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="sort by owner">owner</th>
     <td mat-cell *matCellDef="let row">
       {{row.owner}}
     </td>
   </ng-container>
+  <ng-container matColumnDef="createdAt" *ngIf="!isSmallDevice">
+    <th mat-header-cell *matHeaderCellDef>Created At</th>
+    <td mat-cell *matCellDef="let row">
+      <mat-form-field>
+        <input matInput type="datetime" name="createdAt" [(ngModel)]="row.createdAt" disabled>
+      </mat-form-field>
+    </td>
+  </ng-container>
+  <ng-container matColumnDef="updatedAt" *ngIf="!isSmallDevice">
+    <th mat-header-cell *matHeaderCellDef>Updated At</th>
+    <td mat-cell *matCellDef="let row">
+      <mat-form-field>
+        <input matInput type="datetime" name="updatedAt" [(ngModel)]="row.updatedAt" disabled>
+      </mat-form-field>
+    </td>
+  </ng-container>
   <ng-container matColumnDef="dataURI">
-    <th mat-header-cell *matHeaderCellDef>Data</th>
+    <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="sort by data">Data</th>
     <td mat-cell *matCellDef="let row">{{row.dataURI}}</td>
   </ng-container>
   <ng-container matColumnDef="projectType">
-    <th mat-header-cell *matHeaderCellDef>Project Type</th>
+    <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="sort by type">Type</th>
     <td mat-cell *matCellDef="let row">{{row.projectType}}</td>
   </ng-container>
   <ng-container matColumnDef="category">
-    <th mat-header-cell *matHeaderCellDef>Category</th>
+    <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="sort by category">Category</th>
     <td mat-cell *matCellDef="let row">{{row.category}}</td>
   </ng-container>
   <ng-container matColumnDef="edit">
     <th mat-headercell *matHeaderCellDef>Edit</th>
     <td mat-cell *matCellDef="let row; let i=index">
-      <button mat-button (click)="editProject(i)" [disabled]="row.owner!='self'">
+      <button mat-button (click)="editProject(row.name)" [disabled]="row.owner!='self'">
         Edit
       </button>
     </td>
@@ -55,7 +71,7 @@
     <th mat-header-cell *matHeaderCellDef>Delete</th>
     <td mat-cell *matCellDef="let row; let i=index">
       <button mat-fab color="accent" aria-label="delete project"
-              (click)="deleteProject(i)" [disabled]="row.owner!='self'">
+              (click)="deleteProject(row.name)" [disabled]="row.owner!='self'">
         <mat-icon>delete</mat-icon>
       </button>
     </td>
