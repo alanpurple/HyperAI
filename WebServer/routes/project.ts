@@ -664,87 +664,67 @@ const convertToProjectSchema = async (user, reqProject: RequestProject) => {
 };
 
 const addMember = async (inMembers: { user: string, role: 'member' | 'attendee' }[], project: Document<any, any, Project> & Project & { _id: Types.ObjectId }) => {
-    try {
-        let addMemberResult: AddMemberResult = { error: [], addedMembers: [], ignoredMembers: [] };
-        const options = { lean: true, new: true, rawResult: true };
-        
-        // Check if the target to be removed exists
-        let currentMemberEmails: string[] = project.members.map(member => member.user["email"]);
-        let inMemberEmails: string[] = inMembers.map(e => e.user);
-        const difference: string[] = inMemberEmails.filter(e => !currentMemberEmails.includes(e));
-        
-        if (difference.length > 0) {
-            for (let member of inMembers) {
-                let user = await UserModel.findOne({ email: member.user }).exec();
-                
-                if (user) {
-                    let foundIndex = currentMemberEmails.findIndex(email => email === user.email);
-                    
-                    if (foundIndex < 0) {
-                        let updateResult = await project.updateOne(
-                            { $push: { "members": { user: user._id, role: member.role } } }, options
-                        ).exec();
+    let addMemberResult: AddMemberResult = { error: [], addedMembers: [], ignoredMembers: [] };
+    const options = { lean: true, new: true, rawResult: true };
     
-                        if (!updateResult) {
-                            addMemberResult.error.push(`An error occurred while adding member '${ member.user }'.`);
-                        } else {
-                            logger(`User '${ member.user }' is added.`);
-                            addMemberResult.addedMembers.push(member.user);
-                        }
-                    } else {
-                        addMemberResult.ignoredMembers.push(`${ member.user }: already exists.`);
-                    }
+    // Check if the target to be removed exists
+    let currentMemberEmails: string[] = project.members.map(member => member.user["email"]);
+    let inMemberEmails: string[] = inMembers.map(e => e.user);
+    const difference: string[] = inMemberEmails.filter(e => !currentMemberEmails.includes(e));
+    
+    if (difference.length > 0) {
+        for (let member of inMembers) {
+            let user = await UserModel.findOne({ email: member.user }).exec();
+            
+            if (user) {
+                let foundIndex = currentMemberEmails.findIndex(email => email === user.email);
+                
+                if (foundIndex < 0) {
+                    await project.updateOne({ $push: { "members": { user: user._id, role: member.role } } }, options).exec();
+                    
+                    logger(`User '${ member.user }' is added.`);
+                    addMemberResult.addedMembers.push(member.user);
                 } else {
-                    addMemberResult.ignoredMembers.push(`${ member.user }: not found.`);
+                    addMemberResult.ignoredMembers.push(`${ member.user }: already exists.`);
                 }
+            } else {
+                addMemberResult.ignoredMembers.push(`${ member.user }: not found.`);
             }
-        } else {
-            addMemberResult.addedMembers.push("Project members already exist.");
         }
-        
-        return addMemberResult;
-    } catch (error) {
-        throw error;
+    } else {
+        addMemberResult.addedMembers.push("Project members already exist.");
     }
+    
+    return addMemberResult;
 };
 
 const removeMember = async (outMembers: string[], project: Document<any, any, Project> & Project & { _id: Types.ObjectId }) => {
-    try {
-        let removeMemberResult: RemoveMemberResult = { error: [], ignoredMembers: [], removedMembers: [] };
-        const options = { lean: true, new: true, rawResult: true };
-        
-        // Check if the target to be removed exists
-        let currentMemberEmails: string[] = project.members.map(member => member.user["email"]);
-        const intersection: string[] = currentMemberEmails.filter(e => outMembers.includes(e));
-        
-        if (intersection.length > 0) {
-            for (let member of outMembers) {
-                let user = await UserModel.findOne({ email: member }).exec();
+    let removeMemberResult: RemoveMemberResult = { error: [], ignoredMembers: [], removedMembers: [] };
+    const options = { lean: true, new: true, rawResult: true };
+    
+    // Check if the target to be removed exists
+    let currentMemberEmails: string[] = project.members.map(member => member.user["email"]);
+    const intersection: string[] = currentMemberEmails.filter(e => outMembers.includes(e));
+    
+    if (intersection.length > 0) {
+        for (let member of outMembers) {
+            let user = await UserModel.findOne({ email: member }).exec();
+            
+            if (user) {
+                await project.updateOne({ $pull: { "members": { user: user._id } } }, options).exec();
                 
-                if (user) {
-                    let updateResult = await project.updateOne(
-                        { $pull: { "members": { user: user._id } } }, options
-                    ).exec();
-                    
-                    if (!updateResult) {
-                        removeMemberResult.error.push(`An error occurred while removing member '${ member }'.`);
-                    } else {
-                        logger(`User '${ member }' is removed.`);
-                        removeMemberResult.removedMembers.push(member);
-                    }
-                } else {
-                    logger(`User '${ member }' not found.`);
-                    removeMemberResult.ignoredMembers.push(`${ member }: not found.`);
-                }
+                logger(`User '${ member }' is removed.`);
+                removeMemberResult.removedMembers.push(member);
+            } else {
+                logger(`User '${ member }' not found.`);
+                removeMemberResult.ignoredMembers.push(`${ member }: not found.`);
             }
-        } else {
-            removeMemberResult.error.push("No project members to remove.");
         }
-        
-        return removeMemberResult;
-    } catch (error) {
-        throw error;
+    } else {
+        removeMemberResult.error.push("No project members to remove.");
     }
+    
+    return removeMemberResult;
 };
 
 const checkTasksCanBeAdded = (tasks: Array<any>, taskName: string) => !(tasks.findIndex(elem => elem.name === taskName) >= 0);
