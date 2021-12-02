@@ -616,6 +616,7 @@ const makeProjectResponse = (user: User, project: Document<any, any, Project> & 
         dataURI: project.dataURI,
         projectType: project.projectType,
         category: project.category,
+        objective: project.objective,
         owner: isAdminOrMember ? project.owner["email"] : "self",
         members: projectMemberArray,
         visionTasks: project.visionTasks,
@@ -705,7 +706,7 @@ const addMember = async (inMembers: { user: string, role: 'member' | 'attendee' 
     return addMemberResult;
 };
 
-const removeMember = async (outMembers: string[], project: Document<any, any, Project> & Project & { _id: Types.ObjectId }) => {
+export const removeMember = async (outMembers: string[], project: Document<any, any, Project> & Project & { _id: Types.ObjectId }) => {
     let removeMemberResult: RemoveMemberResult = { error: [], ignoredMembers: [], removedMembers: [] };
     const options = { lean: true, new: true, rawResult: true };
     
