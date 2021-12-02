@@ -8,6 +8,9 @@ import { ProjectModel } from "../models/project";
 import { removeMember } from './project';
 import { ensureAdminAuthenticated } from "../authentication/authentication";
 import * as bcrypt from 'bcrypt';
+import { sequelize as database } from "../connect-rdb";
+// import { QueryTypes, QueryInterface, QueryInterfaceDropTableOptions } from "sequelize";
+
 const NUM_ROUNDS = 10;
 
 const debug = Debug("admin");
@@ -66,31 +69,32 @@ router.get("/user/:email", async (request: Request, response: Response, next: Ne
 });
 
 router.post("/user", async (request: Request, response: Response) => {
-    console.log(request.body);
-    const responseData = new ResponseData();
-    
-    try {
-        const reqUser: User = request.body.data;
-        reqUser.password = request.body.password;
+        console.log(request.body);
+        const responseData = new ResponseData();
         
-        let user = await UserModel.findOne({ email: reqUser.email }).exec();
-        
-        if (!user) {
-            let userModel = new UserModel(reqUser);
-            await UserModel.create(userModel);
+        try {
+            const reqUser: User = request.body.data;
+            reqUser.password = request.body.password;
             
-            responseData.success = true;
-            responseData.code = StatusCodes.CREATED;
-            responseData.message = ReasonPhrases.CREATED;
-        } else {
-            new AdminError('User already exists.').throw();
+            let user = await UserModel.findOne({ email: reqUser.email }).exec();
+            
+            if (!user) {
+                let userModel = new UserModel(reqUser);
+                await UserModel.create(userModel);
+                
+                responseData.success = true;
+                responseData.code = StatusCodes.CREATED;
+                responseData.message = ReasonPhrases.CREATED;
+            } else {
+                new AdminError('User already exists.').throw();
+            }
+        } catch (error) {
+            makeErrorResult(error, responseData);
+        } finally {
+            response.status(responseData.code).send(responseData.message);
+            response.end();
         }
-    } catch (error) {
-        makeErrorResult(error, responseData);
-    } finally {
-        response.status(responseData.code).send(responseData.message);
-        response.end();
-    }},
+    },
 );
 
 router.put("/user/:email", async (request: Request, response: Response) => {
@@ -106,7 +110,7 @@ router.put("/user/:email", async (request: Request, response: Response) => {
             userObj = Object.assign({}, userObj, modification);
             
             // await user.updateOne(userObj);
-    
+            
             userObj.password = await bcrypt.hash(userObj.password, NUM_ROUNDS);
             console.log(userObj.password);
             await UserModel.findOneAndUpdate({ email: request.params.email }, userObj);
@@ -144,40 +148,48 @@ router.delete("/user/:email", async (request: Request, response: Response) => {
         let user = await UserModel.findOne({ email: decodeURI(request.params.email) }).exec();
         
         if (user) {
-            let projects = await ProjectModel
-                .find({ $or: [{ owner: user['_id'] }, { 'members.user': user['_id'] }] })
+            let ownerProjects = await ProjectModel
+                .find({ owner: user['_id'] })
                 .populate({ path: 'owner', select: 'email -_id' })
                 .populate({ path: 'members.user', select: 'email -_id' })
                 .exec();
             
-            let deleteUserWithProjects: number = 0;
-            if (projects.length > 0) {
-                for (const project of projects) {
-                    await removeMember([user.email], project);
-                    deleteUserWithProjects++;
-                }
-            }
-            if (deleteUserWithProjects > 0) {
-                debug(`The user '${ user.email }' removed from ${ deleteUserWithProjects } projects.`);
+            if (ownerProjects.length > 0) {
+                // for (const project of ownerProjects) {
+                await ProjectModel.deleteMany({owner: user['_id']}).exec();
+                // }
             }
             
-            // if (user.data.length > 0) {
-            //     const queryInterface = new QueryInterface(database);
-            //
-            //     // del user's data table (DROP)
-            //     // note: DROP TABLE causes an implicit commit, except when used with the TEMPORARY keyword.
-            //     //       (https://dev.mysql.com/doc/refman/8.0/en/drop-table.html)
-            //     await database.transaction(async (t) => {
-            //         const dropTableOptions: QueryInterfaceDropTableOptions = {
-            //             transaction: t,
-            //             // force: true
-            //         };
-            //
-            //         for (const data of user.data) {
-            //             await queryInterface.dropTable(data.name, dropTableOptions);
-            //         }
-            //     });
-            // }
+            let memberProjects = await ProjectModel
+                .find({ 'members.user': user['_id'] })
+                .populate({ path: 'owner', select: 'email -_id' })
+                .populate({ path: 'members.user', select: 'email -_id' })
+                .exec();
+            
+            if (memberProjects.length > 0) {
+                for (const project of memberProjects) {
+                    await removeMember([user.email], project);
+                }
+            }
+            
+            if (user.data.length > 0) {
+                // const queryInterface = new QueryInterface(database);
+
+                // del user's data table (DROP)
+                // note: DROP TABLE causes an implicit commit, except when used with the TEMPORARY keyword.
+                //       (https://dev.mysql.com/doc/refman/8.0/en/drop-table.html)
+                await database.transaction(async (t) => {
+                    // const dropTableOptions: QueryInterfaceDropTableOptions = {
+                    //     transaction: t,
+                    //     // force: true
+                    // };
+
+                    for (const data of user.data) {
+                        // await queryInterface.dropTable(data.name, dropTableOptions);
+                        await database.query('DROP TABLE ' + data.name);
+                    }
+                });
+            }
             
             // todo: check mongodb environments
             // Transactions only support replica sets or sharded clusters environments. It doesn't work in standalone.
