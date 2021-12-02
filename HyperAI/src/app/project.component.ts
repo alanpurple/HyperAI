@@ -247,7 +247,7 @@ export class ProjectComponent implements OnInit, AfterViewInit {
     const projectMembers = currentProject.members.map(elem => elem.user);
     this.dialog.open(ProjectDialog, {
       data: {
-        project: currentProject,
+        project: JSON.parse(JSON.stringify(currentProject)),
         isNew: false,
         availableMembers: this.colleagues.filter(elem => !projectMembers.includes(elem)),
         categories: this.categories,

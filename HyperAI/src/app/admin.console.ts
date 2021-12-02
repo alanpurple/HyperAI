@@ -200,7 +200,7 @@ export class AdminConsole implements OnInit, AfterViewInit {
       colleagues => {
         this.dialog.open(ProjectDialog, {
           data: {
-            project: currentProject, isNew: false, isAdmin: true,
+            project: JSON.parse(JSON.stringify(currentProject)), isNew: false, isAdmin: true,
             categories: this.categories,
             objectives: this.objectives,
             colleagues: colleagues,
