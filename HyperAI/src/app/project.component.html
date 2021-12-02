@@ -33,19 +33,11 @@
   </ng-container>
   <ng-container matColumnDef="createdAt" *ngIf="!isSmallDevice">
     <th mat-header-cell *matHeaderCellDef>Created At</th>
-    <td mat-cell *matCellDef="let row">
-      <mat-form-field>
-        <input matInput type="datetime" name="createdAt" [(ngModel)]="row.createdAt" disabled>
-      </mat-form-field>
-    </td>
+    <td mat-cell *matCellDef="let row">{{formatDate(row.createdAt)}}</td>
   </ng-container>
   <ng-container matColumnDef="updatedAt" *ngIf="!isSmallDevice">
     <th mat-header-cell *matHeaderCellDef>Updated At</th>
-    <td mat-cell *matCellDef="let row">
-      <mat-form-field>
-        <input matInput type="datetime" name="updatedAt" [(ngModel)]="row.updatedAt" disabled>
-      </mat-form-field>
-    </td>
+    <td mat-cell *matCellDef="let row">{{formatDate(row.updatedAt)}}</td>
   </ng-container>
   <ng-container matColumnDef="dataURI">
     <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="sort by data">Data</th>
@@ -70,7 +62,7 @@
   <ng-container matColumnDef="delete">
     <th mat-header-cell *matHeaderCellDef>Delete</th>
     <td mat-cell *matCellDef="let row; let i=index">
-      <button mat-fab color="accent" aria-label="delete project"
+      <button mat-icon-button color="accent" aria-label="delete project"
               (click)="deleteProject(row.name)" [disabled]="row.owner!='self'">
         <mat-icon>delete</mat-icon>
       </button>

@@ -27,14 +27,15 @@ export class AdminConsole implements OnInit {
     if (window.outerWidth < 1200)
       this.isSmallDevice = true;
     else
-      Array.prototype.push.apply(this.projectColumns,['createdAt','updatedAt'])
+      this.projectColumns = ['name', 'owner', 'dataURI','createdAt','updatedAt',
+        'projectType', 'category', 'objective', 'edit', 'delete'];
   }
 
   users: UserData[] = [];
   projects: Project[] = [];
 
-  userColumns = ['email', 'name', 'organization', 'nickName'];
-  projectColumns = ['name', 'owner', 'dataURI', 'projectType', 'category', 'objective'];
+  userColumns = ['email', 'name', 'organization', 'nickName','edit','delete'];
+  projectColumns = ['name', 'owner', 'dataURI', 'projectType', 'category', 'objective','edit','delete'];
   isSmallDevice = false;
 
   @ViewChild('projectTable') projectTable: MatTable<Project> | null = null;
@@ -46,28 +47,49 @@ export class AdminConsole implements OnInit {
       err => this.errorAlert.open(err.error)
     );
     this.projectService.getProjects().subscribe(
-      projects => this.projects = projects,
+      projects => {
+        this.projects = projects;
+        console.dir(projects);
+      },
       err => this.errorAlert.open(err.error)
     );
+  }
+
+  formatDate(date: any) {
+    const d = new Date(date);
+    let month = '' + (d.getMonth() + 1),
+      day = '' + d.getDate(),
+      year = d.getFullYear();
+
+    if (month.length < 2)
+      month = '0' + month;
+    if (day.length < 2)
+      day = '0' + day;
+
+    return [year, month, day].join('-');
   }
 
   createUser() {
 
   }
 
-  editUser(index:number) {
+  createProject() {
 
   }
 
-  deleteUser(index: number) {
+  editUser(email:string) {
 
   }
 
-  editProject(index: number) {
+  deleteUser(email: string) {
 
   }
 
-  deleteProject(index: number) {
+  editProject(name:string) {
+
+  }
+
+  deleteProject(name: string) {
 
   }
 
