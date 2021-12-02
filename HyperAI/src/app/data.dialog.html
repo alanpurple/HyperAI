@@ -1,6 +1,6 @@
 <h2 mat-dialog-title>Data Info</h2>
 <div mat-dialog-content>
-  <form fxLayout="column">
+  <form fxLayout="column" #dataForm="ngForm">
     <mat-form-field>
       <mat-label>Data Name</mat-label>
       <input matInput type="text"
@@ -29,7 +29,7 @@
   </form>
 </div>
 <div mat-dialog-actions>
-  <button mat-button [mat-dialog-close]="data">Save</button>
+  <button mat-button [mat-dialog-close]="data" [disabled]="!dataForm.valid">Save</button>
   <button mat-button mat-dialog-close>Cancel</button>
   <button mat-button (click)="reset()">Reset</button>
 </div>
