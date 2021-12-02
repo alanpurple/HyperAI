@@ -33,7 +33,7 @@ export class ProjectComponent implements OnInit, AfterViewInit {
     if (window.outerWidth < 1200)
       this.isSmallDevice = true;
     else
-      this.displayedColumns = ['name', 'owner', 'dataURI', 'createdAt', 'updatedAt', 'projectType', 'category', 'edit', 'delete'];
+      this.displayedColumns = ['name', 'owner', 'dataURI', 'createdAt', 'updatedAt', 'projectType', 'category','objective', 'edit', 'delete'];
   }
 
   isSmallDevice = false;
