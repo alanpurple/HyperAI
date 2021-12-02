@@ -25,8 +25,7 @@ export class ErrorAlert {
 
   open(msg?: string) {
     this.dialog.open(ErrorDialog, {
-      data: msg ? msg : 'critical error!',
-      hasBackdrop: true
+      data: msg ? msg : 'critical error!'
     }).afterClosed()
       .subscribe(() => this.router.navigate(['/']));
   }

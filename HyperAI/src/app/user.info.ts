@@ -39,7 +39,7 @@ export class UserInfo implements OnInit {
     this.userService.checkNick(this.nickName)
       .subscribe(result => {
         if (result) {
-          this.dialog.open(NickNameConfirmDialog, { data: this.nickName, hasBackdrop:true })
+          this.dialog.open(NickNameConfirmDialog, { data: this.nickName })
             .afterClosed()
             .subscribe(yes => {
               console.log(yes);

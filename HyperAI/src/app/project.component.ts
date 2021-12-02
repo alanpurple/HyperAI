@@ -135,8 +135,7 @@ export class ProjectComponent implements OnInit, AfterViewInit {
         dataList: this.dataList,
         categories: this.categories,
         objectives: this.objectives
-      },
-      hasBackdrop: true
+      }
     }).afterClosed().subscribe(project => {
       if (project)
         this.projectService.createProject(project).subscribe(
@@ -253,8 +252,7 @@ export class ProjectComponent implements OnInit, AfterViewInit {
         availableMembers: this.colleagues.filter(elem => !projectMembers.includes(elem)),
         categories: this.categories,
         objectives: this.objectives
-      },
-      hasBackdrop: true
+      }
     }).afterClosed().subscribe(project => {
       if (project) {
         let inMember: { user: string, role: 'attendee' | 'member' }[] = [];
@@ -292,7 +290,7 @@ export class ProjectComponent implements OnInit, AfterViewInit {
       this.errorAlert.open('cannot delete null');
       return;
     }
-    this.dialog.open(DeleteConfirmDialog, { hasBackdrop:true }).afterClosed().subscribe(
+    this.dialog.open(DeleteConfirmDialog).afterClosed().subscribe(
       selection => {
         if (selection)
           this.projectService.deleteProject(name).subscribe(

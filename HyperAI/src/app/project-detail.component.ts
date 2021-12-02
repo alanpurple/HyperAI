@@ -101,8 +101,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
               preprocessed: false
             },
             isNew: true
-          },
-          hasBackdrop: true
+          }
         }).afterClosed().subscribe(task => {
           if (task)
             this.projectService.addTask(this.project.name, 'vision', task).subscribe(
@@ -117,8 +116,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
         this.dialog.open(TextTaskDialog, {
           data: {
             task: { name: '',taskType:'tokenization' }, isNew: true
-          },
-          hasBackdrop: true
+          }
         }).afterClosed().subscribe(
           task => {
             if (task)
@@ -136,8 +134,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
           data: {
             task: { name: '', taskType: 'preprocess' },
             isNew: true
-          },
-          hasBackdrop: true
+          }
         }).afterClosed().subscribe(
           task => {
             if(task)
@@ -176,8 +173,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
     const task = this.project.visionTasks[index];
     const taskName = task.name;
     this.dialog.open(VisionTaskDialog, {
-      data: { task: task, isNew: false },
-      hasBackdrop: true
+      data: { task: task, isNew: false }
     }).afterClosed().subscribe(
       modification => {
         if (modification)
@@ -194,8 +190,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
     const task = this.project.textTasks[index];
     const taskName = task.name;
     this.dialog.open(TextTaskDialog, {
-      data: { task: task, isNew: false },
-      hasBackdrop: true
+      data: { task: task, isNew: false }
     }).afterClosed().subscribe(
       modification => {
         if (modification)
@@ -213,8 +208,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
     const task = this.project.structuralTasks[index];
     const taskName = task.name;
     this.dialog.open(StructuralTaskDialog, {
-      data: { task: task, isNew: false },
-      hasBackdrop: true
+      data: { task: task, isNew: false }
     }).afterClosed().subscribe(
       modification => {
         if (modification)
