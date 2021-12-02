@@ -44,6 +44,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
         this.router.navigate(['/project-manager']);
       this.projectService.getProject(params['id']).subscribe(
         project => {
+          console.log(project);
           this.project = project;
           switch (project.category) {
             case 'vision':
@@ -173,7 +174,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
     const task = this.project.visionTasks[index];
     const taskName = task.name;
     this.dialog.open(VisionTaskDialog, {
-      data: { task: task, isNew: false }
+      data: { task: JSON.parse(JSON.stringify(task)), isNew: false }
     }).afterClosed().subscribe(
       modification => {
         if (modification)
@@ -190,7 +191,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
     const task = this.project.textTasks[index];
     const taskName = task.name;
     this.dialog.open(TextTaskDialog, {
-      data: { task: task, isNew: false }
+      data: { task: JSON.parse(JSON.stringify(task)), isNew: false }
     }).afterClosed().subscribe(
       modification => {
         if (modification)
@@ -208,7 +209,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
     const task = this.project.structuralTasks[index];
     const taskName = task.name;
     this.dialog.open(StructuralTaskDialog, {
-      data: { task: task, isNew: false }
+      data: { task: JSON.parse(JSON.stringify(task)), isNew: false }
     }).afterClosed().subscribe(
       modification => {
         if (modification)
