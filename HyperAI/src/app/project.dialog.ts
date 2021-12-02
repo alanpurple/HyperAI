@@ -1,8 +1,11 @@
 import { Component, Inject } from "@angular/core";
-import { MAT_DIALOG_DATA } from "@angular/material/dialog";
+import { MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { Project } from "./project.data";
 import { NameRe } from './shared/validataions';
 import { DataInfo } from './data.info';
+import { DataService } from "./data.service";
+import { UserService } from "./user.service";
+import { ErrorAlert } from "./shared/error.alert";
 
 @Component({
   selector: 'project-dialog',
@@ -12,12 +15,18 @@ export class ProjectDialog {
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: {
       project: Project, isNew: boolean, availableMembers: string[], userData: DataInfo[],
-      dataList: DataInfo[], categories: string[],objectives:string[]
-    }
+      dataList: DataInfo[], categories: string[], objectives: string[], isAdmin: boolean,
+      //only for admin
+      users: string[]
+    },
+    private userService: UserService,
+    private dataService: DataService,
+    public dialogRef: MatDialogRef<ProjectDialog>,
+    private errorAlert: ErrorAlert
   ) {
     this.originalAM == this.data.availableMembers;
-    if(!this.data.isNew)
-      this.originalData = this.data.project;
+    if (!this.data.isNew)
+      this.originalData = JSON.parse(JSON.stringify(this.data.project));
   }
 
   originalAM: string[] = [];
@@ -37,6 +46,27 @@ export class ProjectDialog {
     textTasks: [],
     structuralTasks: []
   };
+
+  onUserChange() {
+    this.dataService.getDataPublic().subscribe(
+      data => {
+        this.data.userData = data;
+        this.userService.getUser().subscribe(
+          user => {
+            this.data.userData = this.data.userData.concat(user.data);
+            this.filterData();
+          },
+          err => {
+            this.errorAlert.open(err.error);
+            this.dialogRef.close();
+          }
+        );
+      }, err => {
+        this.errorAlert.open(err.error);
+        this.dialogRef.close();
+      }
+    );
+  }
 
   filterData() {
     const category = this.data.project.category;

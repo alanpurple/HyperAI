@@ -1,6 +1,6 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { MatTable } from '@angular/material/table';
+import { MatTable, MatTableDataSource } from '@angular/material/table';
 import { ConfirmDialog } from './shared/confirm.dialog';
 import { ErrorAlert } from './shared/error.alert';
 import { Project } from './project.data';
@@ -13,13 +13,14 @@ import { DataService } from './data.service';
 import { DataInfo } from './data.info';
 
 import { NameRe } from './shared/validataions'
+import { MatSort } from '@angular/material/sort';
 
 @Component({
   selector: 'app-project',
   templateUrl: './project.component.html',
   styleUrls: ['./project.component.sass']
 })
-export class ProjectComponent implements OnInit {
+export class ProjectComponent implements OnInit, AfterViewInit {
 
   constructor(
     private userService: UserService,
@@ -28,11 +29,22 @@ export class ProjectComponent implements OnInit {
     private dataService: DataService,
     private errorAlert: ErrorAlert,
     private confirmDialog: ConfirmDialog
-  ) { }
+  ) {
+    if (window.outerWidth < 1200)
+      this.isSmallDevice = true;
+    else
+      this.displayedColumns = ['name', 'owner', 'dataURI', 'createdAt', 'updatedAt', 'projectType', 'category', 'edit', 'delete'];
+  }
 
+  isSmallDevice = false;
   nameRe = NameRe;
 
-  @ViewChild('projectTable') projectTable: MatTable<Project> | null = null;
+  projectDS = new MatTableDataSource([] as Project[]);
+  @ViewChild(MatSort) sort: MatSort | null = null;
+
+  ngAfterViewInit() {
+    this.projectDS.sort = this.sort;
+  }
 
   isMaking: boolean = false;
   projects: Project[] = [];
@@ -54,12 +66,12 @@ export class ProjectComponent implements OnInit {
 
   roles = ['member', 'attendee'];
   categories = ['various', 'vision', 'text', 'structural'];
-  objectives = ['classification' , 'regression',
+  objectives = ['classification', 'regression',
     // only for text
     'qna', 'translation',
     // only for vision
-    'segmentation' , 'object detection' ,
-    'clustering' , 'anomaly detection' , 'recommendation']
+    'segmentation', 'object detection',
+    'clustering', 'anomaly detection', 'recommendation'];
   displayedColumns = ['name','owner', 'dataURI', 'projectType', 'category', 'edit', 'delete'];
 
   userData: DataInfo[] = [];
@@ -71,7 +83,10 @@ export class ProjectComponent implements OnInit {
 
   ngOnInit(): void {
     this.projectService.getProjects().subscribe(
-      projects => this.projects = projects,
+      projects => {
+        this.projects = projects;
+        this.projectDS.data = projects;
+      },
       err => {
         if (err.status != 404)
           this.errorAlert.open(err.error);
@@ -120,14 +135,13 @@ export class ProjectComponent implements OnInit {
         dataList: this.dataList,
         categories: this.categories,
         objectives: this.objectives
-      },
-      hasBackdrop: true
+      }
     }).afterClosed().subscribe(project => {
       if (project)
         this.projectService.createProject(project).subscribe(
           msg => {
             this.projects.push(project);
-            this.projectTable?.renderRows();
+            this.projectDS.data = this.projects;
             this.confirmDialog.open('project created successfully');
           },
           err => this.errorAlert.open(err.error)
@@ -198,7 +212,8 @@ export class ProjectComponent implements OnInit {
     this.projectService.createProject(this.newProject).subscribe(
       msg => {
         this.projects.push(this.newProject);
-        this.projectTable?.renderRows();
+        this.projectDS.data = this.projects;
+        //this.projectTable?.renderRows();
         this.newProject = {
           name: '',
           createdAt: new Date(),
@@ -222,18 +237,22 @@ export class ProjectComponent implements OnInit {
   }
 
   //only dialog
-  editProject(index: number) {
+  editProject(name: string) {
+    const index = this.projects.findIndex(elem => elem.name == name);
+    if (index < 0) {
+      this.errorAlert.open('error, cannot edit null project');
+      return;
+    }
     const currentProject = this.projects[index];
     const projectMembers = currentProject.members.map(elem => elem.user);
     this.dialog.open(ProjectDialog, {
       data: {
-        project: currentProject,
+        project: JSON.parse(JSON.stringify(currentProject)),
         isNew: false,
         availableMembers: this.colleagues.filter(elem => !projectMembers.includes(elem)),
         categories: this.categories,
         objectives: this.objectives
-      },
-      hasBackdrop: true
+      }
     }).afterClosed().subscribe(project => {
       if (project) {
         let inMember: { user: string, role: 'attendee' | 'member' }[] = [];
@@ -249,28 +268,36 @@ export class ProjectComponent implements OnInit {
         });
         if (inMember.length < 1 && outMember.length < 1)
           this.confirmDialog.open('nothing\'s changed');
-        else
+        else {
           // currently only members can be edited in existing project info management
+          // only change original project data, not projectDS, since member list is not shown in table
+          this.projects[index].members = project.members;
           this.projectService.editProjectMembers(currentProject.name, {
             inMember: inMember, outMember: outMember
           }).subscribe(msg => {
             this.confirmDialog.open('project edited');
-            this.projectTable?.renderRows();
+            //this.projectTable?.renderRows();
           },
             err => this.errorAlert.open(err.error));
+        }
       }
     });
   }
 
-  deleteProject(index: number) {
-    this.dialog.open(DeleteConfirmDialog, { hasBackdrop:true }).afterClosed().subscribe(
+  deleteProject(name: string) {
+    const index = this.projects.findIndex(elem => elem.name == name);
+    if (index < 0) {
+      this.errorAlert.open('cannot delete null');
+      return;
+    }
+    this.dialog.open(DeleteConfirmDialog).afterClosed().subscribe(
       selection => {
         if (selection)
-          this.projectService.deleteProject(this.projects[index].name).subscribe(
+          this.projectService.deleteProject(name).subscribe(
             msg => {
               this.projects.splice(index, 1);
+              this.projectDS.data = this.projects;
               this.confirmDialog.open('project deleted');
-              this.projectTable?.renderRows();
             }
           );
       }
@@ -283,5 +310,19 @@ export class ProjectComponent implements OnInit {
     if (['segmentation', 'object detection'].includes(objective) && this.newProject.category != 'vision')
       return false;
     return true;
+  }
+
+  formatDate(date: any) {
+    const d = new Date(date);
+    let month = '' + (d.getMonth() + 1),
+      day = '' + d.getDate(),
+      year = d.getFullYear();
+
+    if (month.length < 2)
+      month = '0' + month;
+    if (day.length < 2)
+      day = '0' + day;
+
+    return [year, month, day].join('-');
   }
 }

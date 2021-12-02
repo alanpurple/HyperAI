@@ -1,16 +1,16 @@
 <h2 mat-dialog-title>Data Info</h2>
 <div mat-dialog-content>
-  <form fxLayout="column">
+  <form fxLayout="column" #dataForm="ngForm">
     <mat-form-field>
       <mat-label>Data Name</mat-label>
       <input matInput type="text"
              placeholder="data name(upmost or collection/database name)"
-             [(ngModel)]="data.name" name="dataname">
+             [(ngModel)]="data.name" name="dataname" required>
     </mat-form-field>
     <mat-form-field>
       <mat-label>Data URI</mat-label>
       <input matInput type="text" placeholder="Actual Data URI" [(ngModel)]="data.uri"
-             name="datauri">
+             name="datauri" required>
     </mat-form-field>
     <mat-form-field>
       <mat-select [(ngModel)]="data.locationType" name="location_type">
@@ -29,7 +29,7 @@
   </form>
 </div>
 <div mat-dialog-actions>
-  <button mat-button [mat-dialog-close]="data">Save</button>
+  <button mat-button [mat-dialog-close]="data" [disabled]="dataForm.invalid">Save</button>
   <button mat-button mat-dialog-close>Cancel</button>
   <button mat-button (click)="reset()">Reset</button>
 </div>

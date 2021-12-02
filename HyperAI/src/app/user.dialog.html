@@ -1,10 +1,39 @@
 <h2 mat-dialog-title [fxHide]="!data.isNew">User Create</h2>
 <h2 mat-dialog-title [fxHide]="data.isNew">User Edit</h2>
 <div mat-dialog-content>
-
+  <form fxLayout="column" #userForm="ngForm">
+    <mat-form-field appearance="fill">
+      <mat-label>Email</mat-label>
+      <input matInput type="email" placeholder="email" name="email"
+             [(ngModel)]="data.user.email" [readonly]="!data.isNew" required>
+    </mat-form-field>
+    <mat-form-field appearance="fill">
+      <mat-label>Password</mat-label>
+      <input matInput type="password" placeholder="password" name="password"
+             [(ngModel)]="password" [required]="data.isNew">
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>Name</mat-label>
+      <input matInput #nameInput="ngModel" type="text" name="name" [(ngModel)]="data.user.name">
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>Organization</mat-label>
+      <mat-select [(ngModel)]="data.user.organization" name="organization" [disabled]="!data.isNew">
+        <mat-option *ngFor="let organization of data.organizations" [value]="organization">
+          {{organization}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-radio-group aria-label="account type" [(ngModel)]="data.user.accountType" name="account type"
+                     [disabled]="!data.isNew">
+      <mat-radio-button value="admin">Admin</mat-radio-button>
+      <mat-radio-button value="user">User</mat-radio-button>
+    </mat-radio-group>
+  </form>
 </div>
 <div mat-dialog-actions>
-  <button mat-button color="primary" [mat-dialog-close]="data.user">Save</button>
+  <button *ngIf="data.isNew" mat-button color="primary" (click)="save()" [disabled]="userForm.invalid">Save</button>
+  <button *ngIf="!data.isNew" mat-button color="primary" (click)="save()" [disabled]="userForm.invalid||(!nameInput.dirty&&!password)">Save</button>
   <button mat-button color="warn" mat-dialog-close>Cancel</button>
   <button mat-button color="accent" (click)="reset()">Reset</button>
 </div>

@@ -171,6 +171,24 @@ router.get('/colleagues', (req: Request, res: Response) => {
     )
 });
 
+router.get('/colleagues/:user', async (req: Request, res: Response) => {
+    try {
+        const user = await UserModel.findOne({ email: req.params.user });
+        const colleagues = await UserModel.find({
+            organization: user.organization, email: { $ne: user.email }
+        });
+        if (colleagues.length < 1)
+            res.sendStatus(404);
+        else {
+            const userlist = colleagues.map(user => user.email);
+            res.send(userlist);
+        }
+    }
+    catch(err) {
+        res.status(500).send(err);
+    }
+})
+
 function ensureAuthenticated(req: Request, res: Response, next: NextFunction) {
     if (req.isUnauthenticated())
         res.status(401).send('unauthorized');

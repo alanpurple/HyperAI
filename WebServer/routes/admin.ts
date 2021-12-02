@@ -2,10 +2,16 @@ import { NextFunction, Request, Response, Router } from 'express';
 import { User, UserModel } from "../models/user";
 import { ReasonPhrases, StatusCodes, } from 'http-status-codes';
 import Debug from "debug";
-import { ensureAdminAuthenticated } from "../authentication/authentication";
 import { ResponseData } from "../interfaces/ResponseData";
+import { AdminError } from "../interfaces/Errors";
+import { ProjectModel } from "../models/project";
+import { removeMember } from './project';
+import { ensureAdminAuthenticated } from "../authentication/authentication";
+import * as bcrypt from 'bcrypt';
 import { sequelize as database } from "../connect-rdb";
-import { QueryTypes, QueryInterface, QueryInterfaceDropTableOptions } from "sequelize";
+// import { QueryTypes, QueryInterface, QueryInterfaceDropTableOptions } from "sequelize";
+
+const NUM_ROUNDS = 10;
 
 const debug = Debug("admin");
 const router = Router();
@@ -19,35 +25,26 @@ router.get("/user", async (request: Request, response: Response, next: NextFunct
         let users = await UserModel.find({}, { _id: 0 }).exec();
         
         if (users.length > 0) {
-            debug("users::::", users);
             responseData.success = true;
             responseData.code = StatusCodes.OK;
             responseData.message = ReasonPhrases.OK;
             responseData.count = users.length;
             responseData.data = users;
-            
-            response.status(StatusCodes.OK);
         } else {
-            responseData.success = true;
+            responseData.success = false;
             responseData.code = StatusCodes.NOT_FOUND;
             responseData.message = ReasonPhrases.NOT_FOUND;
-            
-            response.status(StatusCodes.NOT_FOUND);
         }
     } catch (error) {
-        debug("ERROR::::", error);
-        responseData.success = false;
-        responseData.code = StatusCodes.INTERNAL_SERVER_ERROR;
-        responseData.message = ReasonPhrases.INTERNAL_SERVER_ERROR;
-        
-        response.status(StatusCodes.INTERNAL_SERVER_ERROR);
+        makeErrorResult(error, responseData);
     } finally {
-        response.send(responseData);
+        response.status(responseData.code).send(responseData.data);
         response.end();
     }
 });
 
 router.get("/user/:email", async (request: Request, response: Response, next: NextFunction) => {
+    console.log(request.body);
     const responseData = new ResponseData();
     
     try {
@@ -58,50 +55,78 @@ router.get("/user/:email", async (request: Request, response: Response, next: Ne
             responseData.code = StatusCodes.OK;
             responseData.message = ReasonPhrases.OK;
             responseData.data = user;
-            
-            response.status(StatusCodes.OK);
         } else {
-            responseData.success = true;
+            responseData.success = false;
             responseData.code = StatusCodes.NOT_FOUND;
             responseData.message = ReasonPhrases.NOT_FOUND;
-            
-            response.status(StatusCodes.NOT_FOUND);
         }
     } catch (error) {
-        debug("ERROR::::", error);
-        responseData.success = false;
-        responseData.code = StatusCodes.INTERNAL_SERVER_ERROR;
-        responseData.message = ReasonPhrases.INTERNAL_SERVER_ERROR;
-        
-        response.status(StatusCodes.INTERNAL_SERVER_ERROR);
+        makeErrorResult(error, responseData);
     } finally {
-        response.send(responseData);
+        response.status(responseData.code).send(responseData.data);
         response.end();
     }
 });
 
-router.post("/user", async (request: Request, response: Response, next: NextFunction) => {
-    const responseData = new ResponseData();
-    
-    responseData.success = false;
-    responseData.code = StatusCodes.NOT_IMPLEMENTED;
-    responseData.message = ReasonPhrases.NOT_IMPLEMENTED;
-    
-    response.status(StatusCodes.NOT_IMPLEMENTED);
-    response.send(responseData);
-    response.end();
-});
+router.post("/user", async (request: Request, response: Response) => {
+        console.log(request.body);
+        const responseData = new ResponseData();
+        
+        try {
+            const reqUser: User = request.body.data;
+            reqUser.password = request.body.password;
+            
+            let user = await UserModel.findOne({ email: reqUser.email }).exec();
+            
+            if (!user) {
+                let userModel = new UserModel(reqUser);
+                await UserModel.create(userModel);
+                
+                responseData.success = true;
+                responseData.code = StatusCodes.CREATED;
+                responseData.message = ReasonPhrases.CREATED;
+            } else {
+                new AdminError('User already exists.').throw();
+            }
+        } catch (error) {
+            makeErrorResult(error, responseData);
+        } finally {
+            response.status(responseData.code).send(responseData.message);
+            response.end();
+        }
+    },
+);
 
-router.put("/user/:email", async (request: Request, response: Response, next: NextFunction) => {
+router.put("/user/:email", async (request: Request, response: Response) => {
+    console.log(request.body);
     const responseData = new ResponseData();
     
-    responseData.success = false;
-    responseData.code = StatusCodes.NOT_IMPLEMENTED;
-    responseData.message = ReasonPhrases.NOT_IMPLEMENTED;
-    
-    response.status(StatusCodes.NOT_IMPLEMENTED);
-    response.send(responseData);
-    response.end();
+    try {
+        let user = await UserModel.findOne({ email: request.params.email }).exec();
+        
+        if (user) {
+            const modification = request.body;
+            let userObj = user.toObject();
+            userObj = Object.assign({}, userObj, modification);
+            
+            // await user.updateOne(userObj);
+            
+            userObj.password = await bcrypt.hash(userObj.password, NUM_ROUNDS);
+            console.log(userObj.password);
+            await UserModel.findOneAndUpdate({ email: request.params.email }, userObj);
+            
+            responseData.success = true;
+            responseData.code = StatusCodes.CREATED;
+            responseData.message = ReasonPhrases.CREATED;
+        } else {
+            new AdminError('User not found').throw();
+        }
+    } catch (error) {
+        makeErrorResult(error, responseData);
+    } finally {
+        response.status(responseData.code).send(responseData.message);
+        response.end();
+    }
 });
 
 router.delete("/user", async (request: Request, response: Response, next: NextFunction) => {
@@ -111,64 +136,97 @@ router.delete("/user", async (request: Request, response: Response, next: NextFu
     responseData.code = StatusCodes.NOT_IMPLEMENTED;
     responseData.message = ReasonPhrases.NOT_IMPLEMENTED;
     
-    response.status(StatusCodes.NOT_IMPLEMENTED);
-    response.send(responseData);
+    response.status(StatusCodes.NOT_IMPLEMENTED).send(responseData.message);
     response.end();
 });
 
-router.delete("/user/:email", async (request: Request, response: Response, next: NextFunction) => {
+router.delete("/user/:email", async (request: Request, response: Response) => {
+    console.log(request.body);
     const responseData = new ResponseData();
     
     try {
-        const queryInterface = new QueryInterface(database);
+        let user = await UserModel.findOne({ email: decodeURI(request.params.email) }).exec();
         
-        // del user's data table (DROP)
-        // note: DROP TABLE causes an implicit commit, except when used with the TEMPORARY keyword.
-        //       (https://dev.mysql.com/doc/refman/8.0/en/drop-table.html)
-        const success: boolean = await database.transaction(async (t) => {
-            const dropTableOptions: QueryInterfaceDropTableOptions = {
-                transaction: t,
-                // force: true
-            };
-            await queryInterface.dropTable("table", dropTableOptions);
+        if (user) {
+            let ownerProjects = await ProjectModel
+                .find({ owner: user['_id'] })
+                .populate({ path: 'owner', select: 'email -_id' })
+                .populate({ path: 'members.user', select: 'email -_id' })
+                .exec();
             
-            return true;
-        });
-        
-        // todo: check mongodb environments
-        // Transactions only support replica sets or sharded clusters environments. It doesn't work in standalone.
-        if (success) {
-            let delUser = await UserModel.findOneAndDelete({ email: decodeURI(request.params.email) }, { _id: 0 }).exec();
-    
-            if (delUser) {
-                responseData.success = true;
-                responseData.code = StatusCodes.OK;
-                responseData.message = ReasonPhrases.OK;
-        
-                let userData = delUser.toObject();
-                delete userData._id || delete userData["_id"];
-                responseData.data = userData;
-        
-                response.status(StatusCodes.OK);
-            } else {
-                responseData.success = true;
-                responseData.code = StatusCodes.NOT_FOUND;
-                responseData.message = ReasonPhrases.NOT_FOUND;
-        
-                response.status(StatusCodes.NOT_FOUND);
+            if (ownerProjects.length > 0) {
+                // for (const project of ownerProjects) {
+                await ProjectModel.deleteMany({owner: user['_id']}).exec();
+                // }
             }
+            
+            let memberProjects = await ProjectModel
+                .find({ 'members.user': user['_id'] })
+                .populate({ path: 'owner', select: 'email -_id' })
+                .populate({ path: 'members.user', select: 'email -_id' })
+                .exec();
+            
+            if (memberProjects.length > 0) {
+                for (const project of memberProjects) {
+                    await removeMember([user.email], project);
+                }
+            }
+            
+            if (user.data.length > 0) {
+                // const queryInterface = new QueryInterface(database);
+
+                // del user's data table (DROP)
+                // note: DROP TABLE causes an implicit commit, except when used with the TEMPORARY keyword.
+                //       (https://dev.mysql.com/doc/refman/8.0/en/drop-table.html)
+                await database.transaction(async (t) => {
+                    // const dropTableOptions: QueryInterfaceDropTableOptions = {
+                    //     transaction: t,
+                    //     // force: true
+                    // };
+
+                    for (const data of user.data) {
+                        // await queryInterface.dropTable(data.name, dropTableOptions);
+                        await database.query('DROP TABLE ' + data.name);
+                    }
+                });
+            }
+            
+            // todo: check mongodb environments
+            // Transactions only support replica sets or sharded clusters environments. It doesn't work in standalone.
+            await UserModel.findByIdAndDelete(user['_id']).exec();
+            
+            responseData.success = true;
+            responseData.code = StatusCodes.OK;
+            responseData.message = ReasonPhrases.OK;
+        } else {
+            new AdminError('User not found.').throw();
         }
     } catch (error) {
-        debug("ERROR::::", error);
-        responseData.success = false;
-        responseData.code = StatusCodes.INTERNAL_SERVER_ERROR;
-        responseData.message = ReasonPhrases.INTERNAL_SERVER_ERROR;
-        
-        response.status(StatusCodes.INTERNAL_SERVER_ERROR);
+        makeErrorResult(error, responseData);
     } finally {
-        response.send(responseData);
+        response.status(responseData.code).send(responseData.message);
         response.end();
     }
 });
+
+/**
+ * Generate error response messages
+ * @param error
+ * @param responseData
+ * @return Generated data
+ */
+const makeErrorResult = (error: any, responseData: ResponseData) => {
+    console.error(error);
+    
+    responseData.success = false;
+    if (error.name === "AdminError") {
+        responseData.code = StatusCodes.BAD_REQUEST;
+    } else if (error.name === "UnauthorizedError") {
+        responseData.code = StatusCodes.UNAUTHORIZED;
+    } else {
+        responseData.code = StatusCodes.INTERNAL_SERVER_ERROR;
+    }
+    responseData.message = error.message;
+};
 
 export default router;

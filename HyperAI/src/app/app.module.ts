@@ -50,6 +50,7 @@ import { UserInfo, ComingSoonDialog, NickNameConfirmDialog, NickNameTakenDialog 
 import { ForbiddenValidatorDirective } from './shared/forbidden-name.directive';
 import { NotfoundComponent } from './notfound.component';
 import { MyErrorHandler } from './my.error.handler';
+import { UserDialog } from './user.dialog';
 
 @NgModule({
   declarations: [
@@ -59,7 +60,8 @@ import { MyErrorHandler } from './my.error.handler';
     ErrorDialog, ConfirmDialogTemplate, ConfirmDialogTemplate2, UserInfo,
     ComingSoonDialog, NickNameTakenDialog, NickNameConfirmDialog, ProjectComponent, ProjectDetailComponent,
     ProjectDialog, VisionTaskDialog, TextTaskDialog, StructuralTaskDialog, DataDialog,
-    ForbiddenValidatorDirective, DeleteConfirmDialog, PrivacyPolicy, NotfoundComponent
+    ForbiddenValidatorDirective, DeleteConfirmDialog, PrivacyPolicy, NotfoundComponent,
+    UserDialog
   ],
   /*entryComponents: [
     ConfirmDialogTemplate, ConfirmDialogTemplate2, ErrorDialog, ComingSoonDialog,
@@ -79,8 +81,8 @@ import { MyErrorHandler } from './my.error.handler';
     NgxChartsModule,
     GojsAngularModule
   ],
-  providers: [ConfirmDialog, LoggedIn, NotLoggedIn, IsAdmin, IsNotAdmin, ErrorAlert, HasNick,
-    { provide: MAT_DIALOG_DEFAULT_OPTIONS, useValue: { hasBackdrop: false } },
+  providers: [ConfirmDialog, LoggedIn, NotLoggedIn, IsAdmin, IsNotAdmin,
+    ErrorAlert, HasNick, DeleteConfirmDialog,
     { provide: ErrorHandler, useClass: MyErrorHandler }],
   bootstrap: [AppComponent]
 })

@@ -13,10 +13,15 @@ export interface Project {
                 'segmentation' | 'object detection' |
                 'clustering' | 'anomaly detection' |  'recommendation';
     owner: Types.ObjectId;
-    members: { user: Types.ObjectId, role: 'attendee' | 'member' }[]; // one and only owner, others are all attendee(for now)
+    members: Member[]; // one and only owner, others are all attendee(for now)
     visionTasks: VisionTask[];  // use only when category is 'vision'
     textTasks: TextTask[];  // use only when category is 'text'
     structuralTasks: StructuralTask[];
+}
+
+export interface Member {
+    user: Types.ObjectId;
+    role: 'attendee' | 'member'
 }
 
 const VisionTaskSchema = new Schema<VisionTask>({
@@ -69,6 +74,11 @@ const StructuralTaskSchema = new Schema<StructuralTask>({
     taskType: { type: String, enum: ['preprocess', 'train', 'test', 'deploy'], required: true }
 }, { _id: false });
 
+const MemberSchema = new Schema<Member>({
+    user: { type: 'ObjectId', ref: 'User', required: true },
+    role: { type: String, enum: ['attendee', 'member'] }
+}, { _id: false, autoIndex: false });
+
 const schema = new Schema<Project>({
     name: { type: String,unique:true, required: true },
     dataURI: { type: String, required:true },
@@ -79,12 +89,8 @@ const schema = new Schema<Project>({
             'classification', 'segmentation', 'regression', 'qna','translation', 'object detection',
             'clustering', 'anomaly detection', 'recommendation']
     },
-    owner: {type:'ObjectId',ref:'User',required:true},
-    members: {
-        type: [{
-            user: { type: 'ObjectId', ref: 'User' }, role: { type: String, enum: ['attendee', 'member'], required: true }
-        }]
-    },
+    owner: { type: 'ObjectId', ref: 'User', required: true },
+    members: [MemberSchema],
     visionTasks: {
         type: [VisionTaskSchema],
         validate: {
