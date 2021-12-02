@@ -1,1 +1,21 @@
-<p>admin works!</p>
+<table #userTable mat-table [dataSource]="users" class="mat-elevation-z5">
+  <ng-container matColumnDef="email">
+    <th mat-header-cell *matHeaderCellDef>email</th>
+    <td mat-cell *matCellDef="let row">{{row.email}}</td>
+  </ng-container>
+  <ng-container matColumnDef="name">
+    <th mat-header-cell *matHeaderCellDef>name</th>
+    <td mat-cell *matCellDef="let row">{{row.name}}</td>
+  </ng-container>
+  <tr mat-header-row *matHeaderRowDef="userColumns"></tr>
+  <tr mat-row *matRowDef="let row; column: userColumns;"></tr>
+</table>
+
+<table #projectTable mat-table [dataSource]="projects" class="mat-elevation-z5">
+  <ng-container matColumnDef="name">
+    <th mat-header-cell *matHeaderCellDef>name</th>
+    <td mat-cell *matCellDef="let row">{{row.name}}</td>
+  </ng-container>
+  <tr mat-header-row *matHeaderRowDef="projectColumns"></tr>
+  <tr mat-row *matRowDef="let row; column: projectColumns;"></tr>
+</table>

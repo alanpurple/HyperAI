@@ -27,6 +27,9 @@ export class AdminConsole implements OnInit {
   users: UserData[] = [];
   projects: Project[] = [];
 
+  userColumns = ['email', 'name', 'organization', 'nickName'];
+  projectColumns = ['name', 'createdAt', 'updatedAt', 'dataURI', 'projectType', 'category', 'objective', 'owner'];
+
   ngOnInit(): void {
     this.adminService.getUsers().subscribe(
       users => this.users = users,
