@@ -14,6 +14,7 @@ const pkgdef = loadSync(PROTO_PATH, {
 const EdaService = loadPackageDefinition(pkgdef).eda;
 
 const client = new EdaService['Preprocess']('martinie.ai:50051', credentials.createInsecure());
+//const client = new EdaService['Preprocess']('localhost:50051', credentials.createInsecure());
 
 const router = Router();
 

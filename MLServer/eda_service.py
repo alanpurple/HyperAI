@@ -20,13 +20,27 @@ class EdaService(eda_pb2_grpc.PreprocessServicer):
         data=Table(request.location, meta, autoload_with=engine)
         q=session.query(data)
         session.close()
-        df=pd.read_sql(q.statement,engine)
+        df=pd.read_sql(q.statement,engine,'index')
         is_cleansed=False
+        allnullcolumns=[]
+        for name in df.columns:
+            if df[name].isna().all():
+                allnullcolumns.append(name)
+        if len(allnullcolumns)>0:
+            df.drop(allnullcolumns,axis=1,inplace=True)
         for label,content in df.items():
             if is_string_dtype(content):
                 hasnoemptystr=(content.str.len()>0).all()
                 # convert to numeric
-                if content[content.str.len()>0].str.isnumeric().all() and content.unique().size>content.size*0.01:
+                is_valid_content=content[content.str.len()>0]
+                if(len(is_valid_content)>0):
+                    is_valid_content=content[content.str.len()>0].str.isnumeric().all()
+                    if(is_valid_content and content.unique()==[None]):
+                        is_valid_content=False
+                else:
+                    is_valid_content=False
+                if is_valid_content and content.unique().size>content.size*0.01:
+
                     new_content=pd.to_numeric(content)
                     if not hasnoemptystr:
                         new_content.fillna(new_content.mean(),inplace=True)
@@ -38,6 +52,8 @@ class EdaService(eda_pb2_grpc.PreprocessServicer):
                     if content[content.str.len()<1].size>0.001*content.size:
                         content.replace('','unknown')
                     else:
+                        content.fillna()
+                        content.replace(None,str(content.mode(True)[0]))
                         content.replace('',str(content.mode(True)[0]))
                     is_cleansed=True
             # numerical
@@ -52,7 +68,7 @@ class EdaService(eda_pb2_grpc.PreprocessServicer):
                 elif not hasnona:
                     content.fillna(content.mean(),inplace=True)
                     is_cleansed=True
-
+                    
         if is_cleansed:
             nRows=df.shape[0]
             new_tablename=request.location+'_clsd'

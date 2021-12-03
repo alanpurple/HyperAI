@@ -222,6 +222,18 @@ export class AdminConsole implements OnInit, AfterViewInit {
               });
               if (inMember.length < 1 && outMember.length < 1)
                 this.confirmDialog.open('nothing\'s changed');
+              else {
+                // currently only members can be edited in existing project info management
+                // only change original project data, not projectDS, since member list is not shown in table
+                this.projects[index].members = project.members;
+                this.projectService.editProjectMembers(currentProject.name, {
+                  inMember: inMember, outMember: outMember
+                }).subscribe(msg => {
+                  this.confirmDialog.open('project edited');
+                  //this.projectTable?.renderRows();
+                },
+                  err => this.errorAlert.open(err.error));
+              }
             }
           }
         );
