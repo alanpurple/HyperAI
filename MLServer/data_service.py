@@ -27,7 +27,12 @@ class DataServicer(data_service_pb2_grpc.DataServicer):
             return data_service_pb2.UploadResponse(error=0)
         if df.shape[0]<3:
             return data_service_pb2.UploadResponse(error=0)
-
+        allnullcolumns=[]
+        for name in df.columns:
+            if df[name].isna().all():
+                allnullcolumns.append(name)
+        if len(allnullcolumns)>0:
+            df.drop(allnullcolumns,axis=1,inplace=True)
         columns=df.columns
         renamemap={}
         for column in columns:
