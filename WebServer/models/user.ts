@@ -62,7 +62,7 @@ schema.methods.comparePassword = function(password: string, callback: any){
 
 schema.pre('save', { document: true, query: false }, function (next) {
     const user = this;
-    if (user.isModified('data')||(user.isNew&&user.data.length>0)) {
+    if ((user.isModified('data')&&user.data.length>1)||(user.isNew&&user.data.length>1)) {
         const dataNames = user.data.map(elem => elem.name);
         if ((new Set(dataNames)).size != dataNames.length) {
             next(Error('duplicate data names!'));
@@ -84,7 +84,7 @@ schema.pre('save', { document: true, query: false }, function (next) {
 
 schema.pre('updateOne', { document: true, query: false }, function (next) {
     let doc = this;
-    if (doc.isModified('data')) {
+    if (doc.isModified('data')&&doc.data.length>1) {
         const dataNames = doc.data.map(elem => elem.name);
         if ((new Set(dataNames)).size != dataNames.length) {
             next(Error('duplicate data names!'));
