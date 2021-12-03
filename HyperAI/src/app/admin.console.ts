@@ -40,7 +40,7 @@ export class AdminConsole implements OnInit, AfterViewInit {
   projects: Project[] = [];
   organizations: string[] = [];
 
-  userColumns = ['email', 'name', 'organization', 'nickName','edit','delete'];
+  userColumns = ['email', 'name', 'organization','accountType', 'nickName','edit','delete'];
   projectColumns = ['name', 'owner', 'dataURI', 'projectType', 'category', 'objective','edit','delete'];
   isSmallDevice = false;
 
