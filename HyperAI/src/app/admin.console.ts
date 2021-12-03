@@ -157,7 +157,7 @@ export class AdminConsole implements OnInit, AfterViewInit {
         data => {
           if (data) {
             let postData: any = {};
-            if (data.data.name)
+            if (data.data?.name)
               postData['name'] = data.data.name;
             if (data.password)
               postData['password'] = data.password;
