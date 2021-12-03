@@ -38,4 +38,7 @@
     </mat-card>
     <mat-icon *ngIf="!isLast" fxFlex="10">double_arrow</mat-icon>
   </div>
+  <mat-icon color="accent" *ngIf="tasks.length>0">done_all</mat-icon>
 </div>
+
+<mat-progress-bar *ngIf="tasks.length>0" mode="indeterminate"></mat-progress-bar>
