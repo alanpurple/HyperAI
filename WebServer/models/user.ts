@@ -62,6 +62,13 @@ schema.methods.comparePassword = function(password: string, callback: any){
 
 schema.pre('save', { document: true, query: false }, function (next) {
     const user = this;
+    if (user.isModified('data')) {
+        const dataNames = user.data.map(elem => elem.name);
+        if ((new Set(dataNames)).size != dataNames.length) {
+            next(Error('duplicate data names!'));
+            return;
+        }
+    }
     if (user.isNew || user.isModified('password'))
         hash(user.password, NUM_ROUNDS, function (err, hashed) {
             if (err)
@@ -77,6 +84,13 @@ schema.pre('save', { document: true, query: false }, function (next) {
 
 schema.pre('updateOne', { document: true, query: false }, function (next) {
     let doc = this;
+    if (doc.isModified('data')) {
+        const dataNames = doc.data.map(elem => elem.name);
+        if ((new Set(dataNames)).size != dataNames.length) {
+            next(Error('duplicate data names!'));
+            return;
+        }
+    }
     if (doc.isModified('password'))
         hash(doc.password, NUM_ROUNDS, function (err, hashed) {
             if (err)
@@ -86,6 +100,8 @@ schema.pre('updateOne', { document: true, query: false }, function (next) {
                 next();
             }
         });
+    else
+        next();
 });
 
 export const UserModel = model<User>('User', schema);
