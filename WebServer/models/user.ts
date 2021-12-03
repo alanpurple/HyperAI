@@ -32,10 +32,10 @@ const runningTaskSchema = new Schema<RunningTasks>({
 }, { _id: false });
 
 const schema = new Schema<User>({
-    name: { type: String, required: true },
+    name: { type: String,trim:true, required: true },
     password: { type: String, required: true },
     organization: { type: String, enum: ['infinov', 'namutech', 'samsung', 'hynix'], required: true },
-    nickName: { type: String, unique: true, sparse: true },
+    nickName: { type: String, unique: true, sparse: true, trim: true },
     // true for now
     hasNickName: { type: Boolean, default: true },
     accountType: { type: String, enum: ['admin', 'user'] },

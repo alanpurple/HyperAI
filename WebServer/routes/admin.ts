@@ -73,14 +73,25 @@ router.post("/user", async (request: Request, response: Response) => {
         const responseData = new ResponseData();
         
         try {
-            const reqUser: User = request.body.data;
-            reqUser.password = request.body.password;
+            const data = request.body.data;
+            if (!data.email || !data.name || !request.body.password || !data.organization) {
+                response.status(400).send('not all required property has been entered');
+                return;
+            }
+            let reqUser: any = {
+                email: data.email, name: data.name,
+                password: request.body.password,
+                organization: data.organization
+            };
+            if (data.nickName)
+                reqUser.nickName = data.nickName;
+            if (data.accountType)
+                reqUser.accountType = data.accountType;
             
             let user = await UserModel.findOne({ email: reqUser.email }).exec();
             
             if (!user) {
-                let userModel = new UserModel(reqUser);
-                await UserModel.create(userModel);
+                await UserModel.create(reqUser);
                 
                 responseData.success = true;
                 responseData.code = StatusCodes.CREATED;
