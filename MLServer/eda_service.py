@@ -26,7 +26,7 @@ class EdaService(eda_pb2_grpc.PreprocessServicer):
             if is_string_dtype(content):
                 hasnoemptystr=(content.str.len()>0).all()
                 # convert to numeric
-                if content[content.str.len()>0].str.isnumeric.all() and content.unique().size>content.size*0.01:
+                if content[content.str.len()>0].str.isnumeric().all() and content.unique().size>content.size*0.01:
                     new_content=pd.to_numeric(content)
                     if not hasnoemptystr:
                         new_content.fillna(new_content.mean(),inplace=True)
