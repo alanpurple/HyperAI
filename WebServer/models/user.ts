@@ -62,7 +62,7 @@ schema.methods.comparePassword = function(password: string, callback: any){
 
 schema.pre('save', { document: true, query: false }, function (next) {
     const user = this;
-    if (user.isModified('data')) {
+    if (user.isModified('data')||(user.isNew&&user.data.length>0)) {
         const dataNames = user.data.map(elem => elem.name);
         if ((new Set(dataNames)).size != dataNames.length) {
             next(Error('duplicate data names!'));
