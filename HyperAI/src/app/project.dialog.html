@@ -49,7 +49,7 @@
         <button matChipRemove><mat-icon>cancel</mat-icon></button>
       </mat-chip>
     </mat-chip-list>
-    <mat-form-field [fxHide]="data.isNew">
+    <mat-form-field [fxHide]="data.isNew&&data.isAdmin">
       <mat-label>Colleagues</mat-label>
       <mat-select name="member">
         <mat-option *ngFor="let member of data.availableMembers; index as i" [value]="member" (click)="addMember(i)">

@@ -159,7 +159,7 @@ router.get('/checkUser/:id', (req: Request, res: Response) => {
 
 router.get('/colleagues', (req: Request, res: Response) => {
     const user = req.user as User;
-    UserModel.find({ organization: user.organization, email: { $ne: user.email } }, 'email').then(
+    UserModel.find({ organization: user.organization, email: { $ne: user.email }, accountType: { $ne: 'admin' } }, 'email').then(
         users => {
             if (users.length < 1)
                 res.sendStatus(404);
@@ -175,7 +175,7 @@ router.get('/colleagues/:user', async (req: Request, res: Response) => {
     try {
         const user = await UserModel.findOne({ email: req.params.user });
         const colleagues = await UserModel.find({
-            organization: user.organization, email: { $ne: user.email }
+            organization: user.organization, email: { $ne: user.email }, accountType: { $ne: 'admin' }
         });
         if (colleagues.length < 1)
             res.sendStatus(404);
@@ -184,10 +184,10 @@ router.get('/colleagues/:user', async (req: Request, res: Response) => {
             res.send(userlist);
         }
     }
-    catch(err) {
+    catch (err) {
         res.status(500).send(err);
     }
-})
+});
 
 function ensureAuthenticated(req: Request, res: Response, next: NextFunction) {
     if (req.isUnauthenticated())
