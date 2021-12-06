@@ -17,7 +17,10 @@ const ADMIN_ERROR: string = "AdminError";
 const debug = Debug("admin");
 const router = Router();
 
-router.all("*", ensureAdminAuthenticated);
+const env = process.env.NODE_ENV || 'production';
+if (env === 'production') {
+    router.all("*", ensureAdminAuthenticated);
+}
 
 router.get("/user", async (request: Request, response: Response, next: NextFunction) => {
     const responseData = new ResponseData();
