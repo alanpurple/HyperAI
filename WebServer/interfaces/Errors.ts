@@ -8,14 +8,3 @@ export class WebError extends Error {
         throw this;
     };
 }
-
-export class AdminError extends Error {
-    constructor(message) {
-        super(message);
-        this.name = "AdminError";
-    }
-    
-    throw = () => {
-        throw this
-    };
-}
