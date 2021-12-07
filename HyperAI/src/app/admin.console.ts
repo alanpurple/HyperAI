@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSort } from '@angular/material/sort';
-import { MatTable, MatTableDataSource } from '@angular/material/table';
+import { MatTableDataSource } from '@angular/material/table';
 import { AdminService } from './admin.service';
 import { Project } from './project.data';
 import { ProjectDialog } from './project.dialog';
@@ -26,7 +26,6 @@ export class AdminConsole implements OnInit, AfterViewInit {
     private userService: UserService,
     private errorAlert: ErrorAlert,
     private confirmDialog: ConfirmDialog,
-    private deleteConfirm: DeleteConfirmDialog,
     public dialog: MatDialog
   ) {
     if (window.outerWidth < 1200)

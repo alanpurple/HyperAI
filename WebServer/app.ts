@@ -22,7 +22,9 @@ import AdminRoute from './routes/admin';
 
 import * as swaggerUi from 'swagger-ui-express';
 import * as swaggerJSDoc from 'swagger-jsdoc';
-import {swaggerOptions} from "./openapi/swagger";
+import { swaggerOptions } from "./openapi/swagger";
+
+import * as URI from "../uri.json"
 
 
 const debug = require('debug')('my express app');
@@ -77,7 +79,7 @@ const rootPath = path.join(__dirname, '../wwwroot');
 
 // no authentication for mongodb currently, need to be updated
 const options = {
-    mongoUrl: 'mongodb://hyperai:alan1234@martinie.ai/hyperai',
+    mongoUrl: `mongodb://${URI.id}:${URI.password}@${URI.server}/${URI.hyperaidb}`,
     ttl: 24 * 60 * 60
 };
 

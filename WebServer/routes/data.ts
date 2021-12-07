@@ -4,6 +4,7 @@ import { sequelize, sequelizeOpen } from '../connect-rdb';
 import { QueryTypes } from 'sequelize';
 import { rm } from 'fs/promises';
 import multer = require('multer');
+import * as URI from '../../uri.json';
 
 const UPLOAD_TEMP_PATH = '../upload-temp';
 
@@ -19,7 +20,7 @@ const pkgDef = loadSync(PROTO_PATH, {
 
 const DataService = loadPackageDefinition(pkgDef).dataservice;
 
-const client = new DataService['Data']('martinie.ai:50051', credentials.createInsecure());
+const client = new DataService['Data'](URI.grpcServer, credentials.createInsecure());
 
 const router = Router();
 
