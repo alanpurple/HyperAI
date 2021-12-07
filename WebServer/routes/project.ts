@@ -6,9 +6,13 @@ import { RequestProject } from "../interfaces/ProjectRequest";
 import { Document, Types } from 'mongoose';
 import { User, UserModel } from "../models/user";
 import { ensureAuthenticated } from "../authentication/authentication";
+import { WebError } from "../interfaces/Errors";
 
 const logger = require("../logger/logger")("project");
 const router = Router();
+
+const PROJECT_ERROR: string = "ProjectError";
+const UNAUTHORIZED_ERROR: string = "UnauthorizedError";
 
 // User authentication checks before processing all project requests.
 const env = process.env.NODE_ENV || 'production';
@@ -118,11 +122,11 @@ router.post("/", async (request: Request, response: Response) => {
     try {
         const reqProject: RequestProject = request.body;
         
-        if (!isValidObjective(reqProject.objective, reqProject.category)) doProjectError("The objective cannot be used for the specified category.");
+        if (!isValidObjective(reqProject.objective, reqProject.category)) new WebError("The objective cannot be used for the specified category.", PROJECT_ERROR).throw();
         
         const projectSchema = await convertToProjectSchema(request.user, reqProject);
         if (!projectSchema) {
-            doProjectError("Failed to parse request data.");
+            new WebError("Failed to parse request data.", PROJECT_ERROR).throw();
         }
         
         let projectModel = new ProjectModel(projectSchema);
@@ -137,7 +141,7 @@ router.post("/", async (request: Request, response: Response) => {
             responseData.code = StatusCodes.CREATED;
             responseData.message = ReasonPhrases.CREATED;
         } else {
-            doProjectError("Project name already in use.");
+            new WebError("Project name already in use.", PROJECT_ERROR).throw();
         }
     } catch (error) {
         makeErrorResult(error, responseData);
@@ -327,11 +331,11 @@ router.put("/:name/members", async (request: Request, response: Response) => {
                     addMemberResult: addMemberResult, removeMemberResult: removeMemberResult
                 };
             } else {
-                doProjectError(`Errors occurred - add: ${addMemberResult.error.join()}, remove: ${removeMemberResult.error.join()}`);
+                new WebError(`Errors occurred - add: ${addMemberResult.error.join()}, remove: ${removeMemberResult.error.join()}`, PROJECT_ERROR).throw();
             }
             
         } else {
-            doUnauthorizedError("Insufficient permission to edit project member.");
+            new WebError("Insufficient permission to edit project member.", UNAUTHORIZED_ERROR).throw();
         }
     } catch (error) {
         makeErrorResult(error, responseData);
@@ -368,7 +372,7 @@ router.put("/:name/task", async (request: Request, response: Response) => {
             responseData.success = true;
             responseData.code = StatusCodes.CREATED;
         } else {
-            doUnauthorizedError("Insufficient permission to add project task.");
+            new WebError("Insufficient permission to add project task.", UNAUTHORIZED_ERROR).throw();
         }
     } catch (error) {
         makeErrorResult(error, responseData);
@@ -406,7 +410,7 @@ router.put("/:name/task/:taskName", async (request: Request, response: Response)
             responseData.success = true;
             responseData.code = StatusCodes.CREATED;
         } else {
-            doUnauthorizedError("Insufficient permission to edit project task.");
+            new WebError("Insufficient permission to edit project task.", UNAUTHORIZED_ERROR).throw();
         }
     } catch (error) {
         makeErrorResult(error, responseData);
@@ -442,7 +446,7 @@ router.delete("/:name/task/:type/:taskName", async (request: Request, response: 
             responseData.success = true;
             responseData.code = StatusCodes.CREATED;
         } else {
-            doUnauthorizedError("Insufficient permission to delete project task.");
+            new WebError("Insufficient permission to delete project task.", UNAUTHORIZED_ERROR).throw();
         }
     } catch (error) {
         makeErrorResult(error, responseData);
@@ -512,7 +516,7 @@ router.delete("/:name", async (request: Request, response: Response) => {
             responseData.code = StatusCodes.OK;
             responseData.message = ReasonPhrases.OK;
         } else {
-            doUnauthorizedError("Insufficient permission to delete project.");
+            new WebError("Insufficient permission to delete project.", UNAUTHORIZED_ERROR).throw();
         }
     } catch (error) {
         makeErrorResult(error, responseData);
@@ -522,28 +526,6 @@ router.delete("/:name", async (request: Request, response: Response) => {
         response.end();
     }
 });
-
-class ProjectError extends Error {
-    constructor(message) {
-        super(message);
-        this.name = "ProjectError";
-    }
-}
-
-class UnauthorizedError extends Error {
-    constructor(message) {
-        super(message);
-        this.name = "UnauthorizedError";
-    }
-}
-
-const doProjectError = (message: string) => {
-    throw new ProjectError(message);
-};
-
-const doUnauthorizedError = (message: string) => {
-    throw new UnauthorizedError(message);
-};
 
 /**
  * Generate error response messages
@@ -573,13 +555,13 @@ const makeErrorResult = (error, responseData: ResponseData) => {
  */
 const checkPathParamError = (pathParameter: string, pathName: string) => {
     if (!decodeURI(pathParameter) || decodeURI(pathParameter).trim().length === 0) {
-        throw new ProjectError(`Path parameter error - ${ pathName }`);
+        throw new WebError(`Path parameter error - ${ pathName }`, PROJECT_ERROR).throw();
     }
 };
 
 const checkArray = (target: any) => {
     if (!Array.isArray(target) || (target.length === 0)) {
-        throw new ProjectError("Target is not an array or empty.");
+        throw new WebError("Target is not an array or empty.", PROJECT_ERROR).throw();
     }
 }
 
@@ -651,7 +633,7 @@ const convertToProjectSchema = async (user, reqProject: RequestProject) => {
         if (user) {
             members.push({ user: user._id, role: rMember.role });
         } else {
-            doProjectError(`Project member '${ rMember.user }' not found.`);
+            new WebError(`Project member '${ rMember.user }' not found.`, PROJECT_ERROR).throw();
         }
     }
     
@@ -804,11 +786,11 @@ const addTask = async (task: TaskBody, project: Document<any, any, Project> & Pr
             
             break;
         default:
-            doProjectError(`The requested category '${ task.type }' is not supported.`);
+            new WebError(`The requested category '${ task.type }' is not supported.`, PROJECT_ERROR).throw();
             break;
     }
     
-    if (!tasksCanBeAdded) doProjectError("The task name already exists.");
+    if (!tasksCanBeAdded) new WebError("The task name already exists.", PROJECT_ERROR).throw();
 };
 
 const editTask = async (taskName: string, task: TaskBody, project: Document<any, any, Project> & Project & { _id: Types.ObjectId }) => {
@@ -858,11 +840,11 @@ const editTask = async (taskName: string, task: TaskBody, project: Document<any,
             
             break;
         default:
-            doProjectError(`The requested category '${ task.type }' is not supported.`);
+            new WebError(`The requested category '${ task.type }' is not supported.`, PROJECT_ERROR).throw();
             break;
     }
     
-    if (foundIndex < 0) doProjectError(`The task '${ taskName }' does not exist.`);
+    if (foundIndex < 0) new WebError(`The task '${ taskName }' does not exist.`, PROJECT_ERROR).throw();
 };
 
 const removeTask = async (type: string, taskName: string, project: Document<any, any, Project> & Project & { _id: Types.ObjectId }) => {
@@ -888,7 +870,7 @@ const removeTask = async (type: string, taskName: string, project: Document<any,
             
             break;
         default:
-            doProjectError(`The requested category '${ type }' is not supported.`);
+            new WebError(`The requested category '${ type }' is not supported.`, PROJECT_ERROR).throw();
             break;
     }
 };

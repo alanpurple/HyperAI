@@ -1,24 +1,10 @@
-export class UnauthorizedError extends Error {
-    constructor(message) {
+export class WebError extends Error {
+    constructor(message: string, name: string) {
         super(message);
-        this.name = "UnauthorizedError";
-    }
-}
-
-export class AdminError extends Error {
-    constructor(message) {
-        super(message);
-        this.name = "AdminError";
+        this.name = name;
     }
     
     throw = () => {
-        throw this
+        throw this;
     };
-}
-
-export class ProjectError extends Error {
-    constructor(message) {
-        super(message);
-        this.name = "ProjectError";
-    }
 }

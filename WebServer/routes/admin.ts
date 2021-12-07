@@ -3,7 +3,7 @@ import { User, UserModel } from "../models/user";
 import { ReasonPhrases, StatusCodes, } from 'http-status-codes';
 import Debug from "debug";
 import { ResponseData } from "../interfaces/ResponseData";
-import { AdminError } from "../interfaces/Errors";
+import { WebError } from "../interfaces/Errors";
 import { ProjectModel } from "../models/project";
 import { removeMember } from './project';
 import { ensureAdminAuthenticated } from "../authentication/authentication";
@@ -11,12 +11,16 @@ import * as bcrypt from 'bcrypt';
 import { sequelize as database } from "../connect-rdb";
 // import { QueryTypes, QueryInterface, QueryInterfaceDropTableOptions } from "sequelize";
 
-const NUM_ROUNDS = 10;
+const NUM_ROUNDS: number = 10;
+const ADMIN_ERROR: string = "AdminError";
 
 const debug = Debug("admin");
 const router = Router();
 
-router.all("*", ensureAdminAuthenticated);
+const env = process.env.NODE_ENV || 'production';
+if (env === 'production') {
+    router.all("*", ensureAdminAuthenticated);
+}
 
 router.get("/user", async (request: Request, response: Response, next: NextFunction) => {
     const responseData = new ResponseData();
@@ -97,7 +101,7 @@ router.post("/user", async (request: Request, response: Response) => {
                 responseData.code = StatusCodes.CREATED;
                 responseData.message = ReasonPhrases.CREATED;
             } else {
-                new AdminError('User already exists.').throw();
+                new WebError('User already exists.', ADMIN_ERROR).throw();
             }
         } catch (error) {
             makeErrorResult(error, responseData);
@@ -130,7 +134,7 @@ router.put("/user/:email", async (request: Request, response: Response) => {
             responseData.code = StatusCodes.CREATED;
             responseData.message = ReasonPhrases.CREATED;
         } else {
-            new AdminError('User not found').throw();
+            new WebError('User not found', ADMIN_ERROR).throw();
         }
     } catch (error) {
         makeErrorResult(error, responseData);
@@ -210,7 +214,7 @@ router.delete("/user/:email", async (request: Request, response: Response) => {
             responseData.code = StatusCodes.OK;
             responseData.message = ReasonPhrases.OK;
         } else {
-            new AdminError('User not found.').throw();
+            new WebError('User not found.', ADMIN_ERROR).throw();
         }
     } catch (error) {
         makeErrorResult(error, responseData);
