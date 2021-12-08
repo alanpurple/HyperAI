@@ -6,6 +6,7 @@ const PROTO_PATH = __dirname + '/../../MLServer/eda.proto';
 import { loadPackageDefinition, credentials } from '@grpc/grpc-js';
 import { loadSync } from '@grpc/proto-loader';
 import { User, UserModel } from '../models/user';
+import * as URI from '../../uri.json';
 
 const pkgdef = loadSync(PROTO_PATH, {
     keepCase: true, longs: String, enums: String, defaults: true, oneofs: true
@@ -13,8 +14,7 @@ const pkgdef = loadSync(PROTO_PATH, {
 
 const EdaService = loadPackageDefinition(pkgdef).eda;
 
-const client = new EdaService['Preprocess']('martinie.ai:50051', credentials.createInsecure());
-//const client = new EdaService['Preprocess']('localhost:50051', credentials.createInsecure());
+const client = new EdaService['Preprocess'](URI.grpcServer, credentials.createInsecure());
 
 const router = Router();
 

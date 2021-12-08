@@ -1,5 +1,6 @@
 import { connect } from 'mongoose';
+import * as URI from '../uri.json';
 
 export async function connectDdb(): Promise<void> {
-    await connect('mongodb://hyperai:alan1234@martinie.ai:27017/hyperai');
+    await connect(`mongodb://${URI.id}:${URI.password}@${URI.server}/${URI.hyperaidb}`);
 }

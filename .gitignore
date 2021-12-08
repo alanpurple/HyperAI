@@ -425,3 +425,4 @@ datasets/
 
 # angular-build-related
 .angular/
+uri.json

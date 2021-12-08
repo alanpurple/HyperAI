@@ -2,12 +2,17 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session,sessionmaker
 from sqlalchemy.ext.automap import automap_base
 #from urllib.parse import quote_plus
+import json
 
-server='martinie.ai'
-database='hyperai'
+with open('../uri.json','r') as urifile:
+    uri=json.load(urifile)
+
+
+server=uri['sqlServer']
+database=uri['hyperaisql']
 driver = 'MySQL ODBC 8.0 Unicode Driver'
-id='root'
-pwd='alan1234'
+id=uri['id']
+pwd=uri['password']
 
 
 def getAll():

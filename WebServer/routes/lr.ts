@@ -3,6 +3,7 @@ import { Router, Request, Response, NextFunction } from 'express';
 const PROTO_PATH = __dirname + '/../../MLServer/lr.proto';
 import { loadPackageDefinition, credentials } from '@grpc/grpc-js';
 import { loadSync } from '@grpc/proto-loader';
+import * as URI from '../../uri.json';
 
 const pkgdef = loadSync(PROTO_PATH, {
     keepCase: true, longs: String, enums: String, defaults: true, oneofs: true
@@ -10,7 +11,7 @@ const pkgdef = loadSync(PROTO_PATH, {
 
 const LrService = loadPackageDefinition(pkgdef).lr;
 
-const client = new LrService['Lr']('martinie.ai:50051', credentials.createInsecure());
+const client = new LrService['Lr'](URI.grpcServer, credentials.createInsecure());
 
 const router = Router();
 

@@ -2,12 +2,16 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session,sessionmaker
 from sqlalchemy.ext.automap import automap_base
 #from urllib import parse
+import json
 
-server='martinie.ai'
-database='opendata'
+with open('../uri.json','r') as urifile:
+    uri=json.load(urifile)
+
+server=uri['sqlServer']
+database=uri['hyperaiopendb']
 driver = 'MySQL ODBC 8.0 Unicode Driver'
-id='hyperai'
-pwd='alan1234'
+id=uri['id']
+pwd=uri['password']
 
 def getAll():
     engine=create_engine("mysql+mysqlconnector://{}:{}@{}/{}".format(id,pwd,server,database))
