@@ -1,0 +1,6 @@
+{
+  "entryPoints": ["."],
+  "entryPointStrategy": "Expand",
+  "excludeExternals": true,
+  "out": "d:\\tmp\\docs"
+}
