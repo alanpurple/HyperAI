@@ -2,7 +2,7 @@ import { Request, Response, Router } from 'express';
 import { Project, ProjectModel, StructuralTask, TextTask, VisionTask } from "../models/project";
 import { ReasonPhrases, StatusCodes, } from 'http-status-codes';
 import { ResponseData } from "../interfaces/ResponseData";
-import { RequestProject } from "../interfaces/ProjectRequest";
+import { ClientProject } from "../interfaces/ClientProject";
 import { Document, Types } from 'mongoose';
 import { User, UserModel } from "../models/user";
 import { ensureAuthenticated } from "../authentication/authentication";
@@ -120,7 +120,7 @@ router.post("/", async (request: Request, response: Response) => {
     }
     
     try {
-        const reqProject: RequestProject = request.body;
+        const reqProject: ClientProject = request.body;
         
         if (!isValidObjective(reqProject.objective, reqProject.category)) new WebError("The objective cannot be used for the specified category.", PROJECT_ERROR).throw();
         
@@ -553,19 +553,19 @@ const makeErrorResult = (error, responseData: ResponseData) => {
  * @param pathParameter
  * @param pathName
  */
-const checkPathParamError = (pathParameter: string, pathName: string) => {
+export const checkPathParamError = (pathParameter: string, pathName: string) => {
     if (!decodeURI(pathParameter) || decodeURI(pathParameter).trim().length === 0) {
         throw new WebError(`Path parameter error - ${ pathName }`, PROJECT_ERROR).throw();
     }
 };
 
-const checkArray = (target: any) => {
+export const checkArray = (target: any) => {
     if (!Array.isArray(target) || (target.length === 0)) {
         throw new WebError("Target is not an array or empty.", PROJECT_ERROR).throw();
     }
 }
 
-const isAdmin = (accountType: string) => {
+export const isAdmin = (accountType: string) => {
     return accountType === "admin";
 };
 
@@ -573,7 +573,7 @@ const isAdmin = (accountType: string) => {
  * Validate project model schema
  * @param model
  */
-const validateProjectModel = (model: Document<any, any, Project> & Project & { _id: Types.ObjectId; }) => {
+export const validateProjectModel = (model: Document<any, any, Project> & Project & { _id: Types.ObjectId; }) => {
     let validationError = model.validateSync(); // ValidationError: there are errors, undefined: there is no error
     
     if (validationError) {
@@ -581,7 +581,13 @@ const validateProjectModel = (model: Document<any, any, Project> & Project & { _
     }
 }
 
-const makeProjectResponse = (user: User, project: Document<any, any, Project> & Project & { _id: Types.ObjectId; }) => {
+/**
+ * Make project response data.<br>
+ * Switch user's {@link ObjectId} in MongoDB to plain email address and replace email to 'self' if current user is project owner.
+ * @param user
+ * @param project
+ */
+export const makeProjectResponse = (user: User, project: Document<any, any, Project> & Project & { _id: Types.ObjectId; }): ClientProject => {
     let isAdminOrMember = isAdmin(user.accountType) || (user.email !== project.owner["email"]);
     
     let projectMemberArray = [];
@@ -592,7 +598,7 @@ const makeProjectResponse = (user: User, project: Document<any, any, Project> & 
         }
         projectMemberArray.push(member);
     });
-    
+
     return {
         name: project.name,
         dataURI: project.dataURI,
@@ -614,7 +620,7 @@ const makeProjectResponse = (user: User, project: Document<any, any, Project> & 
  * @param user
  * @param reqProject Requested project data
  */
-const convertToProjectSchema = async (user, reqProject: RequestProject) => {
+export const convertToProjectSchema = async (user, reqProject: ClientProject): Promise<Project> => {
     logger(user);
     logger(reqProject);
     let admin = isAdmin(user.accountType);
@@ -636,8 +642,8 @@ const convertToProjectSchema = async (user, reqProject: RequestProject) => {
             new WebError(`Project member '${ rMember.user }' not found.`, PROJECT_ERROR).throw();
         }
     }
-    
-    let projectSchema: Project = {
+
+    return {
         category: reqProject.category,
         dataURI: reqProject.dataURI,
         members: members,
@@ -649,11 +655,14 @@ const convertToProjectSchema = async (user, reqProject: RequestProject) => {
         textTasks: reqProject.textTasks,
         visionTasks: reqProject.visionTasks
     };
-    
-    return projectSchema;
 };
 
-const addMember = async (inMembers: { user: string, role: 'member' | 'attendee' }[], project: Document<any, any, Project> & Project & { _id: Types.ObjectId }) => {
+/**
+ * Add members to project
+ * @param inMembers array of user document
+ * @param project target project
+ */
+export const addMember = async (inMembers: { user: string, role: 'member' | 'attendee' }[], project: Document<any, any, Project> & Project & { _id: Types.ObjectId }) => {
     let addMemberResult: AddMemberResult = { error: [], addedMembers: [], ignoredMembers: [] };
     const options = { lean: true, new: true, rawResult: true };
     
@@ -688,6 +697,11 @@ const addMember = async (inMembers: { user: string, role: 'member' | 'attendee' 
     return addMemberResult;
 };
 
+/**
+ * Remove members from project
+ * @param outMembers array of user email
+ * @param project target project
+ */
 export const removeMember = async (outMembers: string[], project: Document<any, any, Project> & Project & { _id: Types.ObjectId }) => {
     let removeMemberResult: RemoveMemberResult = { error: [], ignoredMembers: [], removedMembers: [] };
     const options = { lean: true, new: true, rawResult: true };
@@ -717,9 +731,20 @@ export const removeMember = async (outMembers: string[], project: Document<any, 
     return removeMemberResult;
 };
 
-const checkTasksCanBeAdded = (tasks: Array<any>, taskName: string) => !(tasks.findIndex(elem => elem.name === taskName) >= 0);
+/**
+ * Check tasks can be added
+ * @param tasks task array form project
+ * @param taskName
+ */
+export const checkTasksCanBeAdded = (tasks: Array<any>, taskName: string) => !(tasks.findIndex(elem => elem.name === taskName) >= 0);
 
-const addTask = async (task: TaskBody, project: Document<any, any, Project> & Project & { _id: Types.ObjectId }) => {
+/**
+ * Add task to project
+ * @param task task data to edit
+ * @param project a project document has target task
+ * @throws WebError[ProjectError] throw an error when provided unknown task type or target task already exist
+ */
+export const addTask = async (task: TaskBody, project: Document<any, any, Project> & Project & { _id: Types.ObjectId }) => {
     let tasksCanBeAdded: boolean = false;
     const options = { lean: true, new: true, rawResult: true };
     
@@ -793,7 +818,14 @@ const addTask = async (task: TaskBody, project: Document<any, any, Project> & Pr
     if (!tasksCanBeAdded) new WebError("The task name already exists.", PROJECT_ERROR).throw();
 };
 
-const editTask = async (taskName: string, task: TaskBody, project: Document<any, any, Project> & Project & { _id: Types.ObjectId }) => {
+/**
+ * Edit task of project
+ * @param taskName target task's name
+ * @param task task data to edit
+ * @param project a project document has target task
+ * @throws WebError[ProjectError] throw an error when provided unknown task type or target task doesn't exist
+ */
+export const editTask = async (taskName: string, task: TaskBody, project: Document<any, any, Project> & Project & { _id: Types.ObjectId }) => {
     let foundIndex = -1;
     const options = { lean: true, new: true, rawResult: true };
     const projectObj = project.toObject();
@@ -847,7 +879,14 @@ const editTask = async (taskName: string, task: TaskBody, project: Document<any,
     if (foundIndex < 0) new WebError(`The task '${ taskName }' does not exist.`, PROJECT_ERROR).throw();
 };
 
-const removeTask = async (type: string, taskName: string, project: Document<any, any, Project> & Project & { _id: Types.ObjectId }) => {
+/**
+ * Remove task from project
+ * @param type task type
+ * @param taskName task name
+ * @param project a project document has target task
+ * @throws WebError[ProjectError] throw an error when target task doesn't exist
+ */
+export const removeTask = async (type: string, taskName: string, project: Document<any, any, Project> & Project & { _id: Types.ObjectId }) => {
     const options = { lean: true, new: true, rawResult: true };
     
     switch (type) {
@@ -875,19 +914,31 @@ const removeTask = async (type: string, taskName: string, project: Document<any,
     }
 };
 
-const isValidObjective = (objective: string, category: string) => {
+/**
+ * Check if an project objective is valid for a category in the project
+ * @param objective
+ * @param category
+ * @return boolean true if valid, false otherwise
+ */
+export const isValidObjective = (objective: string, category: string): boolean => {
     if (['qna', 'translation'].includes(objective) && category != 'text')
         return false;
     
     return !(['segmentation', 'object detection'].includes(objective) && category != 'vision');
 };
 
-interface EditMember {
+export interface EditMember {
+    /**
+     * member objects to add
+     */
     inMember: { user: string, role: 'member' | 'attendee' }[];
+    /**
+     * member emails to remove
+     */
     outMember: string[];
 }
 
-interface TaskBody {
+export interface TaskBody {
     type: 'structural' | 'text' | 'vision';
     task: object,
     modification: object
@@ -899,13 +950,13 @@ const testUser = {
     email: "soorong@infinov.com"
 };
 
-interface AddMemberResult {
+export interface AddMemberResult {
     error: any[];
     addedMembers: string[];
     ignoredMembers: string[];
 }
 
-interface RemoveMemberResult {
+export interface RemoveMemberResult {
     error: any[];
     removedMembers: string[];
     ignoredMembers: string[];
