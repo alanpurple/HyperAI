@@ -2,5 +2,5 @@
   "entryPoints": ["."],
   "entryPointStrategy": "Expand",
   "excludeExternals": true,
-  "out": "d:\\tmp\\docs"
+  "out": "/mnt/data/was/docs"
 }
