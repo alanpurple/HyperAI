@@ -1,6 +1,6 @@
 import { StructuralTask, TextTask, VisionTask } from "../models/project";
 
-export interface RequestProject {
+export interface ClientProject {
     name: string;
     dataURI: string;
     projectType: 'single' | 'sequential' | 'multiple_comparison';
@@ -16,4 +16,6 @@ export interface RequestProject {
     visionTasks: VisionTask[];  // use only when taskType is 'vision'
     textTasks: TextTask[];  // use only when taskType is 'text'
     structuralTasks: StructuralTask[];
+    createdAt: string;
+    updatedAt: string;
 }
