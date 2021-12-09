@@ -24,7 +24,7 @@ import * as swaggerUi from 'swagger-ui-express';
 import * as swaggerJSDoc from 'swagger-jsdoc';
 import { swaggerOptions } from "./openapi/swagger";
 
-import * as URI from "../uri.json"
+import * as URI from "./uri.json"
 
 
 const debug = require('debug')('my express app');

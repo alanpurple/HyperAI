@@ -33,6 +33,7 @@
     <Content Include="tsdoc.json">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="uri.json" />
     <None Include="app.ts" />
     <Content Include="favicon.ico" />
     <Content Include="tsconfig.json" />

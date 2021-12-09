@@ -4,7 +4,7 @@ import { sequelize, sequelizeOpen } from '../connect-rdb';
 import { QueryTypes } from 'sequelize';
 import { rm } from 'fs/promises';
 import multer = require('multer');
-import * as URI from '../../uri.json';
+import * as URI from '../uri.json';
 
 const UPLOAD_TEMP_PATH = '../upload-temp';
 
@@ -58,7 +58,7 @@ router.get('/compact/:isopen/:name/:attr1/:attr2', (req, res) => {
             else {
                 let reducer = Math.floor(data.length / 300);
                 let reduced = [];
-                data.forEach((elem, index, arr) => {
+                data.forEach((elem, index) => {
                     if (index % reducer == 0)
                         reduced.push(elem);
                 });

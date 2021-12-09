@@ -3,7 +3,7 @@ import { Router, Request, Response, NextFunction } from 'express';
 const PROTO_PATH = __dirname + '/../../MLServer/lr.proto';
 import { loadPackageDefinition, credentials } from '@grpc/grpc-js';
 import { loadSync } from '@grpc/proto-loader';
-import * as URI from '../../uri.json';
+import * as URI from '../uri.json';
 
 const pkgdef = loadSync(PROTO_PATH, {
     keepCase: true, longs: String, enums: String, defaults: true, oneofs: true

@@ -1,5 +1,5 @@
 import { Router, Request, Response, NextFunction } from 'express';
-import * as URI from '../../uri.json';
+import * as URI from '../uri.json';
 
 const router = Router();
 

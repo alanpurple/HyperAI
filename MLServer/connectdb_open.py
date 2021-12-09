@@ -4,7 +4,7 @@ from sqlalchemy.ext.automap import automap_base
 #from urllib import parse
 import json
 
-with open('../uri.json','r') as urifile:
+with open('uri.json','r') as urifile:
     uri=json.load(urifile)
 
 server=uri['sqlServer']
