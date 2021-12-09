@@ -230,7 +230,7 @@ router.delete("/user/:email", async (request: Request, response: Response) => {
  * @param responseData
  * @return Generated data
  */
-const makeErrorResult = (error: any, responseData: ResponseData) => {
+export const makeErrorResult = (error: any, responseData: ResponseData) => {
     console.error(error);
     
     responseData.success = false;

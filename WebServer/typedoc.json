@@ -1,0 +1,6 @@
+{
+  "entryPoints": ["."],
+  "entryPointStrategy": "Expand",
+  "excludeExternals": true,
+  "out": "/mnt/data/was/docs"
+}
