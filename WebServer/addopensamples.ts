@@ -2,7 +2,7 @@ import { UserModel } from './models/user';
 import { sequelizeOpen } from './connect-rdb';
 import { connectDdb } from './connect-ddb';
 
-const sampleNames = ['cluster1samples','circle1samples', 'cluster1woysamples', 'n1samples', 'blobdatas', 'moon1samples']
+const sampleNames = ['cluster1samples', 'circle1samples', 'cluster1woysamples', 'n1samples', 'blobdatas', 'moon1samples', 'mushrooms'];
 
 async function addData() {
     await connectDdb();
@@ -16,7 +16,7 @@ async function addData() {
         let numRows = actualTables[0].find(data => data['TABLE_NAME'] == sample)['TABLE_ROWS'];
         return {
             name: sample,
-            uri: 'mysqlx://localhost/hyperai/' + sample,
+            uri: 'mysqlx://martinie.ai/hyperai/' + sample,
             locationType: 'local',
             numRows: numRows,
             type: 'structural'
