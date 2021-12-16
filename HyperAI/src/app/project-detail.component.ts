@@ -42,6 +42,10 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
     this.sub = this.route.params.subscribe(params => {
       if (!params['id'])
         this.router.navigate(['/project-manager']);
+      else if (params['id'] == 'new') {
+        this.errorAlert.open('something\'s wrong, project name cannot be \'new\'');
+        return;
+      }
       this.projectService.getProject(params['id']).subscribe(
         project => {
           console.log(project);

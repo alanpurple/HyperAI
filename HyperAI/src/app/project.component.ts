@@ -1,6 +1,6 @@
-import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { MatTable, MatTableDataSource } from '@angular/material/table';
+import { MatTableDataSource } from '@angular/material/table';
 import { ConfirmDialog } from './shared/confirm.dialog';
 import { ErrorAlert } from './shared/error.alert';
 import { Project } from './project.data';
@@ -14,13 +14,15 @@ import { DataInfo } from './data.info';
 
 import { NameRe } from './shared/validataions'
 import { MatSort } from '@angular/material/sort';
+import { Location } from '@angular/common';
+import { ActivatedRoute, NavigationStart, Router } from '@angular/router';
 
 @Component({
   selector: 'app-project',
   templateUrl: './project.component.html',
   styleUrls: ['./project.component.sass']
 })
-export class ProjectComponent implements OnInit, AfterViewInit {
+export class ProjectComponent implements OnInit, AfterViewInit{
 
   constructor(
     private userService: UserService,
@@ -28,12 +30,21 @@ export class ProjectComponent implements OnInit, AfterViewInit {
     private projectService: ProjectService,
     private dataService: DataService,
     private errorAlert: ErrorAlert,
-    private confirmDialog: ConfirmDialog
+    private confirmDialog: ConfirmDialog,
+    private location: Location,
+    private route: ActivatedRoute,
+    private router: Router
   ) {
     if (window.outerWidth < 1200)
       this.isSmallDevice = true;
     else
-      this.displayedColumns = ['name', 'owner', 'dataURI', 'createdAt', 'updatedAt', 'projectType', 'category','objective', 'edit', 'delete'];
+      this.displayedColumns = ['name', 'owner', 'dataURI', 'createdAt', 'updatedAt', 'projectType', 'category', 'objective', 'edit', 'delete'];
+  }
+
+  @HostListener('window:popstate', ['$event'])
+  onPopState(event: NavigationStart) {
+    if (this.navigatedByNew)
+      this.location.back();
   }
 
   isSmallDevice = false;
@@ -78,7 +89,7 @@ export class ProjectComponent implements OnInit, AfterViewInit {
   dataList: DataInfo[] = [];
 
 
-  
+  navigatedByNew: boolean = false;
 
 
   ngOnInit(): void {
@@ -112,6 +123,19 @@ export class ProjectComponent implements OnInit, AfterViewInit {
         );
       }, err => this.errorAlert.open(err.error)
     );
+    this.route.url.subscribe(elems => {
+      if (elems.length == 2) {
+        if (elems[1].path == 'new') {
+          this.navigatedByNew = true;
+          this.createProjectEasy();
+          this.location.go('/project-manager');
+        }
+        else
+          this.errorAlert.open('unknown strings attatched');
+      }
+      else if (elems.length > 2)
+        this.router.navigate(['/notfound']);
+    });
   }
 
   //using dialog
