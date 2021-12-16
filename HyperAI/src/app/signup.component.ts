@@ -6,6 +6,7 @@ import { ErrorAlert } from './shared/error.alert';
 
 import { NameRe } from './shared/validataions';
 import { Subscription } from 'rxjs';
+import { Location } from '@angular/common';
 
 @Component({
   selector: 'app-signup',
@@ -18,13 +19,22 @@ export class SignupComponent implements OnInit, OnDestroy {
     private router: Router,
     private route: ActivatedRoute,
     private userService: UserService,
-    private errorAlert: ErrorAlert
+    private errorAlert: ErrorAlert,
+    private location: Location
   ) { }
 
   organizations: string[] = [];
   private sub: Subscription | null = null;
 
   ngOnInit() {
+    // check process for 'back' button
+    this.userService.getUser().subscribe(
+      user => this.location.back(),
+      err => {
+        if (err.status != 401)
+          this.errorAlert.open(err.error);
+      }
+    );
     this.sub = this.route.params.subscribe(params => {
       if (params['id']) {
         this.email = decodeURI(params['id']);

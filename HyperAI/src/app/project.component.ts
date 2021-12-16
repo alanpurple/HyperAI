@@ -132,7 +132,12 @@ export class ProjectComponent implements OnInit, AfterViewInit, OnDestroy{
       if (elems.length == 2) {
         if (elems[1].path == 'new') {
           this.navigatedByNew = true;
-          this.createProjectEasy();
+          this.userService.getColleagues().subscribe(
+            users => {
+              this.isMaking = true;
+              this.availableMembers = users;
+            }, err => this.errorAlert.open(err.error)
+          );
           this.location.go('/project-manager');
         }
         else
