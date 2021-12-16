@@ -44,8 +44,10 @@ export class ProjectComponent implements OnInit, AfterViewInit, OnDestroy{
 
   @HostListener('window:popstate', ['$event'])
   onPopState(event: NavigationStart) {
-    if (this.navigatedByNew)
+    if (this.navigatedByNew) {
+      this.navigatedByNew = false;
       this.location.back();
+    }
   }
 
   isSmallDevice = false;
