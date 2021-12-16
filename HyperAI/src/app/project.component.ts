@@ -16,13 +16,14 @@ import { NameRe } from './shared/validataions'
 import { MatSort } from '@angular/material/sort';
 import { Location } from '@angular/common';
 import { ActivatedRoute, NavigationStart, Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-project',
   templateUrl: './project.component.html',
   styleUrls: ['./project.component.sass']
 })
-export class ProjectComponent implements OnInit, AfterViewInit{
+export class ProjectComponent implements OnInit, AfterViewInit, OnDestroy{
 
   constructor(
     private userService: UserService,
@@ -91,6 +92,8 @@ export class ProjectComponent implements OnInit, AfterViewInit{
 
   navigatedByNew: boolean = false;
 
+  sub: Subscription | null = null;
+
 
   ngOnInit(): void {
     this.projectService.getProjects().subscribe(
@@ -123,7 +126,7 @@ export class ProjectComponent implements OnInit, AfterViewInit{
         );
       }, err => this.errorAlert.open(err.error)
     );
-    this.route.url.subscribe(elems => {
+    this.sub = this.route.url.subscribe(elems => {
       if (elems.length == 2) {
         if (elems[1].path == 'new') {
           this.navigatedByNew = true;
@@ -136,6 +139,11 @@ export class ProjectComponent implements OnInit, AfterViewInit{
       else if (elems.length > 2)
         this.router.navigate(['/notfound']);
     });
+  }
+
+  ngOnDestroy() {
+    if (this.sub)
+      this.sub.unsubscribe();
   }
 
   //using dialog
