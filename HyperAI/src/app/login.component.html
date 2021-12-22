@@ -27,11 +27,11 @@
         <mat-error *ngIf="email.invalid">{{getErrorMessage()}}</mat-error>
         <mat-hint *ngIf="mailNotFound">email not found</mat-hint>
       </mat-form-field>
-      <button mat-raised-button type="button" color="warn" (click)="checkEmail()"
+      <button mat-raised-button type="button" color="warn" (click)="checkEmail()" [disabled]="email.invalid"
               [fxHide]="emailChecked">
         Check email existence
       </button>
-      <button mat-raised-button [fxHide]="!emailChecked" (click)="resetEmail()" type="button" color="accent" [disabled]="email.invalid">
+      <button mat-raised-button [fxHide]="!emailChecked" (click)="resetEmail()" type="button" color="accent">
         reset email
       </button>
       <mat-form-field [fxHide]="!emailChecked">

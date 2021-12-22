@@ -60,6 +60,8 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   checkEmail() {
+    if (this.email.invalid)
+      return;
     this.userService.checkuser(this.email.value)
       .subscribe(
         msg => {
@@ -70,7 +72,7 @@ export class LoginComponent implements OnInit, OnDestroy {
         err => {
           if (err.status == 404) {
             //this.router.navigate(['/signup', encodeURI(this.email)]);
-            this.dialog.open(NoEmailDialog, { data: this.email }).afterClosed().subscribe(
+            this.dialog.open(NoEmailDialog, { data: this.email.value }).afterClosed().subscribe(
               canGo => {
                 console.log(canGo)
                 if (canGo)
