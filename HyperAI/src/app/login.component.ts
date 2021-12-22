@@ -4,7 +4,7 @@ import { Subscription } from 'rxjs';
 
 import { UserService } from './user.service';
 import { ErrorAlert } from './shared/error.alert';
-import { Location } from '@angular/common';
+import { Location, DOCUMENT } from '@angular/common';
 import { ConfirmDialog } from './shared/confirm.dialog';
 import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FormControl, Validators } from '@angular/forms';
@@ -23,7 +23,8 @@ export class LoginComponent implements OnInit, OnDestroy {
     private errorAlert: ErrorAlert,
     private confirmDialog: ConfirmDialog,
     private location: Location,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    @Inject(DOCUMENT) private doc: Document
   ) { }
 
   email = new FormControl('', [Validators.required, Validators.email]);
@@ -109,9 +110,9 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.userService.login(this.email.value, this.password).subscribe(
       msg => {
         if (msg == 'ok')
-          this.router.navigate(['/']);
+          this.doc.location.href = '/';
         else if (msg == 'nonick')
-          this.router.navigate(['/user-info']);
+          this.doc.location.href = '/user-info';
         else
           this.errorAlert.open('unexpected message, don know what to do');
       }, err => {
