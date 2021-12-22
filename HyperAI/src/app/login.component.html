@@ -23,19 +23,21 @@
     <form (ngSubmit)="onSubmit()" #loginForm="ngForm" fxLayout="column">
       <mat-form-field>
         <input matInput type="email" name="username" placeholder="email"
-               [(ngModel)]="email" (keyup.enter)="checkEmail()" required>
+               [formControl]="email" (keyup.enter)="checkEmail()" (change)="onEmailChange()" required>
+        <mat-error *ngIf="email.invalid">{{getErrorMessage()}}</mat-error>
         <mat-hint *ngIf="mailNotFound">email not found</mat-hint>
       </mat-form-field>
       <button mat-raised-button type="button" color="warn" (click)="checkEmail()"
               [fxHide]="emailChecked">
         Check email existence
       </button>
-      <button mat-raised-button [fxHide]="!emailChecked" (click)="resetEmail()" type="button" color="accent">
+      <button mat-raised-button [fxHide]="!emailChecked" (click)="resetEmail()" type="button" color="accent" [disabled]="email.invalid">
         reset email
       </button>
       <mat-form-field [fxHide]="!emailChecked">
-        <input matInput type="password" name="password" placeholder="password"
+        <input matInput type="password" name="password" placeholder="password" (change)="passwordWrong=false;"
                [(ngModel)]="password" required>
+        <mat-hint *ngIf="passwordWrong">Wrong password</mat-hint>
       </mat-form-field>
       <button mat-raised-button [disabled]="!emailChecked||loginForm.form.invalid" color="accent" type="submit" value="Submit">Log in</button>
     </form>

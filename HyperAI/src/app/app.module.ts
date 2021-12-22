@@ -2,8 +2,7 @@ import { ErrorHandler, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { HttpClientModule } from '@angular/common/http';
 import { FlexLayoutModule } from '@angular/flex-layout';
-import { MAT_DIALOG_DEFAULT_OPTIONS } from '@angular/material/dialog';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatModule } from './mat.module';
 
 import * as PlotlyJS from 'plotly.js-dist-min';
@@ -72,6 +71,7 @@ import { UserDialog } from './user.dialog';
   imports: [
     BrowserModule,
     FormsModule,
+    ReactiveFormsModule,
     AppRoutingModule,
     BrowserAnimationsModule,
     FlexLayoutModule,
