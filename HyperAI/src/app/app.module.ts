@@ -17,7 +17,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { SignupComponent } from './signup.component';
-import { LoginComponent } from './login.component';
+import { LoginComponent, NoEmailDialog } from './login.component';
 import { HomeComponent } from './home.component';
 import { AdminConsole } from './admin.console';
 import { InfoComponent } from './info.component';
@@ -61,7 +61,7 @@ import { UserDialog } from './user.dialog';
     ComingSoonDialog, NickNameTakenDialog, NickNameConfirmDialog, ProjectComponent, ProjectDetailComponent,
     ProjectDialog, VisionTaskDialog, TextTaskDialog, StructuralTaskDialog, DataDialog,
     ForbiddenValidatorDirective, DeleteConfirmDialog, PrivacyPolicy, NotfoundComponent,
-    UserDialog
+    UserDialog, NoEmailDialog
   ],
   /*entryComponents: [
     ConfirmDialogTemplate, ConfirmDialogTemplate2, ErrorDialog, ComingSoonDialog,

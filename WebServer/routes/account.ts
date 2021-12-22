@@ -15,17 +15,18 @@ router.post('/login', (req: Request, res: Response, next: NextFunction)=> {
         res.redirect('/');
     });
 },
-    passport.authenticate('local', { failureRedirect: '/login' }),
+    passport.authenticate('local'),
     function (req, res) {
+        console.log('were in')
         // email verification not implemented for now
         /*if (!req.user['emailVerified'])
             res.redirect('/emailVerification');
         else */if (!req.user['nickName'])
-            res.redirect('/user-info');
+            res.send('nonick');
         //else if (req.user.accountType == 'admin')
         //    res.redirect('/admin');
         else
-            res.redirect('/');
+            res.send('ok');
     });
 
 router.post('/signup', (req: Request, res: Response, next: NextFunction) => {

@@ -11,6 +11,10 @@ export class UserService {
 
   constructor(private http: HttpClient) { }
 
+  login(username: string, password: string): Observable<string> {
+    return this.http.post('/account/login', { username: username, password: password }, { responseType: 'text' });
+  }
+
   getUser(): Observable<UserData> {
     return this.http.get<UserData>('/account/info');
   }

@@ -1,7 +1,7 @@
 <mat-card>
   <mat-toolbar color="primary">Log in(local account)</mat-toolbar>
   <mat-card-content>
-    <form action="/account/login" ngNoForm
+    <!--<form action="/account/login" ngNoForm
           method="post" fxLayout="column">
       <mat-form-field>
         <input matInput type="email" name="username" placeholder="email"
@@ -19,6 +19,25 @@
                 [(ngModel)]="password" required>
       </mat-form-field>
       <button mat-raised-button [disabled]="!emailChecked" color="accent" type="submit" value="Submit">Log in</button>
+    </form>-->
+    <form (ngSubmit)="onSubmit()" #loginForm="ngForm" fxLayout="column">
+      <mat-form-field>
+        <input matInput type="email" name="username" placeholder="email"
+               [(ngModel)]="email" (keyup.enter)="checkEmail()" required>
+        <mat-hint *ngIf="mailNotFound">email not found</mat-hint>
+      </mat-form-field>
+      <button mat-raised-button type="button" color="warn" (click)="checkEmail()"
+              [fxHide]="emailChecked">
+        Check email existence
+      </button>
+      <button mat-raised-button [fxHide]="!emailChecked" (click)="resetEmail()" type="button" color="accent">
+        reset email
+      </button>
+      <mat-form-field [fxHide]="!emailChecked">
+        <input matInput type="password" name="password" placeholder="password"
+               [(ngModel)]="password" required>
+      </mat-form-field>
+      <button mat-raised-button [disabled]="!emailChecked||loginForm.form.invalid" color="accent" type="submit" value="Submit">Log in</button>
     </form>
   </mat-card-content>
 </mat-card>
