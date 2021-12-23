@@ -33,7 +33,6 @@ router.get('/open', async (req: Request, res: Response) => {
         const result = openData.map(data => {
             return {
                 name: data.name,
-                uri: data.uri,
                 numRows: data.numRows,
                 //temporary fixed type
                 type: 'structural'
