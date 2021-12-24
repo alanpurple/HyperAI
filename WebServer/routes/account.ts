@@ -17,7 +17,6 @@ router.post('/login', (req: Request, res: Response, next: NextFunction)=> {
 },
     passport.authenticate('local'),
     function (req, res) {
-        console.log('were in')
         // email verification not implemented for now
         /*if (!req.user['emailVerified'])
             res.redirect('/emailVerification');

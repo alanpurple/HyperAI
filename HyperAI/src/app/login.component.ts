@@ -116,9 +116,12 @@ export class LoginComponent implements OnInit, OnDestroy {
         else
           this.errorAlert.open('unexpected message, don know what to do');
       }, err => {
-        this.confirmDialog.open('Invalid email or password');
-        //this.resetEmail();
-        this.passwordWrong = true;
+        if (err.status == 401) {
+          this.confirmDialog.open('Invalid email or password');
+          this.passwordWrong = true;
+        }
+        else
+          this.errorAlert.open(err.error);
       }
     )
   }
