@@ -19,7 +19,7 @@
     "@mysql/xdevapi": "^8.0.27",
     "bcrypt": "^5.0.1",
     "connect-mongo": "^4.6.0",
-    "csv-parse": "^5.0.3",
+    "csv-parse": "^5.0.4",
     "debug": "^4.3.3",
     "express": "^5.0.0-alpha.8",
     "express-session": "^1.17.2",
