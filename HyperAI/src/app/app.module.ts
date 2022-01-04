@@ -12,6 +12,9 @@ PlotlyModule.plotlyjs = PlotlyJS;
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { GojsAngularModule } from 'gojs-angular';
 
+import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
+const config: SocketIoConfig = { url: 'https://martinie.ai' };
+
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -79,7 +82,8 @@ import { UserDialog } from './user.dialog';
     PlotlyModule,
     MatModule,
     NgxChartsModule,
-    GojsAngularModule
+    GojsAngularModule,
+    SocketIoModule.forRoot(config)
   ],
   providers: [ConfirmDialog, LoggedIn, NotLoggedIn, IsAdmin, IsNotAdmin,
     ErrorAlert, HasNick, DeleteConfirmDialog,
