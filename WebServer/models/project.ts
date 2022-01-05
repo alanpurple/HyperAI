@@ -126,38 +126,38 @@ const schema = new Schema<Project>({
     }
 }, { timestamps:true });
 
-schema.pre('save', { document: true, query: false }, async function (next) {
+schema.pre('save', async function (next) {
     const project = this;
     if (project.isNew) {
-        const user = await UserModel.findById(project.owner,'data');
+        const user = await UserModel.findById(project.get('owner'),'data');
         const admins = await UserModel.find({ accountType: 'admin' }, 'data');
         const userData = user.data.map(elem => elem.name);
         const adminData = admins.flatMap(admin => admin.data).map(elem => elem.name);
-        if (!userData.includes(project.dataURI) && !adminData.includes(project.dataURI))
+        if (!userData.includes(project.get('dataURI')) && !adminData.includes(project.get('dataURI')))
             next(Error('dataURI is not included in user data list'));
     }
-    if ((project.isNew || project.isModified('visionTasks')) && project.visionTasks?.length > 1)
-        if ((new Set(project.visionTasks)).size != project.visionTasks.length)
+    if ((project.isNew || project.isModified('visionTasks')) && project.get('visionTasks').length > 1)
+        if ((new Set(project.get('visionTasks'))).size != project.get('visionTasks').length)
             next(Error('duplicate task names'));
-    if ((project.isNew || project.isModified('textTasks')) && project.textTasks?.length > 1)
-        if ((new Set(project.textTasks)).size != project.textTasks.length)
+    if ((project.isNew || project.isModified('textTasks')) && project.get('textTasks').length > 1)
+        if ((new Set(project.get('textTasks'))).size != project.get('textTasks').length)
             next(Error('duplicate task names'));
-    if ((project.isNew || project.isModified('structuralTasks')) && project.structuralTasks?.length > 1)
-        if ((new Set(project.structuralTasks)).size != project.structuralTasks.length)
+    if ((project.isNew || project.isModified('structuralTasks')) && project.get('structuralTasks').length > 1)
+        if ((new Set(project.get('structuralTasks'))).size != project.get('structuralTasks').length)
             next(Error('duplicate task names'));
     next();
 });
 
-schema.pre('updateOne', { document: true, query: false }, function (next) {
+schema.pre('updateOne', function (next) {
     const project = this;
-    if (project.isModified('visionTasks') && project.visionTasks?.length > 1)
-        if ((new Set(project.visionTasks)).size != project.visionTasks.length)
+    if (project.isModified('visionTasks') && project.get('visionTasks').length > 1)
+        if ((new Set(project.get('visionTasks'))).size != project.get('visionTasks').length)
             next(Error('duplicate task names'));
-    if (project.isModified('textTasks') && project.textTasks?.length > 1)
-        if ((new Set(project.textTasks)).size != project.textTasks.length)
+    if (project.isModified('textTasks') && project.get('textTasks').length > 1)
+        if ((new Set(project.get('textTasks'))).size != project.get('textTasks').length)
             next(Error('duplicate task names'));
-    if (project.isModified('structuralTasks') && project.structuralTasks?.length > 1)
-        if ((new Set(project.structuralTasks)).size != project.structuralTasks.length)
+    if (project.isModified('structuralTasks') && project.get('structuralTasks').length > 1)
+        if ((new Set(project.get('structuralTasks'))).size != project.get('structuralTasks').length)
             next(Error('duplicate task names'));
     next();
 });

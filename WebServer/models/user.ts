@@ -60,21 +60,21 @@ schema.methods.comparePassword = function(password: string, callback: any){
     });
 }
 
-schema.pre('save', { document: true, query: false }, function (next) {
+schema.pre('save', function (next) {
     const user = this;
-    if ((user.isModified('data')&&user.data.length>1)||(user.isNew&&user.data.length>1)) {
-        const dataNames = user.data.map(elem => elem.name);
+    if ((user.isModified('data')&&user.get('data').length>1)||(user.isNew&&user.get('data').length>1)) {
+        const dataNames = user.get('data').map(elem => elem.name);
         if ((new Set(dataNames)).size != dataNames.length) {
             next(Error('duplicate data names!'));
             return;
         }
     }
     if (user.isNew || user.isModified('password'))
-        hash(user.password, NUM_ROUNDS, function (err, hashed) {
+        hash(user.get('password'), NUM_ROUNDS, function (err, hashed) {
             if (err)
                 next(err);
             else {
-                user.password = hashed;
+                user.set('password', hashed);
                 next();
             }
         });
@@ -82,21 +82,21 @@ schema.pre('save', { document: true, query: false }, function (next) {
         next();
 });
 
-schema.pre('updateOne', { document: true, query: false }, function (next) {
+schema.pre('updateOne', function (next) {
     let doc = this;
-    if (doc.isModified('data')&&doc.data.length>1) {
-        const dataNames = doc.data.map(elem => elem.name);
+    if (doc.isModified('data')&&doc.get('data').length>1) {
+        const dataNames = doc.get('data').map(elem => elem.name);
         if ((new Set(dataNames)).size != dataNames.length) {
             next(Error('duplicate data names!'));
             return;
         }
     }
     if (doc.isModified('password'))
-        hash(doc.password, NUM_ROUNDS, function (err, hashed) {
+        hash(doc.get('password'), NUM_ROUNDS, function (err, hashed) {
             if (err)
                 next(err);
             else {
-                doc.password = hashed;
+                doc.set('password', hashed);
                 next();
             }
         });
