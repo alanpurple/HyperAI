@@ -102,8 +102,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
               name: '',
               taskType: 'preprocess',
               includeMask: false,
-              completed: false,
-              preprocessed: false
+              completed: false
             },
             isNew: true
           }
