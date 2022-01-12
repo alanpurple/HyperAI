@@ -23,7 +23,7 @@ export interface VisionTask {
   description: string;
   taskType: 'preprocess' | 'train' | 'test' | 'deploy';
   completed: boolean;
-  preprocessed: string; // preprocessed output folder, only for preprocessing task
+  preprocessed: string | undefined; // preprocessed output folder, only for preprocessing task
 
   /**
    * options for preprocessing
