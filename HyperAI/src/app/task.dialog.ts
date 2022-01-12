@@ -59,7 +59,7 @@ export class VisionTaskDialog {
         tb_port: undefined
       };
     else
-
+      this.data.task = this.originalTask;
   }
 }
 
