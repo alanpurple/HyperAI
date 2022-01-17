@@ -98,12 +98,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
       case 'vision':
         this.dialog.open(VisionTaskDialog, {
           data: {
-            task: {
-              name: '',
-              taskType: 'preprocess',
-              includeMask: false,
-              completed: false
-            },
+            task: {} as VisionTask,
             isNew: true
           }
         }).afterClosed().subscribe(task => {
@@ -119,7 +114,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
       case 'text':
         this.dialog.open(TextTaskDialog, {
           data: {
-            task: { name: '',taskType:'tokenization' }, isNew: true
+            task: {} as TextTask, isNew: true
           }
         }).afterClosed().subscribe(
           task => {
@@ -136,7 +131,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
       case 'structural':
         this.dialog.open(StructuralTaskDialog, {
           data: {
-            task: { name: '', taskType: 'preprocess' },
+            task: {} as StructuralTask,
             isNew: true
           }
         }).afterClosed().subscribe(
