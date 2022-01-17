@@ -11,29 +11,51 @@ import { NameRe } from './shared/validataions';
 })
 export class VisionTaskDialog {
   constructor(
-    @Inject(MAT_DIALOG_DATA) public data: { task: VisionTask, isNew: boolean }
+    @Inject(MAT_DIALOG_DATA) public data: { task: VisionTask | undefined, isNew: boolean }
   ) {
-    if (!data.isNew)
-      this.originalTask = JSON.parse(JSON.stringify(data.task));
+    if (!data.isNew) {
+      if (data.task)
+        this.originalTask = JSON.parse(JSON.stringify(data.task));
+    }
+    else
+      data.task = {
+        name: '',
+        taskType: 'preprocess',
+        completed: false,
+        description: "",
+        preprocessed: undefined,
+        include_mask: undefined,
+        train_dir: undefined,
+        val_dir: undefined,
+        test_dir: undefined,
+        train_anno: undefined,
+        val_anno: undefined,
+        batch_size: undefined,
+        no_xla: undefined,
+        use_amp: undefined,
+        model_params: null,
+        tb_port: undefined
+      };
+
   }
 
   originalTask: VisionTask = {
-      name: '',
-      taskType: 'preprocess',
-      completed: false,
-      description: "",
-      preprocessed: undefined,
-      include_mask: undefined,
-      train_dir: undefined,
-      val_dir: undefined,
-      test_dir: undefined,
-      train_anno: undefined,
-      val_anno: undefined,
-      batch_size: undefined,
-      no_xla: undefined,
-      use_amp: undefined,
-      model_params: null,
-      tb_port: undefined
+    name: '',
+    taskType: 'preprocess',
+    completed: false,
+    description: "",
+    preprocessed: undefined,
+    include_mask: undefined,
+    train_dir: undefined,
+    val_dir: undefined,
+    test_dir: undefined,
+    train_anno: undefined,
+    val_anno: undefined,
+    batch_size: undefined,
+    no_xla: undefined,
+    use_amp: undefined,
+    model_params: null,
+    tb_port: undefined
   };
   taskTypes = ['preprocess', 'train', 'test', 'deploy'];
 
