@@ -627,8 +627,8 @@ export const convertToProjectSchema = async (user, reqProject: ClientProject): P
     
     if (admin) {
         let owner = await UserModel.findOne({ email: reqProject.owner }).exec();
-        
-        reqProject.owner = owner['_id'];
+
+        reqProject.owner = owner.email;
     }
     
     let members: { user: Types.ObjectId; role: "attendee" | "member" }[] = [];
