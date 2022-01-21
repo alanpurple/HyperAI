@@ -168,9 +168,18 @@ router.get('/normlog/:name', async (req: Request, res: Response) => {
     const name = req.params.name;
 
 
-    let data = user.data.find(elem =>
-        elem.cleansed.name == name || (elem.name == name && elem.isClean)
-    );
+    let data = user.data.find(elem => {
+        if (elem.cleansed) {
+            if (elem.cleansed.name == name)
+                return true;
+            else
+                return false;
+        }
+        else if (elem.name == name && elem.isClean)
+            return true;
+        else
+            return false;
+    });
     if (!data) {
         res.status(404).send('no data with that name');
         return;
