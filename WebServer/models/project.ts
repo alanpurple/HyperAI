@@ -126,7 +126,7 @@ const schema = new Schema<Project>({
     }
 }, { timestamps:true });
 
-schema.pre('save', async function (next) {
+schema.pre('save', { document: true, query: false }, async function (next) {
     const project = this;
     if (project.isNew) {
         const user = await UserModel.findById(project.get('owner'),'data');
@@ -148,7 +148,7 @@ schema.pre('save', async function (next) {
     next();
 });
 
-schema.pre('updateOne', function (next) {
+schema.pre('updateOne', { document: true, query: false }, function (next) {
     const project = this;
     if (project.isModified('visionTasks') && project.get('visionTasks').length > 1)
         if ((new Set(project.get('visionTasks'))).size != project.get('visionTasks').length)
