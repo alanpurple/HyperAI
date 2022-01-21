@@ -101,6 +101,9 @@ export class EdaComponent implements OnInit {
             numRows: res.numRows,
             parentId: id
           });
+          this.allTable?.renderRows();
+          this.preprocessedTable?.renderRows();
+          this.confirmDialog.open('successfully preprocessed');
         }
         else
           this.confirmDialog.open('not processed');

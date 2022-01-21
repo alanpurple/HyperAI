@@ -201,12 +201,21 @@ router.get('/normlog/:name', async (req: Request, res: Response) => {
             else {
                 try {
                     const userData = await UserModel.findOne({ email: user.email });
-                    let targetDataId = userData.data.findIndex(elem =>
-                        elem.cleansed.name == name || (elem.name == name && elem.isClean)
-                    );
+                    let targetDataId = userData.data.findIndex(elem => {
+                        if (elem.cleansed) {
+                            if (elem.cleansed.name == name)
+                                return true;
+                            else
+                                return false;
+                        }
+                        else if (elem.name == name && elem.isClean)
+                            return true;
+                        else
+                            return false;
+                    });
                     if (targetDataId < 0)
                         throw new Error('data integration failed');
-                    userData[targetDataId].preprocessed = {
+                    userData.data[targetDataId].preprocessed = {
                         name: result.loc,
                         numRows: result.numRows
                     };
