@@ -1,4 +1,5 @@
-import { Schema, model, Types } from 'mongoose';
+import { strict as assert } from 'assert';
+import { Schema, model, Types, Document } from 'mongoose';
 import { UserModel } from './user';
 
 export interface Project {
@@ -127,7 +128,8 @@ const schema = new Schema<Project>({
 }, { timestamps:true });
 
 schema.pre('save', { document: true, query: false }, async function (next) {
-    const project = this;
+    const project = this as any;
+    assert(project instanceof Document);
     if (project.isNew) {
         const user = await UserModel.findById(project.get('owner'),'data');
         const admins = await UserModel.find({ accountType: 'admin' }, 'data');
@@ -149,7 +151,8 @@ schema.pre('save', { document: true, query: false }, async function (next) {
 });
 
 schema.pre('updateOne', { document: true, query: false }, function (next) {
-    const project = this;
+    const project = this as any;
+    assert(project instanceof Document);
     if (project.isModified('visionTasks') && project.get('visionTasks').length > 1)
         if ((new Set(project.get('visionTasks'))).size != project.get('visionTasks').length)
             next(Error('duplicate task names'));
