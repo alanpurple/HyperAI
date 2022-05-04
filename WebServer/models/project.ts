@@ -128,8 +128,7 @@ const schema = new Schema<Project>({
 }, { timestamps:true });
 
 schema.pre('save', { document: true, query: false }, async function (next) {
-    const project = this as any;
-    assert(project instanceof Document);
+    const project = this;
     if (project.isNew) {
         const user = await UserModel.findById(project.get('owner'),'data');
         const admins = await UserModel.find({ accountType: 'admin' }, 'data');
@@ -151,8 +150,7 @@ schema.pre('save', { document: true, query: false }, async function (next) {
 });
 
 schema.pre('updateOne', { document: true, query: false }, function (next) {
-    const project = this as any;
-    assert(project instanceof Document);
+    const project = this;
     if (project.isModified('visionTasks') && project.get('visionTasks').length > 1)
         if ((new Set(project.get('visionTasks'))).size != project.get('visionTasks').length)
             next(Error('duplicate task names'));

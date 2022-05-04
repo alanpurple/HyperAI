@@ -62,8 +62,7 @@ schema.methods.comparePassword = function(password: string, callback: any){
 }
 
 schema.pre('save', { document: true, query: false }, function (next) {
-    const user = this as any;
-    assert(user instanceof Document);
+    const user = this;
     if ((user.isModified('data')&&user.get('data').length>1)||(user.isNew&&user.get('data').length>1)) {
         const dataNames = user.get('data').map(elem => elem.name);
         if ((new Set(dataNames)).size != dataNames.length) {
@@ -85,8 +84,7 @@ schema.pre('save', { document: true, query: false }, function (next) {
 });
 
 schema.pre('updateOne', { document: true, query: false }, function (next) {
-    let doc = this as any;
-    assert(doc instanceof Document);
+    let doc = this;
     if (doc.isModified('data')&&doc.get('data').length>1) {
         const dataNames = doc.get('data').map(elem => elem.name);
         if ((new Set(dataNames)).size != dataNames.length) {
