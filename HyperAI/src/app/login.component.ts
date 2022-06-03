@@ -61,9 +61,10 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   checkEmail() {
-    if (this.email.invalid)
+    if (!this.email.value||this.email.invalid)
       return;
-    this.userService.checkuser(this.email.value)
+    const email = this.email.value;
+    this.userService.checkuser(email)
       .subscribe(
         msg => {
           console.info('Valid account');
@@ -77,7 +78,7 @@ export class LoginComponent implements OnInit, OnDestroy {
               canGo => {
                 console.log(canGo)
                 if (canGo)
-                  this.router.navigate(['/signup', encodeURI(this.email.value)]);
+                  this.router.navigate(['/signup', encodeURI(email)]);
               }
             );
             this.mailNotFound = true;
@@ -105,7 +106,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   passwordWrong = false;
 
   onSubmit() {
-    if (this.email.invalid)
+    if (!this.email.value||this.email.invalid)
       return;
     this.userService.login(this.email.value, this.password).subscribe(
       msg => {
