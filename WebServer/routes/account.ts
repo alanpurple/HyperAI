@@ -64,9 +64,13 @@ router.put('/', (req: Request, res: Response) => {
     });
 });
 
-router.get('/logout', ensureAuthenticated, (req: Request, res: Response) => {
-    req.logout();
-    res.redirect('/');
+router.get('/logout', ensureAuthenticated, (req: Request, res: Response, next: NextFunction) => {
+    req.logout(err => {
+        if (err)
+            return next(err);
+        else
+            res.redirect('/');
+    });
 });
 
 router.get('/info', (req: Request, res: Response) => {
