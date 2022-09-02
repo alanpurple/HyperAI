@@ -1,5 +1,4 @@
-import { strict as assert } from 'assert';
-import { Schema, model, Document } from 'mongoose';
+import { Schema, model } from 'mongoose';
 import { hash, compare } from 'bcrypt';
 
 import { DataInfo, DataSchema } from './data.info';
