@@ -151,10 +151,10 @@ router.get('/checkNickName/:nickName', (req: Request, res: Response) => {
 router.get('/checkUser/:id', (req: Request, res: Response) => {
     UserModel.findOne({ email: decodeURI(req.params.id) })
         .then(user => {
-        if (!user)
-            res.sendStatus(404);
-        else
-            res.send('User already exists')
+            if (!user)
+                res.sendStatus(404);
+            else
+                res.send('User already exists');
     }).catch(err => {
         console.error(err);
         res.sendStatus(500);
