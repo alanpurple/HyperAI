@@ -104,7 +104,7 @@ export class DataComponent implements OnInit, AfterViewInit {
       return;
     if (!('files' in event.target))
       return;
-    const files = event.target['files'];
+    const files = event.target['files'] as File[];
     if (!files)
       this.file = null;
     else
@@ -117,7 +117,7 @@ export class DataComponent implements OnInit, AfterViewInit {
       return;
     if (!('files' in event.target))
       return;
-    const files = event.target['files'];
+    const files = event.target['files'] as File[];
     if (!files)
       this.fileOpen = null;
     else
