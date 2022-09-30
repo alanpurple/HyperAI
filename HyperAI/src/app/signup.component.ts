@@ -9,7 +9,6 @@ import { Subscription } from 'rxjs';
 import { Location } from '@angular/common';
 
 @Component({
-  selector: 'app-signup',
   templateUrl: './signup.component.html',
   styleUrls: ['./signup.component.sass']
 })
