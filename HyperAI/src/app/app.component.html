@@ -37,7 +37,7 @@
   </mat-toolbar>
   <mat-sidenav-container fxFlex>
     <mat-sidenav #sidemenu [mode]="sidenavMode" [opened]="isOpened">
-      <mat-list>
+      <mat-nav-list>
         <mat-list-item>
           <button mat-icon-button routerLink="/" (click)="handleMenu(sidemenu)">
             <mat-icon class="mat-24">home</mat-icon>
@@ -96,7 +96,7 @@
             Martinie Privacy Policy
           </button>
         </mat-list-item>
-      </mat-list>
+      </mat-nav-list>
     </mat-sidenav>
     <mat-sidenav-content fxLayout="column">
       <router-outlet></router-outlet>

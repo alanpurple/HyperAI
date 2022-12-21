@@ -19,11 +19,11 @@
         <mat-label>Project Type</mat-label>
         <input matInput type="text" [(ngModel)]="project.projectType" name="projectType" disabled>
       </mat-form-field>
-      <mat-chip-list aria-label="members">
+      <mat-chip-listbox aria-label="members">
         <mat-chip *ngFor="let member of project.members" color="primary" selected>
           {{member.user}}
         </mat-chip>
-      </mat-chip-list>
+      </mat-chip-listbox>
     </mat-card-content>
   </mat-card>
 </div>

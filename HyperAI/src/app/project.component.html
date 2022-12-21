@@ -151,14 +151,14 @@
   <mat-step>
     <form fxLayout="column">
       <ng-template matStepLabel>Select Members</ng-template>
-      <mat-chip-list #memberList aria-label="project members" multiple>
+      <mat-chip-listbox #memberList aria-label="project members" multiple>
         <mat-chip *ngFor="let member of newProject.members; index as i"
                   [value]="member" removable
                   (removed)="removeUser(i)">
           {{member.user}}
           <button matChipRemove><mat-icon>cancel</mat-icon></button>
         </mat-chip>
-      </mat-chip-list>
+      </mat-chip-listbox>
       <mat-form-field>
         <mat-label>available members</mat-label>
         <mat-select name="member">

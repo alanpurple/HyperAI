@@ -42,13 +42,13 @@
         </mat-option>
       </mat-select>
     </mat-form-field>
-    <mat-chip-list #memberlist aria-label="members" multiple>
+    <mat-chip-listbox #memberlist aria-label="members" multiple>
       <mat-chip *ngFor="let member of data.project.members; index as i"
                 [value]="member" (removed)="removeMember(i)">
         {{member.user}}
         <button matChipRemove><mat-icon>cancel</mat-icon></button>
       </mat-chip>
-    </mat-chip-list>
+    </mat-chip-listbox>
     <mat-form-field [fxHide]="data.isNew&&data.isAdmin">
       <mat-label>Colleagues</mat-label>
       <mat-select name="member">
