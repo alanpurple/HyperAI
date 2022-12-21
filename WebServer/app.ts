@@ -43,6 +43,7 @@ UserModel.findOne({email:'alan@infinov.com'}).then(user => {
             email: 'alan@infinov.com',
             organization:'infinov',
             nickName: 'alanracer',
+            hasNickName: true,
             accountType: 'admin',
             password: 'testadmin'
         });
@@ -58,6 +59,7 @@ UserModel.findOne({ email: 'alanpurple@gmail.com'}).then(user => {
             email: 'alanpurple@gmail.com',
             organization:'infinov',
             nickName: 'retriever',
+            hasNickName: true,
             accountType: 'user',
             password: 'testuser'
         });
