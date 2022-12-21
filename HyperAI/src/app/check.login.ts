@@ -9,7 +9,6 @@ import { UserData } from './user.data';
 @Injectable()
 export class NotLoggedIn implements CanActivate {
   constructor(
-    private router: Router,
     private http: HttpClient
   ) { }
 
