@@ -23,7 +23,7 @@ router.post('/login', (req: Request, res: Response, next: NextFunction)=> {
         else */if (!req.user['nickName'])
             res.send('nonick');
         //else if (req.user.accountType == 'admin')
-        //    res.redirect('/admin');
+        //    res.redirect('/admin-console');
         else
             res.send('ok');
     });
