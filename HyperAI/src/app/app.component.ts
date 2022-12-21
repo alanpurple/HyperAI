@@ -47,11 +47,13 @@ export class AppComponent implements OnInit {
     this.userService.getUser()
       .subscribe(
         user => {
+          if (!user.nickName) {
+            this.router.navigate(['/user-info']);
+            return;
+          }
           this.user = user;
           if (user.accountType == 'admin')
             this.isAdmin = true;
-          if (!user.nickName)
-            this.router.navigate(['/user-info']);
         },
         error => {
           if (error.status != 401)

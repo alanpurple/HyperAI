@@ -1,6 +1,5 @@
 import { Component, OnInit,Inject } from '@angular/core';
 import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { Router } from '@angular/router';
 
 import { UserService } from './user.service';
 import { ErrorAlert } from './shared/error.alert';
@@ -19,7 +18,6 @@ export class UserInfo implements OnInit {
   constructor(
     private dialog: MatDialog,
     private errorAlert: ErrorAlert,
-    private router: Router,
     private userService: UserService
   ) { }
 
