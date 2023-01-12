@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response, Router } from 'express';
 import { User, UserModel } from "../models/user";
-import { ReasonPhrases, StatusCodes, } from 'http-status-codes';
 import Debug from "debug";
 import { ResponseData } from "../interfaces/ResponseData";
 import { WebError } from "../interfaces/Errors";
@@ -26,18 +25,18 @@ router.get("/user", async (request: Request, response: Response, next: NextFunct
     const responseData = new ResponseData();
     
     try {
-        let users = await UserModel.find({}, { _id: 0 }).exec();
+        let users = await UserModel.find({}, '-_id').exec();
         
         if (users.length > 0) {
             responseData.success = true;
-            responseData.code = StatusCodes.OK;
-            responseData.message = ReasonPhrases.OK;
+            responseData.code = 200;
+            responseData.message = 'ok';
             responseData.count = users.length;
             responseData.data = users;
         } else {
             responseData.success = false;
-            responseData.code = StatusCodes.NOT_FOUND;
-            responseData.message = ReasonPhrases.NOT_FOUND;
+            responseData.code = 404;
+            responseData.message = 'no users found';
         }
     } catch (error) {
         makeErrorResult(error, responseData);
@@ -56,13 +55,13 @@ router.get("/user/:email", async (request: Request, response: Response, next: Ne
         
         if (user) {
             responseData.success = true;
-            responseData.code = StatusCodes.OK;
-            responseData.message = ReasonPhrases.OK;
+            responseData.code = 200;
+            responseData.message = 'user found and sent';
             responseData.data = user;
         } else {
             responseData.success = false;
-            responseData.code = StatusCodes.NOT_FOUND;
-            responseData.message = ReasonPhrases.NOT_FOUND;
+            responseData.code = 404;
+            responseData.message = 'no such user found';
         }
     } catch (error) {
         makeErrorResult(error, responseData);
@@ -73,7 +72,6 @@ router.get("/user/:email", async (request: Request, response: Response, next: Ne
 });
 
 router.post("/user", async (request: Request, response: Response) => {
-        console.log(request.body);
         const responseData = new ResponseData();
         
         try {
@@ -98,8 +96,8 @@ router.post("/user", async (request: Request, response: Response) => {
                 await UserModel.create(reqUser);
                 
                 responseData.success = true;
-                responseData.code = StatusCodes.CREATED;
-                responseData.message = ReasonPhrases.CREATED;
+                responseData.code = 201;
+                responseData.message = 'user created';
             } else {
                 new WebError('User already exists.', ADMIN_ERROR).throw();
             }
@@ -113,7 +111,6 @@ router.post("/user", async (request: Request, response: Response) => {
 );
 
 router.put("/user/:email", async (request: Request, response: Response) => {
-    console.log(request.body);
     const responseData = new ResponseData();
     
     try {
@@ -131,8 +128,8 @@ router.put("/user/:email", async (request: Request, response: Response) => {
             await UserModel.findOneAndUpdate({ email: request.params.email }, userObj);
             
             responseData.success = true;
-            responseData.code = StatusCodes.CREATED;
-            responseData.message = ReasonPhrases.CREATED;
+            responseData.code = 200;
+            responseData.message = 'user info updated';
         } else {
             new WebError('User not found', ADMIN_ERROR).throw();
         }
@@ -148,10 +145,9 @@ router.delete("/user", async (request: Request, response: Response, next: NextFu
     const responseData = new ResponseData();
     
     responseData.success = false;
-    responseData.code = StatusCodes.NOT_IMPLEMENTED;
-    responseData.message = ReasonPhrases.NOT_IMPLEMENTED;
+    responseData.code = 501;
     
-    response.status(StatusCodes.NOT_IMPLEMENTED).send(responseData.message);
+    response.status(501).send('anonymous deletion not available');
     response.end();
 });
 
@@ -211,8 +207,8 @@ router.delete("/user/:email", async (request: Request, response: Response) => {
             await UserModel.findByIdAndDelete(user['_id']).exec();
             
             responseData.success = true;
-            responseData.code = StatusCodes.OK;
-            responseData.message = ReasonPhrases.OK;
+            responseData.code = 200;
+            responseData.message = 'user deleted';
         } else {
             new WebError('User not found.', ADMIN_ERROR).throw();
         }
@@ -235,11 +231,11 @@ export const makeErrorResult = (error: any, responseData: ResponseData) => {
     
     responseData.success = false;
     if (error.name === "AdminError") {
-        responseData.code = StatusCodes.BAD_REQUEST;
+        responseData.code = 400;
     } else if (error.name === "UnauthorizedError") {
-        responseData.code = StatusCodes.UNAUTHORIZED;
+        responseData.code = 401;
     } else {
-        responseData.code = StatusCodes.INTERNAL_SERVER_ERROR;
+        responseData.code = 500;
     }
     responseData.message = error.message;
 };

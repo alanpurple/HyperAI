@@ -1,8 +1,6 @@
-import {StatusCodes} from "http-status-codes";
-
 export interface IResponseData {
     success: boolean,
-    code: StatusCodes,
+    code: number,
     message: string,
     count: number,
     data: object
@@ -10,7 +8,7 @@ export interface IResponseData {
 
 export class ResponseData implements IResponseData {
     success: boolean;
-    code: StatusCodes;
+    code: number;
     message: string;
     count: number;
     data: {}

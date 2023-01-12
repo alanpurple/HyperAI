@@ -1,6 +1,5 @@
 import { Request, Response, Router } from 'express';
 import { Project, ProjectModel, StructuralTask, TextTask, VisionTask } from "../models/project";
-import { ReasonPhrases, StatusCodes, } from 'http-status-codes';
 import { ResponseData } from "../interfaces/ResponseData";
 import { ClientProject } from "../interfaces/ClientProject";
 import { Document, Types } from 'mongoose';
@@ -41,16 +40,16 @@ router.get("/", async (request: Request, response: Response) => {
         responseData.success = true;
         
         if (projects.length > 0) {
-            responseData.code = StatusCodes.OK;
-            responseData.message = ReasonPhrases.OK;
+            responseData.code = 200;
+            responseData.message = 'projects found and sent';
             responseData.count = projects.length;
             
             let projectArray = [];
             projects.forEach(project => projectArray.push(makeProjectResponse(request.user as User, project)));
             responseData.data = projectArray;
         } else {
-            responseData.code = StatusCodes.NOT_FOUND;
-            responseData.message = ReasonPhrases.NOT_FOUND;
+            responseData.code = 404;
+            responseData.message = 'no projects found';
         }
     } catch (error) {
         makeErrorResult(error, responseData);
@@ -90,12 +89,12 @@ router.get("/:name", async (request: Request, response: Response) => {
         responseData.success = true;
         
         if (project && Object.keys(project).length > 0) {
-            responseData.code = StatusCodes.OK;
-            responseData.message = ReasonPhrases.OK;
+            responseData.code = 200;
+            responseData.message = 'project found and sent';
             responseData.data = makeProjectResponse(<User>request.user, project);
         } else {
-            responseData.code = StatusCodes.NOT_FOUND;
-            responseData.message = ReasonPhrases.NOT_FOUND;
+            responseData.code = 404;
+            responseData.message = 'no such project found';
         }
     } catch (error) {
         makeErrorResult(error, responseData);
@@ -138,8 +137,8 @@ router.post("/", async (request: Request, response: Response) => {
         if (!project) {
             await ProjectModel.create(projectModel);
             responseData.success = true;
-            responseData.code = StatusCodes.CREATED;
-            responseData.message = ReasonPhrases.CREATED;
+            responseData.code = 201;
+            responseData.message = 'project created';
         } else {
             new WebError("Project name already in use.", PROJECT_ERROR).throw();
         }
@@ -321,7 +320,7 @@ router.put("/:name/members", async (request: Request, response: Response) => {
             
             if (addMemberResult.error.length === 0 && removeMemberResult.error.length === 0) {
                 responseData.success = true;
-                responseData.code = StatusCodes.CREATED;
+                responseData.code = 201;
                 if (addMemberResult.ignoredMembers.length > 0 || removeMemberResult.ignoredMembers.length > 0) {
                     responseData.message = "Some or all requests were ignored.";
                 } else {
@@ -370,7 +369,7 @@ router.put("/:name/task", async (request: Request, response: Response) => {
             await addTask(reqTasks, modProject);
             
             responseData.success = true;
-            responseData.code = StatusCodes.CREATED;
+            responseData.code = 201;
         } else {
             new WebError("Insufficient permission to add project task.", UNAUTHORIZED_ERROR).throw();
         }
@@ -408,7 +407,7 @@ router.put("/:name/task/:taskName", async (request: Request, response: Response)
             await editTask(decodeURI(request.params.taskName), reqTasks, modProject);
             
             responseData.success = true;
-            responseData.code = StatusCodes.CREATED;
+            responseData.code = 200;
         } else {
             new WebError("Insufficient permission to edit project task.", UNAUTHORIZED_ERROR).throw();
         }
@@ -444,7 +443,7 @@ router.delete("/:name/task/:type/:taskName", async (request: Request, response: 
             await removeTask(decodeURI(request.params.type), decodeURI(request.params.taskName), modProject);
             
             responseData.success = true;
-            responseData.code = StatusCodes.CREATED;
+            responseData.code = 200;
         } else {
             new WebError("Insufficient permission to delete project task.", UNAUTHORIZED_ERROR).throw();
         }
@@ -477,11 +476,11 @@ router.delete("/", async (request: Request, response: Response) => {
         responseData.success = true;
         
         if (result.deletedCount > 0) {
-            responseData.code = StatusCodes.OK;
-            responseData.message = ReasonPhrases.OK;
+            responseData.code = 200;
+            responseData.message = 'deleted successfully';
             responseData.data = result;
         } else {
-            responseData.code = StatusCodes.NOT_FOUND;
+            responseData.code = 404;
             responseData.message = "No projects were deleted.";
         }
     } catch (error) {
@@ -513,8 +512,8 @@ router.delete("/:name", async (request: Request, response: Response) => {
         responseData.success = true;
         
         if (delProject) {
-            responseData.code = StatusCodes.OK;
-            responseData.message = ReasonPhrases.OK;
+            responseData.code = 200;
+            responseData.message = 'project deleted successfully';
         } else {
             new WebError("Insufficient permission to delete project.", UNAUTHORIZED_ERROR).throw();
         }
@@ -539,11 +538,11 @@ const makeErrorResult = (error, responseData: ResponseData) => {
     
     responseData.success = false;
     if (error.name === "ValidationError" || error.name === "CastError" || error.name === "ProjectError") {
-        responseData.code = StatusCodes.BAD_REQUEST;
+        responseData.code = 400;
     } else if (error.name === "UnauthorizedError") {
-        responseData.code = StatusCodes.UNAUTHORIZED;
+        responseData.code = 401;
     } else {
-        responseData.code = StatusCodes.INTERNAL_SERVER_ERROR;
+        responseData.code = 500;
     }
     responseData.message = error.message;
 };
