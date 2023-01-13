@@ -1,4 +1,5 @@
-import { OnInit,Component } from '@angular/core';
+import { OnInit, Component, Inject } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
 import { MatSidenav } from '@angular/material/sidenav';
 import { Router } from '@angular/router';
 
@@ -19,11 +20,12 @@ export class AppComponent implements OnInit {
     private userService: UserService,
     private confirmDialog: ConfirmDialog,
     private iconRegistry: MatIconRegistry,
-    private sanitizer: DomSanitizer
+    private sanitizer: DomSanitizer,
+    @Inject(DOCUMENT) private doc: Document
   ) {
     this.iconRegistry.addSvgIcon('martinie',
       this.sanitizer.bypassSecurityTrustResourceUrl('assets/martinie.svg'));
-    if (window.outerWidth < 800) {
+    if (this.doc.documentElement.clientWidth < 800) {
       this.sidenavMode = 'over';
       this.isOpened = false;
     }
@@ -39,7 +41,7 @@ export class AppComponent implements OnInit {
   msgs: string[] = [];
 
   handleMenu(sidemenu: MatSidenav) {
-    if (window.outerWidth < 800)
+    if (this.doc.documentElement.clientWidth < 800)
       sidemenu.close();
   }
 
