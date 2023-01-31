@@ -45,11 +45,14 @@ export class AppComponent implements OnInit {
       sidemenu.close();
   }
 
+  userNoNick = false;
+
   ngOnInit() {
     this.userService.getUser()
       .subscribe(
         user => {
           if (!user.nickName) {
+            this.userNoNick = true;
             this.router.navigate(['/user-info']);
             return;
           }

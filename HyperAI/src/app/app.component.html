@@ -38,63 +38,35 @@
   <mat-sidenav-container fxFlex>
     <mat-sidenav #sidemenu [mode]="sidenavMode" [opened]="isOpened">
       <mat-nav-list>
-        <mat-list-item>
-          <button mat-icon-button routerLink="/" (click)="handleMenu(sidemenu)">
+        <mat-list-item [disabled]="userNoNick" [routerLink]="userNoNick?null:['/']" (click)="handleMenu(sidemenu)">
             <mat-icon class="mat-24">home</mat-icon>
-          </button>
         </mat-list-item>
-        <mat-list-item>
-          <button mat-button [disabled]="!user" routerLink="/data-manager"
-                  (click)="handleMenu(sidemenu)">
+        <mat-list-item [disabled]="!user" [routerLink]="user?['/data-manager']:null" (click)="handleMenu(sidemenu)">
             Data view/upload
-          </button>
         </mat-list-item>
-        <mat-list-item>
-          <button mat-button [disabled]="!user" routerLink="/description"
-                  (click)="handleMenu(sidemenu)">
+        <mat-list-item [disabled]="!user" [routerLink]="user?['/description']:null" (click)="handleMenu(sidemenu)">
             Data description
-          </button>
         </mat-list-item>
-        <mat-list-item>
-          <button mat-button [disabled]="!user" routerLink="/association"
-                  (click)="handleMenu(sidemenu)">
+        <mat-list-item [disabled]="!user" [routerLink]="user?['/association']:null" (click)="handleMenu(sidemenu)">
             Association insight
-          </button>
         </mat-list-item>
-        <mat-list-item>
-          <button mat-button [disabled]="!user||isAdmin" routerLink="/eda-manager"
-                  (click)="handleMenu(sidemenu)">
+        <mat-list-item [disabled]="!user||isAdmin" [routerLink]="user&&!isAdmin?['/eda-manager']:null" (click)="handleMenu(sidemenu)">
             EDA(Exploratory Data Analysis)
-          </button>
         </mat-list-item>
-        <mat-list-item>
-          <button mat-button [disabled]="!user||isAdmin" routerLink="/project-manager"
-                  (click)="handleMenu(sidemenu)">
+        <mat-list-item [disabled]="!user||isAdmin" [routerLink]="user&&!isAdmin?['/project-manager']:null" (click)="handleMenu(sidemenu)">
             Project Manager
-          </button>
         </mat-list-item>
-        <mat-list-item>
-          <button mat-button [disabled]="!user" routerLink="/train-manager"
-                  (click)="handleMenu(sidemenu)">
+        <mat-list-item [disabled]="!user" [routerLink]="user?['/train-manager']:null" (click)="handleMenu(sidemenu)">
             Train manager
-          </button>
         </mat-list-item>
-        <mat-list-item>
-          <button mat-button [disabled]="!isAdmin" routerLink="/admin-console"
-                  (click)="handleMenu(sidemenu)">
+        <mat-list-item [disabled]="!isAdmin" [routerLink]="isAdmin?['/admin-console']:null" (click)="handleMenu(sidemenu)">
             Administration
-          </button>
         </mat-list-item>
-        <mat-list-item>
-          <button mat-button routerLink="/info"
-                  (click)="handleMenu(sidemenu)">
+        <mat-list-item routerLink="/info" (click)="handleMenu(sidemenu)">
             About the software
-          </button>
         </mat-list-item>
-        <mat-list-item>
-          <button mat-button color="accent" routerLink="/privacy-policy" (click)="handleMenu(sidemenu)">
-            Martinie Privacy Policy
-          </button>
+        <mat-list-item routerLink="/privacy-policy" (click)="handleMenu(sidemenu)">
+            HyperAI Privacy Policy
         </mat-list-item>
       </mat-nav-list>
     </mat-sidenav>

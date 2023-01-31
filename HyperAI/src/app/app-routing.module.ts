@@ -20,7 +20,8 @@ import { NotfoundComponent } from './notfound.component';
 
 const routes: Routes = [
   {
-    path: '', component: HomeComponent
+    path: '', component: HomeComponent,
+    canActivate: [HasNick]
   },
   {
     path: 'login', component: LoginComponent,

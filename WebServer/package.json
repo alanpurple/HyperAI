@@ -19,7 +19,7 @@
     "@mysql/xdevapi": "^8.0.32",
     "bcrypt": "^5.1.0",
     "connect-mongo": "^4.6.0",
-    "csv-parse": "^5.3.3",
+    "csv-parse": "^5.3.4",
     "debug": "^4.3.4",
     "express": "^5.0.0-beta.1",
     "express-session": "^1.17.3",
@@ -27,7 +27,7 @@
     "mongoose": "^6.9.0",
     "morgan": "^1.10.0",
     "multer": "^1.4.5-lts.1",
-    "mysql2": "^3.0.1",
+    "mysql2": "^3.1.0",
     "passport": "^0.6.0",
     "passport-facebook": "^3.0.0",
     "passport-google-oauth": "^2.0.0",
@@ -60,6 +60,6 @@
     "nodemon": "^2.0.20",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^4.6.0",
-    "typescript": "^4.9.4"
+    "typescript": "^5.0.0-beta"
   }
 }
