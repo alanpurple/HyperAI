@@ -23,7 +23,16 @@ export class ErrorAlert {
     private router: Router) {
   }
 
-  open(msg?: string) {
+  open(err?: any) {
+    let msg = '';
+    if (!err)
+      msg = 'critical error!';
+    else if (typeof err == 'object' && Object.hasOwn(err, 'message'))
+      msg = err.message;
+    else if (typeof err == 'string')
+      msg = err;
+    else
+      msg = 'uncertain error';
     this.dialog.open(ErrorDialog, {
       data: msg ? msg : 'critical error!'
     }).afterClosed()
