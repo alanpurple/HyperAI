@@ -85,8 +85,7 @@ import { UserDialog } from './user.dialog';
     GojsAngularModule,
     SocketIoModule.forRoot(config)
   ],
-  providers: [ConfirmDialog, LoggedIn, NotLoggedIn, IsAdmin, IsNotAdmin,
-    ErrorAlert, HasNick, DeleteConfirmDialog,
+  providers: [ConfirmDialog, ErrorAlert, DeleteConfirmDialog,
     { provide: ErrorHandler, useClass: MyErrorHandler }],
   bootstrap: [AppComponent]
 })

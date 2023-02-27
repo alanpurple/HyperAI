@@ -34,39 +34,41 @@ export class EdaComponent implements OnInit {
 
   ngOnInit(): void {
     this.isLoading = true;
-    this.userService.getUser().subscribe(user => {
-      if (user.accountType == 'admin') {
-        this.errorAlert.open('this component is available for non-admin only(maybe for now)');
-        return;
-      }
-      this.user = user;
-      this.user.data.forEach((elem, index) => {
-        this.allData.push({ name: elem.name, numRows: elem.numRows, type: elem.type, status: elem.isClean ? 'clean' : 'dirty' });
-        if (elem.isClean && elem.cleansed)
-          throw new Error('marked clean and cleansed? error');
-        if (elem.isClean)
-          this.cleansedData.push({ name: elem.name, numRows: elem.numRows, parentId: index });
-        else if (elem.cleansed) {
-          this.allData.push({
-            name: elem.cleansed.name, numRows: elem.cleansed.numRows, type: elem.type,
-            status: 'cleansed'
-          });
-          this.cleansedData.push({ name: elem.cleansed.name, numRows: elem.cleansed.numRows, parentId: index });
+    this.userService.getUser().subscribe({
+      next: user => {
+        if (user.accountType == 'admin') {
+          this.errorAlert.open('this component is available for non-admin only(maybe for now)');
+          return;
         }
-        else
-          this.dirtyData.push({ name: elem.name, numRows: elem.numRows, parentId: index });
-        if (elem.preprocessed) {
-          this.allData.push({ name: elem.preprocessed.name, numRows: elem.preprocessed.numRows, type: elem.type, status: 'preprocessed' });
-          this.preprocessedData.push({ name: elem.preprocessed.name, numRows: elem.preprocessed.numRows, parentId: index });
-        }
-      });
-      this.isLoading = false;
-      this.allTable?.renderRows();
-      this.dirtyTable?.renderRows();
-      this.cleansedTable?.renderRows();
-      this.preprocessedTable?.renderRows();
-    },
-      err => this.errorAlert.open(err.error));
+        this.user = user;
+        this.user.data.forEach((elem, index) => {
+          this.allData.push({ name: elem.name, numRows: elem.numRows, type: elem.type, status: elem.isClean ? 'clean' : 'dirty' });
+          if (elem.isClean && elem.cleansed)
+            throw new Error('marked clean and cleansed? error');
+          if (elem.isClean)
+            this.cleansedData.push({ name: elem.name, numRows: elem.numRows, parentId: index });
+          else if (elem.cleansed) {
+            this.allData.push({
+              name: elem.cleansed.name, numRows: elem.cleansed.numRows, type: elem.type,
+              status: 'cleansed'
+            });
+            this.cleansedData.push({ name: elem.cleansed.name, numRows: elem.cleansed.numRows, parentId: index });
+          }
+          else
+            this.dirtyData.push({ name: elem.name, numRows: elem.numRows, parentId: index });
+          if (elem.preprocessed) {
+            this.allData.push({ name: elem.preprocessed.name, numRows: elem.preprocessed.numRows, type: elem.type, status: 'preprocessed' });
+            this.preprocessedData.push({ name: elem.preprocessed.name, numRows: elem.preprocessed.numRows, parentId: index });
+          }
+        });
+        this.isLoading = false;
+        this.allTable?.renderRows();
+        this.dirtyTable?.renderRows();
+        this.cleansedTable?.renderRows();
+        this.preprocessedTable?.renderRows();
+      },
+      error: err => this.errorAlert.open(err.error)
+    });
   }
 
   user: UserData = new UserData();
@@ -112,8 +114,8 @@ export class EdaComponent implements OnInit {
   }
 
   cleanse(id:number,name: string) {
-    this.edaService.cleanse(name).subscribe(
-      res => {
+    this.edaService.cleanse(name).subscribe({
+      next: res => {
         if (res.msg.includes('clean')) {
           this.user.data[id].isClean = true;
           const allId = this.allData.findIndex(elem => elem.name == name);
@@ -139,8 +141,8 @@ export class EdaComponent implements OnInit {
         else
           throw new Error('unreachable points');
       },
-      err => this.errorAlert.open(err.error)
-    )
+      error: err => this.errorAlert.open(err.error)
+    })
   }
 
 }

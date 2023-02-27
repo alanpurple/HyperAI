@@ -34,13 +34,13 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     // check process for 'back' button
-    this.userService.getUser().subscribe(
-      user => this.location.back(),
-      err => {
+    this.userService.getUser().subscribe({
+      next: user => this.location.back(),
+      error: err => {
         if (err.status != 401)
           this.errorAlert.open(err.error);
       }
-    )
+    })
     this.sub = this.route.params.subscribe(params => {
       if (params['id']) {
         this.email = new FormControl(decodeURI(params['id']), [Validators.required, Validators.email]);
@@ -64,13 +64,13 @@ export class LoginComponent implements OnInit, OnDestroy {
       return;
     const email = this.email.value;
     this.userService.checkuser(email)
-      .subscribe(
-        msg => {
+      .subscribe({
+        next: msg => {
           console.info('Valid account');
           this.emailChecked = true;
           this.mailNotFound = false;
         },
-        err => {
+        error: err => {
           if (err.status == 404) {
             //this.router.navigate(['/signup', encodeURI(this.email)]);
             this.dialog.open(NoEmailDialog, { data: this.email.value }).afterClosed().subscribe(
@@ -84,7 +84,8 @@ export class LoginComponent implements OnInit, OnDestroy {
           }
           else
             this.errorAlert.open(err.error);
-        });
+        }
+      });
   }
 
   resetEmail() {
@@ -107,15 +108,15 @@ export class LoginComponent implements OnInit, OnDestroy {
   onSubmit() {
     if (!this.email.value||this.email.invalid)
       return;
-    this.userService.login(this.email.value, this.password).subscribe(
-      msg => {
+    this.userService.login(this.email.value, this.password).subscribe({
+      next: msg => {
         if (msg == 'ok')
           this.doc.location.href = '/';
         else if (msg == 'nonick')
           this.doc.location.href = '/user-info';
         else
           this.errorAlert.open('unexpected message, don know what to do');
-      }, err => {
+      }, error: err => {
         if (err.status == 401) {
           this.confirmDialog.open('Invalid email or password');
           this.passwordWrong = true;
@@ -123,7 +124,7 @@ export class LoginComponent implements OnInit, OnDestroy {
         else
           this.errorAlert.open(err.error);
       }
-    )
+    })
   }
 }
 

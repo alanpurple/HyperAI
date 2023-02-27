@@ -46,8 +46,8 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
         this.errorAlert.open('something\'s wrong, project name cannot be \'new\'');
         return;
       }
-      this.projectService.getProject(params['id']).subscribe(
-        project => {
+      this.projectService.getProject(params['id']).subscribe({
+        next: project => {
           console.log(project);
           this.project = project;
           switch (project.category) {
@@ -74,7 +74,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
             }
           });
         }
-        , err => {
+        , error: err => {
           if (err.status == 404) {
             this.confirmDialog.open('Cannot find the project ' + params['id']);
             this.router.navigate(['/project-manager']);
@@ -82,7 +82,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
           else
             this.errorAlert.open(err.error);
         }
-      )
+      })
     })
   }
 
@@ -103,12 +103,12 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
           }
         }).afterClosed().subscribe(task => {
           if (task)
-            this.projectService.addTask(this.project.name, 'vision', task).subscribe(
-              msg => {
+            this.projectService.addTask(this.project.name, 'vision', task).subscribe({
+              next: msg => {
                 this.project.visionTasks.push(task);
                 this.confirmDialog.open('task added');
-              }, err => this.errorAlert.open(err.error)
-            );
+              }, error: err => this.errorAlert.open(err.error)
+            });
         });
         break;
       case 'text':
@@ -119,12 +119,12 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
         }).afterClosed().subscribe(
           task => {
             if (task)
-              this.projectService.addTask(this.project.name, 'text', task).subscribe(
-                msg => {
+              this.projectService.addTask(this.project.name, 'text', task).subscribe({
+                next: msg => {
                   this.project.textTasks.push(task);
                   this.confirmDialog.open('task added');
-                }, err => this.errorAlert.open(err.error)
-              );
+                }, error: err => this.errorAlert.open(err.error)
+              });
           }
         );
         break;
@@ -137,12 +137,12 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
         }).afterClosed().subscribe(
           task => {
             if(task)
-              this.projectService.addTask(this.project.name, 'structural', task).subscribe(
-                msg => {
+              this.projectService.addTask(this.project.name, 'structural', task).subscribe({
+                next: msg => {
                   this.project.structuralTasks.push(task);
                   this.confirmDialog.open('task added');
-                }, err => this.errorAlert.open(err.error)
-              );
+                }, error: err => this.errorAlert.open(err.error)
+              });
           }
         );
         break;
@@ -176,12 +176,12 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
     }).afterClosed().subscribe(
       modification => {
         if (modification)
-          this.projectService.editTask(this.project.name, 'vision', taskName, modification).subscribe(
-            msg => {
+          this.projectService.editTask(this.project.name, 'vision', taskName, modification).subscribe({
+            next: msg => {
               Object.assign(this.project.visionTasks[index], modification);
               this.confirmDialog.open('task modified');
-            }, err => this.errorAlert.open(err.error)
-          );
+            }, error: err => this.errorAlert.open(err.error)
+          });
       });
   }
 
@@ -193,12 +193,12 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
     }).afterClosed().subscribe(
       modification => {
         if (modification)
-          this.projectService.editTask(this.project.name, 'text', taskName, modification).subscribe(
-            msg => {
+          this.projectService.editTask(this.project.name, 'text', taskName, modification).subscribe({
+            next: msg => {
               Object.assign(this.project.textTasks[index], modification);
               this.confirmDialog.open('task modified');
-            }, err => this.errorAlert.open(err.error)
-          );
+            }, error: err => this.errorAlert.open(err.error)
+          });
       }
     );
   }
@@ -211,30 +211,30 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
     }).afterClosed().subscribe(
       modification => {
         if (modification)
-          this.projectService.editTask(this.project.name, 'structural', taskName, modification).subscribe(
-            msg => {
+          this.projectService.editTask(this.project.name, 'structural', taskName, modification).subscribe({
+            next: msg => {
               Object.assign(this.project.structuralTasks[index], modification);
               this.confirmDialog.open('task modified');
-            }, err => this.errorAlert.open(err.error)
-          );
+            }, error: err => this.errorAlert.open(err.error)
+          });
       }
     );
   }
 
   deleteTask(i: number) {
     const task = this.tasks[i];
-    this.projectService.deleteTask(this.project.name, this.project.category, task.name).subscribe(
-      msg => {
+    this.projectService.deleteTask(this.project.name, this.project.category, task.name).subscribe({
+      next: msg => {
         this.tasks.splice(i, 1);
         this.confirmDialog.open('task deleted');
-      }, err => this.errorAlert.open(err.error)
-    );
+      }, error: err => this.errorAlert.open(err.error)
+    });
   }
 
   autoGenerate() {
     if (this.tasks.length == 0) {
-      this.projectService.autoMl(this.project.name).subscribe(
-        tasks => {
+      this.projectService.autoMl(this.project.name).subscribe({
+        next: tasks => {
           switch (this.project.category) {
             case 'vision':
               Array.prototype.push.apply(this.project.visionTasks, tasks);
@@ -253,8 +253,8 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
           }
           this.confirmDialog.open('AutoML generation process completed');
         },
-        err => this.errorAlert.open('automl failed, server error')
-      )
+        error: err => this.errorAlert.open('automl failed, server error')
+      })
     }
   }
 

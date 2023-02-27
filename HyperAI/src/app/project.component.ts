@@ -98,46 +98,46 @@ export class ProjectComponent implements OnInit, AfterViewInit, OnDestroy{
 
 
   ngOnInit(): void {
-    this.projectService.getProjects().subscribe(
-      projects => {
+    this.projectService.getProjects().subscribe({
+      next: projects => {
         this.projects = projects;
         this.projectDS.data = projects;
       },
-      err => {
+      error: err => {
         if (err.status != 404)
           this.errorAlert.open(err.error);
       }
-    );
-    this.userService.getColleagues().subscribe(
-      users => this.colleagues = users,
-      err => {
+    });
+    this.userService.getColleagues().subscribe({
+      next: users => this.colleagues = users,
+      error: err => {
         //not found
         if (err.status != 404)
           this.errorAlert.open(err.error);
       }
-    );
-    this.dataService.getDataPublic().subscribe(
-      data => {
+    });
+    this.dataService.getDataPublic().subscribe({
+      next: data => {
         this.userData = data;
-        this.userService.getUser().subscribe(
-          user => {
+        this.userService.getUser().subscribe({
+          next: user => {
             this.userData = this.userData.concat(user.data);
             this.filterData();
           },
-          err => this.errorAlert.open(err.error)
-        );
-      }, err => this.errorAlert.open(err.error)
-    );
+          error: err => this.errorAlert.open(err.error)
+        });
+      }, error: err => this.errorAlert.open(err.error)
+    });
     this.sub = this.route.url.subscribe(elems => {
       if (elems.length == 2) {
         if (elems[1].path == 'new') {
           this.navigatedByNew = true;
-          this.userService.getColleagues().subscribe(
-            users => {
+          this.userService.getColleagues().subscribe({
+            next: users => {
               this.isMaking = true;
               this.availableMembers = users;
-            }, err => this.errorAlert.open(err.error)
-          );
+            }, error: err => this.errorAlert.open(err.error)
+          });
           this.location.go('/project-manager');
         }
         else
@@ -177,14 +177,14 @@ export class ProjectComponent implements OnInit, AfterViewInit, OnDestroy{
       }
     }).afterClosed().subscribe(project => {
       if (project)
-        this.projectService.createProject(project).subscribe(
-          msg => {
+        this.projectService.createProject(project).subscribe({
+          next: msg => {
             this.projects.push(project);
             this.projectDS.data = this.projects;
             this.confirmDialog.open('project created successfully');
           },
-          err => this.errorAlert.open(err.error)
-        );
+          error: err => this.errorAlert.open(err.error)
+        });
     });
   }
 
@@ -248,8 +248,8 @@ export class ProjectComponent implements OnInit, AfterViewInit, OnDestroy{
   }
 
   postCreated() {
-    this.projectService.createProject(this.newProject).subscribe(
-      msg => {
+    this.projectService.createProject(this.newProject).subscribe({
+      next: msg => {
         this.projects.push(this.newProject);
         this.projectDS.data = this.projects;
         //this.projectTable?.renderRows();
@@ -271,8 +271,8 @@ export class ProjectComponent implements OnInit, AfterViewInit, OnDestroy{
         this.isMaking = false;
         this.dataList = [];
       },
-      err => this.errorAlert.open(err.error)
-    );
+      error: err => this.errorAlert.open(err.error)
+    });
   }
 
   //only dialog
@@ -313,11 +313,12 @@ export class ProjectComponent implements OnInit, AfterViewInit, OnDestroy{
           this.projects[index].members = project.members;
           this.projectService.editProjectMembers(currentProject.name, {
             inMember: inMember, outMember: outMember
-          }).subscribe(msg => {
-            this.confirmDialog.open('project edited');
-            //this.projectTable?.renderRows();
-          },
-            err => this.errorAlert.open(err.error));
+          }).subscribe({
+            next: msg => {
+              this.confirmDialog.open('project edited');
+              //this.projectTable?.renderRows();
+            },
+          });
         }
       }
     });
