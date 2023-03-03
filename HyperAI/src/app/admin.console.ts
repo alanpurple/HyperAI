@@ -62,24 +62,24 @@ export class AdminConsole implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
-    this.adminService.getUsers().subscribe(
-      users => {
+    this.adminService.getUsers().subscribe({
+      next: users => {
         this.users = users;
         this.userDS.data = this.users;
       },
-      err => this.errorAlert.open(err.error)
-    );
-    this.projectService.getProjects().subscribe(
-      projects => {
+      error: err => this.errorAlert.open(err.error)
+    });
+    this.projectService.getProjects().subscribe({
+      next: projects => {
         this.projects = projects;
         this.projectDS.data = this.projects;
       },
-      err => this.errorAlert.open(err.error)
-    );
-    this.userService.getOrganizations().subscribe(
-      orgs => this.organizations = orgs,
-      err => this.errorAlert.open(err.error)
-    );
+      error: err => this.errorAlert.open(err.error)
+    });
+    this.userService.getOrganizations().subscribe({
+      next: orgs => this.organizations = orgs,
+      error: err => this.errorAlert.open(err.error)
+    });
   }
 
   formatDate(date: any) {
@@ -105,13 +105,13 @@ export class AdminConsole implements OnInit, AfterViewInit {
     }).afterClosed()
       .subscribe(data => {
         if (data) {
-          this.adminService.createUser(data.data,data.password).subscribe(
-            msg => {
+          this.adminService.createUser(data.data, data.password).subscribe({
+            next: msg => {
               this.users.push(data.data);
               this.userDS.data = this.users;
               this.confirmDialog.open('user created');
-            }, err => this.errorAlert.open(err.error)
-          );
+            }, error: err => this.errorAlert.open(err.error)
+          });
         }
       });
   }
@@ -160,10 +160,11 @@ export class AdminConsole implements OnInit, AfterViewInit {
               postData['name'] = data.data.name;
             if (data.password)
               postData['password'] = data.password;
-            this.adminService.editUser(email, postData).subscribe(
-              msg => {
+            this.adminService.editUser(email, postData).subscribe({
+              next: msg => {
                 this.confirmDialog.open('user edited');
-              }, err => this.errorAlert.open(err.error));
+              }, error: err => this.errorAlert.open(err.error)
+            });
           }
         });
   }
@@ -177,13 +178,14 @@ export class AdminConsole implements OnInit, AfterViewInit {
     this.dialog.open(DeleteConfirmDialog).afterClosed().subscribe(
       selection => {
         if (selection)
-          this.adminService.deleteUser(email).subscribe(
-            msg => {
+          this.adminService.deleteUser(email).subscribe({
+            next: msg => {
               this.users.splice(index, 1);
               this.userDS.data = this.users;
               this.confirmDialog.open('user deleted');
-            }
-          )
+            },
+            error: err => this.errorAlert.open(err)
+          });
       });
   }
 
@@ -195,8 +197,8 @@ export class AdminConsole implements OnInit, AfterViewInit {
     }
     const currentProject = this.projects[index];
     const projectMembers = currentProject.members.map(elem => elem.user);
-    this.adminService.getColleagues(currentProject.owner).subscribe(
-      colleagues => {
+    this.adminService.getColleagues(currentProject.owner).subscribe({
+      next: colleagues => {
         this.dialog.open(ProjectDialog, {
           data: {
             project: JSON.parse(JSON.stringify(currentProject)), isNew: false, isAdmin: true,
@@ -227,17 +229,19 @@ export class AdminConsole implements OnInit, AfterViewInit {
                 this.projects[index].members = project.members;
                 this.projectService.editProjectMembers(currentProject.name, {
                   inMember: inMember, outMember: outMember
-                }).subscribe(msg => {
-                  this.confirmDialog.open('project edited');
-                  //this.projectTable?.renderRows();
-                },
-                  err => this.errorAlert.open(err.error));
+                }).subscribe({
+                  next: msg => {
+                    this.confirmDialog.open('project edited');
+                    //this.projectTable?.renderRows();
+                  },
+                  error: err => this.errorAlert.open(err.error)
+                });
               }
             }
           }
         );
-      }, err => this.errorAlert.open(err.error)
-    );
+      }, error: err => this.errorAlert.open(err.error)
+    });
   }
 
   deleteProject(name: string) {
@@ -249,12 +253,13 @@ export class AdminConsole implements OnInit, AfterViewInit {
     this.dialog.open(DeleteConfirmDialog).afterClosed().subscribe(
       selection => {
         if (selection)
-          this.projectService.deleteProject(name).subscribe(
-            msg => {
+          this.projectService.deleteProject(name).subscribe({
+            next: msg => {
               this.projects.splice(index, 1);
               this.projectDS.data = this.projects;
               this.confirmDialog.open('project deleted');
-            })
+            }, error: err => this.errorAlert.open(err)
+          });
       }
     );
   }

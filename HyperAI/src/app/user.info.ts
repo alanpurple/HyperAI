@@ -6,6 +6,7 @@ import { ErrorAlert } from './shared/error.alert';
 import { UserData } from './user.data';
 
 import { NameRe } from './shared/validataions';
+import { DOCUMENT } from '@angular/common';
 
 
 @Component({
@@ -18,7 +19,8 @@ export class UserInfo implements OnInit {
   constructor(
     private dialog: MatDialog,
     private errorAlert: ErrorAlert,
-    private userService: UserService
+    private userService: UserService,
+    @Inject(DOCUMENT) private doc: Document
   ) { }
 
   user: UserData = new UserData();
@@ -26,9 +28,11 @@ export class UserInfo implements OnInit {
   nameRe = NameRe;
 
   ngOnInit(): void {
-    this.userService.getUser().subscribe(user => {
-      this.user = user;
-    }, err => this.errorAlert.open(err.message));
+    this.userService.getUser().subscribe({
+      next: user => {
+        this.user = user;
+      }, error: err => this.errorAlert.open(err.message)
+    });
   }
 
   checkNick() {
@@ -43,8 +47,10 @@ export class UserInfo implements OnInit {
               console.log(yes);
               if (yes)
                 this.userService.updateUser({ nickName: this.nickName })
-                  .subscribe(res => window.location.href='/',
-                    err => this.errorAlert.open(err.message));
+                  .subscribe({
+                    next: res => this.doc.location.href = '/',
+                    error: err => this.errorAlert.open(err.message)
+                  });
               else
                 this.nickName = '';
             });

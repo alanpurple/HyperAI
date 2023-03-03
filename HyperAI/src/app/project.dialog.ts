@@ -48,24 +48,24 @@ export class ProjectDialog {
   };
 
   onUserChange() {
-    this.dataService.getDataPublic().subscribe(
-      data => {
+    this.dataService.getDataPublic().subscribe({
+      next: data => {
         this.data.userData = data;
-        this.userService.getUser().subscribe(
-          user => {
+        this.userService.getUser().subscribe({
+          next: user => {
             this.data.userData = this.data.userData.concat(user.data);
             this.filterData();
           },
-          err => {
+          error: err => {
             this.errorAlert.open(err.error);
             this.dialogRef.close();
           }
-        );
-      }, err => {
+        });
+      }, error: err => {
         this.errorAlert.open(err.error);
         this.dialogRef.close();
       }
-    );
+    });
   }
 
   filterData() {

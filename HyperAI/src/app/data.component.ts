@@ -33,8 +33,10 @@ export class DataComponent implements OnInit, AfterViewInit {
   @ViewChild('userTable') userTable: MatTable<DataInfo> | null = null;
 
   ngOnInit(): void {
-    this.userService.getUser().subscribe(user => { this.isAdmin = user.accountType == 'admin' },
-      err => this.errorAlert.open(err.error));
+    this.userService.getUser().subscribe({
+      next: user => { this.isAdmin = user.accountType == 'admin' },
+      error: err => this.errorAlert.open(err.error)
+    });
   }
 
   ngAfterViewInit() {
@@ -57,10 +59,12 @@ export class DataComponent implements OnInit, AfterViewInit {
     if (!this.dataDB)
       return;
     this.isLoadingMy = true;
-    this.dataDB.getDataMy().subscribe(data => {
-      this.isLoadingMy = false;
-      this.myData = data;
-    }, err => this.errorAlert.open(err.error));
+    this.dataDB.getDataMy().subscribe({
+      next: data => {
+        this.isLoadingMy = false;
+        this.myData = data;
+      }, error: err => this.errorAlert.open(err.error)
+    });
   }
 
   dataDB: DataDatabase | null = null;
@@ -77,12 +81,14 @@ export class DataComponent implements OnInit, AfterViewInit {
     if (!this.file)
       return;
     this.uploading = true;
-    this.dataService.uploadData(this.file).subscribe(data => {
-      this.uploading = false;
-      this.file = null;
-      this.loadMy();
-      this.confirmDialog.open('data uplodaed');
-    }, err => this.errorAlert.open(err.error));
+    this.dataService.uploadData(this.file).subscribe({
+      next: data => {
+        this.uploading = false;
+        this.file = null;
+        this.loadMy();
+        this.confirmDialog.open('data uplodaed');
+      }, error: err => this.errorAlert.open(err.error)
+    });
   }
 
   uploading: boolean = false;
@@ -91,12 +97,14 @@ export class DataComponent implements OnInit, AfterViewInit {
     if (!this.fileOpen)
       return;
     this.uploading = true;
-    this.dataService.uploadData(this.fileOpen).subscribe(data => {
-      this.uploading = false;
-      this.file = null;
-      this.loadOpen();
-      this.confirmDialog.open('open data added');
-    }, err => this.errorAlert.open(err.error));
+    this.dataService.uploadData(this.fileOpen).subscribe({
+      next: data => {
+        this.uploading = false;
+        this.file = null;
+        this.loadOpen();
+        this.confirmDialog.open('open data added');
+      }, error: err => this.errorAlert.open(err.error)
+    });
   }
 
   onFileSelected(event: Event) {
@@ -129,8 +137,8 @@ export class DataComponent implements OnInit, AfterViewInit {
     this.dialog.open(DataDialog).afterClosed().subscribe(
       data => {
         if (data)
-          this.dataService.addData(data).subscribe(
-            msg => {
+          this.dataService.addData(data).subscribe({
+            next: msg => {
               if (this.isAdmin) {
                 this.openData.push(data);
                 this.openTable?.renderRows();
@@ -140,8 +148,8 @@ export class DataComponent implements OnInit, AfterViewInit {
                 this.userTable?.renderRows();
               }
               this.confirmDialog.open('data added successfully');
-            }
-          );
+            }, error: err => this.errorAlert.open(err)
+          });
       }
     );
   }

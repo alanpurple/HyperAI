@@ -49,8 +49,8 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
     this.userService.getUser()
-      .subscribe(
-        user => {
+      .subscribe({
+        next: user => {
           if (!user.nickName) {
             this.userNoNick = true;
             this.router.navigate(['/user-info']);
@@ -60,10 +60,11 @@ export class AppComponent implements OnInit {
           if (user.accountType == 'admin')
             this.isAdmin = true;
         },
-        error => {
+        error: error => {
           if (error.status != 401)
             console.error(error.error);
-        });
+        }
+      });
   }
 
   showAccountInfo() {
