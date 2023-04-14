@@ -43,7 +43,6 @@ import { ReportService } from './report.service';
 import { TrainService } from './train.service';
 import { UserService } from './user.service';*/
 
-import { LoggedIn, NotLoggedIn, HasNick, IsAdmin, IsNotAdmin } from './check.login';
 import { ErrorAlert, ErrorDialog } from './shared/error.alert';
 import { ConfirmDialog, ConfirmDialogTemplate, ConfirmDialogTemplate2 } from './shared/confirm.dialog';
 import { DeleteConfirmDialog } from './shared/delete.confirm.dialog';
