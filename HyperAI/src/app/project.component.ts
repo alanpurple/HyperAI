@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { MatTableDataSource } from '@angular/material/table';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { ConfirmDialog } from './shared/confirm.dialog';
 import { ErrorAlert } from './shared/error.alert';
 import { Project } from './project.data';
@@ -13,15 +13,29 @@ import { DataService } from './data.service';
 import { DataInfo } from './data.info';
 
 import { NameRe } from './shared/validataions'
-import { MatSort } from '@angular/material/sort';
-import { Location } from '@angular/common';
-import { ActivatedRoute, NavigationStart, Router } from '@angular/router';
+import { MatSort, MatSortModule } from '@angular/material/sort';
+import { Location, NgIf, NgFor } from '@angular/common';
+import { ActivatedRoute, NavigationStart, Router, RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { MatChipsModule } from '@angular/material/chips';
+import { FlexModule } from '@angular/flex-layout/flex';
+import { MatOptionModule } from '@angular/material/core';
+import { MatSelectModule } from '@angular/material/select';
+import { ForbiddenValidatorDirective } from './shared/forbidden-name.directive';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { FormsModule } from '@angular/forms';
+import { MatStepperModule } from '@angular/material/stepper';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { ExtendedModule } from '@angular/flex-layout/extended';
 
 @Component({
-  selector: 'app-project',
-  templateUrl: './project.component.html',
-  styleUrls: ['./project.component.sass']
+    selector: 'app-project',
+    templateUrl: './project.component.html',
+    styleUrls: ['./project.component.sass'],
+    standalone: true,
+    imports: [ExtendedModule, MatButtonModule, MatIconModule, MatTableModule, MatSortModule, RouterLink, NgIf, MatStepperModule, FormsModule, MatFormFieldModule, MatInputModule, ForbiddenValidatorDirective, MatSelectModule, NgFor, MatOptionModule, FlexModule, MatChipsModule]
 })
 export class ProjectComponent implements OnInit, AfterViewInit, OnDestroy{
 

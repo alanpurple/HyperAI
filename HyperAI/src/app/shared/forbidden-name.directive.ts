@@ -3,11 +3,12 @@ import { AbstractControl, NG_VALIDATORS, ValidationErrors, Validator } from "@an
 import { forbiddenNameValidator } from './validataions';
 
 @Directive({
-  selector: '[appForbiddenName]',
-  providers: [{
-    provide: NG_VALIDATORS, useExisting: ForbiddenValidatorDirective,
-    multi: true
-  }]
+    selector: '[appForbiddenName]',
+    providers: [{
+            provide: NG_VALIDATORS, useExisting: ForbiddenValidatorDirective,
+            multi: true
+        }],
+    standalone: true
 })
 export class ForbiddenValidatorDirective implements Validator {
   validate(control: AbstractControl): ValidationErrors | null {

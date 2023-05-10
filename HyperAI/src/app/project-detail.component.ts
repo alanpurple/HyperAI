@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Location } from '@angular/common';
+import { Location, NgFor, NgIf } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { ConfirmDialog } from './shared/confirm.dialog';
 import { ErrorAlert } from './shared/error.alert';
@@ -9,11 +9,21 @@ import { ErrorAlert } from './shared/error.alert';
 import { Project, StructuralTask, TextTask, VisionTask } from './project.data';
 import { ProjectService } from './project.service';
 import { StructuralTaskDialog, TextTaskDialog, VisionTaskDialog } from './task.dialog';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { FlexModule } from '@angular/flex-layout/flex';
+import { FormsModule } from '@angular/forms';
 
 @Component({
-  selector: 'app-project-detail',
-  templateUrl: './project-detail.component.html',
-  styleUrls: ['./project-detail.component.sass']
+    selector: 'app-project-detail',
+    templateUrl: './project-detail.component.html',
+    styleUrls: ['./project-detail.component.sass'],
+    standalone: true,
+    imports: [FormsModule, FlexModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule, NgFor, MatCardModule, NgIf, MatProgressBarModule]
 })
 export class ProjectDetailComponent implements OnInit, OnDestroy {
 

@@ -1,13 +1,24 @@
 import { Component, Inject } from "@angular/core";
-import { MAT_DIALOG_DATA } from "@angular/material/dialog";
+import { MAT_DIALOG_DATA, MatDialogModule } from "@angular/material/dialog";
 
 import { StructuralTask, TextTask, VisionTask } from './project.data';
 
 import { NameRe } from './shared/validataions';
+import { MatButtonModule } from "@angular/material/button";
+import { MatOptionModule } from "@angular/material/core";
+import { MatSelectModule } from "@angular/material/select";
+import { ForbiddenValidatorDirective } from "./shared/forbidden-name.directive";
+import { MatInputModule } from "@angular/material/input";
+import { MatFormFieldModule } from "@angular/material/form-field";
+import { FlexModule } from "@angular/flex-layout/flex";
+import { FormsModule } from "@angular/forms";
+import { NgIf, NgFor } from "@angular/common";
 
 @Component({
-  selector: 'vision-task-dialog',
-  templateUrl: './task.dialog.vision.html'
+    selector: 'vision-task-dialog',
+    templateUrl: './task.dialog.vision.html',
+    standalone: true,
+    imports: [NgIf, MatDialogModule, FormsModule, FlexModule, MatFormFieldModule, MatInputModule, ForbiddenValidatorDirective, MatSelectModule, NgFor, MatOptionModule, MatButtonModule]
 })
 export class VisionTaskDialog {
   constructor(
@@ -66,8 +77,10 @@ export class VisionTaskDialog {
 }
 
 @Component({
-  selector: 'structural-task-dialog',
-  templateUrl: './task.dialog.structural.html'
+    selector: 'structural-task-dialog',
+    templateUrl: './task.dialog.structural.html',
+    standalone: true,
+    imports: [NgIf, MatDialogModule, FormsModule, FlexModule, MatFormFieldModule, MatInputModule, ForbiddenValidatorDirective, MatSelectModule, NgFor, MatOptionModule, MatButtonModule]
 })
 export class StructuralTaskDialog {
   constructor(
@@ -102,8 +115,10 @@ export class StructuralTaskDialog {
 }
 
 @Component({
-  selector: 'text-task-dialog',
-  templateUrl: './task.dialog.text.html'
+    selector: 'text-task-dialog',
+    templateUrl: './task.dialog.text.html',
+    standalone: true,
+    imports: [NgIf, MatDialogModule, FormsModule, FlexModule, MatFormFieldModule, MatInputModule, ForbiddenValidatorDirective, MatSelectModule, NgFor, MatOptionModule, MatButtonModule]
 })
 export class TextTaskDialog {
   constructor(

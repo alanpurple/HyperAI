@@ -8,12 +8,20 @@ import { UserService } from './user.service';
 import { ConfirmDialog } from './shared/confirm.dialog';
 import { ErrorAlert } from './shared/error.alert';
 import { MatDialog } from '@angular/material/dialog';
-import { MatTable } from '@angular/material/table';
+import { MatTable, MatTableModule } from '@angular/material/table';
+import { MatSortModule } from '@angular/material/sort';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { NgIf } from '@angular/common';
+import { MatTabsModule } from '@angular/material/tabs';
 
 @Component({
-  selector: 'app-data',
-  templateUrl: './data.component.html',
-  styleUrls: ['./data.component.sass']
+    selector: 'app-data',
+    templateUrl: './data.component.html',
+    styleUrls: ['./data.component.sass'],
+    standalone: true,
+    imports: [MatTabsModule, NgIf, MatButtonModule, MatIconModule, MatProgressSpinnerModule, MatTableModule, MatSortModule]
 })
 export class DataComponent implements OnInit, AfterViewInit {
 

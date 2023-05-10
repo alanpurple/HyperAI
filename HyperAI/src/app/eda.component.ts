@@ -5,7 +5,13 @@ import { AllData, DataBasic, EdaData } from './data.info';
 import { UserData } from './user.data';
 import { ErrorAlert } from './shared/error.alert';
 import { ConfirmDialog } from './shared/confirm.dialog';
-import { MatTable } from '@angular/material/table';
+import { MatTable, MatTableModule } from '@angular/material/table';
+import { RouterLink } from '@angular/router';
+import { MatButtonModule } from '@angular/material/button';
+import { MatSortModule } from '@angular/material/sort';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { NgIf } from '@angular/common';
 
 interface DirtyData {
   name: string;
@@ -14,9 +20,11 @@ interface DirtyData {
 }
 
 @Component({
-  selector: 'app-eda',
-  templateUrl: './eda.component.html',
-  styleUrls: ['./eda.component.sass']
+    selector: 'app-eda',
+    templateUrl: './eda.component.html',
+    styleUrls: ['./eda.component.sass'],
+    standalone: true,
+    imports: [NgIf, MatProgressSpinnerModule, MatTabsModule, MatTableModule, MatSortModule, MatButtonModule, RouterLink]
 })
 export class EdaComponent implements OnInit {
 

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { /*PieData,*/ BoxPlotData, ScatterData, PlotData, Layout } from 'plotly.js';
-import { Color } from '@swimlane/ngx-charts';
+import { Color, BarChartModule, PieChartModule } from '@swimlane/ngx-charts';
 
 import { LrService } from './lr.service';
 
@@ -10,10 +10,23 @@ import { EdaService } from './eda.service';
 import { UserService } from './user.service';
 
 import { SummaryData } from './summary.data';
+import { PlotlySharedModule } from 'angular-plotly.js';
+import { MatGridListModule } from '@angular/material/grid-list';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatButtonModule } from '@angular/material/button';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatOptionModule } from '@angular/material/core';
+import { MatSelectModule } from '@angular/material/select';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { FormsModule } from '@angular/forms';
+import { MatRadioModule } from '@angular/material/radio';
+import { NgIf, NgFor } from '@angular/common';
 
 @Component({
-  templateUrl: './association.html',
-  styleUrls: ['./association.sass']
+    templateUrl: './association.html',
+    styleUrls: ['./association.sass'],
+    standalone: true,
+    imports: [NgIf, MatRadioModule, FormsModule, MatFormFieldModule, MatSelectModule, NgFor, MatOptionModule, MatProgressSpinnerModule, MatButtonModule, MatSlideToggleModule, BarChartModule, MatGridListModule, PieChartModule, PlotlySharedModule]
 })
 export class Association implements OnInit {
   constructor(

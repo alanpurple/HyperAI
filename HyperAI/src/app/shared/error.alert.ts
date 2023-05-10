@@ -1,15 +1,18 @@
 import { Component, Injectable, Inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialog, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
-  template: `
+    template: `
                 <h3 mat-dialog-title>{{data}}</h3>
                 <mat-dialog-content>Returning to home.</mat-dialog-content>
                 <div mat-dialog-actions>
                 <button mat-button color="accent" mat-dialog-close>Confirm</button>
                 </div>
-              `
+              `,
+    standalone: true,
+    imports: [MatDialogModule, MatButtonModule]
 })
 export class ErrorDialog {
   constructor(@Inject(MAT_DIALOG_DATA) public data: string) { }

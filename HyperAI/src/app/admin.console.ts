@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { MatSort } from '@angular/material/sort';
-import { MatTableDataSource } from '@angular/material/table';
+import { MatSort, MatSortModule } from '@angular/material/sort';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { AdminService } from './admin.service';
 import { Project } from './project.data';
 import { ProjectDialog } from './project.dialog';
@@ -12,11 +12,16 @@ import { ErrorAlert } from './shared/error.alert';
 import { UserData } from './user.data';
 import { UserDialog } from './user.dialog';
 import { UserService } from './user.service';
+import { NgIf } from '@angular/common';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
-  selector: 'app-admin',
-  templateUrl: './admin.console.html',
-  styleUrls: ['./admin.console.sass']
+    selector: 'app-admin',
+    templateUrl: './admin.console.html',
+    styleUrls: ['./admin.console.sass'],
+    standalone: true,
+    imports: [MatButtonModule, MatIconModule, MatTableModule, MatSortModule, NgIf]
 })
 export class AdminConsole implements OnInit, AfterViewInit {
 

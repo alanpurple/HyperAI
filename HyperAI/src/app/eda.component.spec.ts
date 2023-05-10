@@ -8,8 +8,8 @@ describe('EdaComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ EdaComponent ]
-    })
+    imports: [EdaComponent]
+})
     .compileComponents();
   });
 

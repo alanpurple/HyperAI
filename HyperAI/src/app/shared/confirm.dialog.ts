@@ -1,27 +1,33 @@
 import { Component, Injectable, Inject } from '@angular/core';
-import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialog, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
+import { NgFor } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
-  template: `
+    template: `
                 <h3 mat-dialog-title>
                     <div *ngFor="let elem of data">{{elem}}<br></div>
                 </h3>
                 <div mat-dialog-actions>
                 <button mat-button color="accent" mat-dialog-close>Confirm</button>
                 </div>
-              `
+              `,
+    standalone: true,
+    imports: [MatDialogModule, NgFor, MatButtonModule]
 })
 export class ConfirmDialogTemplate2 {
   constructor(@Inject(MAT_DIALOG_DATA) public data: string) { }
 }
 
 @Component({
-  template: `
+    template: `
                 <h3 mat-dialog-title>{{data}}</h3>
                 <div mat-dialog-actions>
                 <button mat-button color="accent" mat-dialog-close>Confirm</button>
                 </div>
-              `
+              `,
+    standalone: true,
+    imports: [MatDialogModule, MatButtonModule]
 })
 export class ConfirmDialogTemplate {
   constructor(@Inject(MAT_DIALOG_DATA) public data: string) { }

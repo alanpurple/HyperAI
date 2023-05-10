@@ -3,7 +3,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { HttpClientModule } from '@angular/common/http';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatModule } from './mat.module';
+
 
 import * as PlotlyJS from 'plotly.js-dist-min';
 import { PlotlyModule } from 'angular-plotly.js';
@@ -53,24 +53,16 @@ import { NotfoundComponent } from './notfound.component';
 import { MyErrorHandler } from './my.error.handler';
 import { UserDialog } from './user.dialog';
 
-@NgModule({
-  declarations: [
-    AppComponent, SignupComponent, LoginComponent, HomeComponent,
-    AdminConsole, InfoComponent, DescComponent, TrainComponent,
-    DataComponent, EdaComponent, Association, DataPreview,
-    ErrorDialog, ConfirmDialogTemplate, ConfirmDialogTemplate2, UserInfo,
-    ComingSoonDialog, NickNameTakenDialog, NickNameConfirmDialog, ProjectComponent, ProjectDetailComponent,
-    ProjectDialog, VisionTaskDialog, TextTaskDialog, StructuralTaskDialog, DataDialog,
-    ForbiddenValidatorDirective, DeleteConfirmDialog, PrivacyPolicy, NotfoundComponent,
-    UserDialog, NoEmailDialog
-  ],
-  /*entryComponents: [
-    ConfirmDialogTemplate, ConfirmDialogTemplate2, ErrorDialog, ComingSoonDialog,
-    NickNameConfirmDialog, NickNameTakenDialog,
-    ProjectDialog, VisionTaskDialog, TextTaskDialog, StructuralTaskDialog, DataDialog,
-    DeleteConfirmDialog
-  ],*/
-  imports: [
+@NgModule(/* TODO(standalone-migration): clean up removed NgModule class manually. 
+{
+    declarations: [AppComponent],
+    /*entryComponents: [
+      ConfirmDialogTemplate, ConfirmDialogTemplate2, ErrorDialog, ComingSoonDialog,
+      NickNameConfirmDialog, NickNameTakenDialog,
+      ProjectDialog, VisionTaskDialog, TextTaskDialog, StructuralTaskDialog, DataDialog,
+      DeleteConfirmDialog
+    ],*/
+    imports: [
     BrowserModule,
     FormsModule,
     ReactiveFormsModule,
@@ -79,13 +71,20 @@ import { UserDialog } from './user.dialog';
     FlexLayoutModule,
     HttpClientModule,
     PlotlyModule,
-    MatModule,
     NgxChartsModule,
     GojsAngularModule,
-    SocketIoModule.forRoot(config)
-  ],
-  providers: [ConfirmDialog, ErrorAlert, DeleteConfirmDialog,
-    { provide: ErrorHandler, useClass: MyErrorHandler }],
-  bootstrap: [AppComponent]
-})
+    SocketIoModule.forRoot(config),
+    SignupComponent, LoginComponent, HomeComponent,
+    AdminConsole, InfoComponent, DescComponent, TrainComponent,
+    DataComponent, EdaComponent, Association, DataPreview,
+    ErrorDialog, ConfirmDialogTemplate, ConfirmDialogTemplate2, UserInfo,
+    ComingSoonDialog, NickNameTakenDialog, NickNameConfirmDialog, ProjectComponent, ProjectDetailComponent,
+    ProjectDialog, VisionTaskDialog, TextTaskDialog, StructuralTaskDialog, DataDialog,
+    ForbiddenValidatorDirective, DeleteConfirmDialog, PrivacyPolicy, NotfoundComponent,
+    UserDialog, NoEmailDialog
+],
+    providers: [ConfirmDialog, ErrorAlert, DeleteConfirmDialog,
+        { provide: ErrorHandler, useClass: MyErrorHandler }],
+    bootstrap: [AppComponent]
+} */)
 export class AppModule { }

@@ -1,10 +1,22 @@
 import { Component, Inject } from "@angular/core";
-import { MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
+import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from "@angular/material/dialog";
 import { UserData } from "./user.data";
+import { MatButtonModule } from "@angular/material/button";
+import { MatRadioModule } from "@angular/material/radio";
+import { MatOptionModule } from "@angular/material/core";
+import { NgFor, NgIf } from "@angular/common";
+import { MatSelectModule } from "@angular/material/select";
+import { MatInputModule } from "@angular/material/input";
+import { MatFormFieldModule } from "@angular/material/form-field";
+import { FlexModule } from "@angular/flex-layout/flex";
+import { FormsModule } from "@angular/forms";
+import { ExtendedModule } from "@angular/flex-layout/extended";
 
 @Component({
-  selector: 'user-dialog',
-  templateUrl: './user.dialog.html'
+    selector: 'user-dialog',
+    templateUrl: './user.dialog.html',
+    standalone: true,
+    imports: [MatDialogModule, ExtendedModule, FormsModule, FlexModule, MatFormFieldModule, MatInputModule, MatSelectModule, NgFor, MatOptionModule, MatRadioModule, NgIf, MatButtonModule]
 })
 export class UserDialog {
   constructor(

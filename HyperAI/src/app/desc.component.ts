@@ -4,11 +4,21 @@ import { SummaryData } from './summary.data';
 import { EdaService, SummaryDataSource } from './eda.service';
 import { DataService } from './data.service';
 import { ErrorAlert } from './shared/error.alert';
+import { MatTableModule } from '@angular/material/table';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatButtonModule } from '@angular/material/button';
+import { MatOptionModule } from '@angular/material/core';
+import { NgFor, NgIf } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatSelectModule } from '@angular/material/select';
+import { MatFormFieldModule } from '@angular/material/form-field';
 
 @Component({
-  selector: 'app-desc',
-  templateUrl: './desc.component.html',
-  styleUrls: ['./desc.component.sass']
+    selector: 'app-desc',
+    templateUrl: './desc.component.html',
+    styleUrls: ['./desc.component.sass'],
+    standalone: true,
+    imports: [MatFormFieldModule, MatSelectModule, FormsModule, NgFor, MatOptionModule, MatButtonModule, NgIf, MatProgressSpinnerModule, MatTableModule]
 })
 export class DescComponent implements OnInit {
 

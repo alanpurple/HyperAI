@@ -8,8 +8,8 @@ describe('AdminConsole', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ AdminConsole ]
-    })
+    imports: [AdminConsole]
+})
     .compileComponents();
   });
 

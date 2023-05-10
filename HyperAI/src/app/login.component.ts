@@ -1,17 +1,26 @@
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
 
 import { UserService } from './user.service';
 import { ErrorAlert } from './shared/error.alert';
-import { Location, DOCUMENT } from '@angular/common';
+import { Location, DOCUMENT, NgIf } from '@angular/common';
 import { ConfirmDialog } from './shared/confirm.dialog';
-import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { FormControl, Validators } from '@angular/forms';
+import { MatDialog, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
+import { FormControl, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { ExtendedModule } from '@angular/flex-layout/extended';
+import { MatButtonModule } from '@angular/material/button';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { FlexModule } from '@angular/flex-layout/flex';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatCardModule } from '@angular/material/card';
 
 @Component({
-  templateUrl: './login.component.html',
-  styleUrls: ['./login.component.sass']
+    templateUrl: './login.component.html',
+    styleUrls: ['./login.component.sass'],
+    standalone: true,
+    imports: [MatCardModule, MatToolbarModule, FormsModule, FlexModule, MatFormFieldModule, MatInputModule, ReactiveFormsModule, NgIf, MatButtonModule, ExtendedModule, RouterLink]
 })
 export class LoginComponent implements OnInit, OnDestroy {
 
@@ -129,7 +138,7 @@ export class LoginComponent implements OnInit, OnDestroy {
 }
 
 @Component({
-  template: `
+    template: `
                 <h3 mat-dialog-title>Email not Found</h3>
                 <div mat-dialog-content>
                   Want to register with this email {{data}} ?
@@ -138,7 +147,9 @@ export class LoginComponent implements OnInit, OnDestroy {
                 <button mat-button color="accent" [mat-dialog-close]="true">Go</button>
                 <button mat-button color="accent" mat-dialog-close>Cancel</button>
                 </div>
-              `
+              `,
+    standalone: true,
+    imports: [MatDialogModule, MatButtonModule]
 })
 export class NoEmailDialog {
   constructor(@Inject(MAT_DIALOG_DATA) public data: string) { }

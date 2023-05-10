@@ -18,7 +18,7 @@
       "prefix": "app",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-angular:browser",
+          "builder": "@angular-devkit/build-angular:browser-esbuild",
           "options": {
             "outputPath": "../wwwroot",
             "index": "src/index.html",
@@ -35,7 +35,8 @@
             ],
             "scripts": [],
             "allowedCommonJsDependencies": [
-              "plotly.js-dist-min"
+              "plotly.js-dist-min",
+              "rfdc"
             ]
           },
           "configurations": {

@@ -6,11 +6,24 @@ import { ErrorAlert } from './shared/error.alert';
 
 import { NameRe } from './shared/validataions';
 import { Subscription } from 'rxjs';
-import { Location } from '@angular/common';
+import { Location, NgIf, NgFor } from '@angular/common';
+import { MatOptionModule } from '@angular/material/core';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { ForbiddenValidatorDirective } from './shared/forbidden-name.directive';
+import { ExtendedModule } from '@angular/flex-layout/extended';
+import { MatButtonModule } from '@angular/material/button';
+import { FormsModule } from '@angular/forms';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { FlexModule } from '@angular/flex-layout/flex';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatCardModule } from '@angular/material/card';
 
 @Component({
-  templateUrl: './signup.component.html',
-  styleUrls: ['./signup.component.sass']
+    templateUrl: './signup.component.html',
+    styleUrls: ['./signup.component.sass'],
+    standalone: true,
+    imports: [MatCardModule, MatToolbarModule, FlexModule, MatFormFieldModule, MatInputModule, FormsModule, MatButtonModule, ExtendedModule, ForbiddenValidatorDirective, NgIf, MatAutocompleteModule, NgFor, MatOptionModule]
 })
 export class SignupComponent implements OnInit, OnDestroy {
 

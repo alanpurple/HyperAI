@@ -1,15 +1,29 @@
 import { Component, Inject } from "@angular/core";
-import { MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
+import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from "@angular/material/dialog";
 import { Project } from "./project.data";
 import { NameRe } from './shared/validataions';
 import { DataInfo } from './data.info';
 import { DataService } from "./data.service";
 import { UserService } from "./user.service";
 import { ErrorAlert } from "./shared/error.alert";
+import { MatButtonModule } from "@angular/material/button";
+import { MatIconModule } from "@angular/material/icon";
+import { MatChipsModule } from "@angular/material/chips";
+import { MatOptionModule } from "@angular/material/core";
+import { MatSelectModule } from "@angular/material/select";
+import { NgIf, NgFor } from "@angular/common";
+import { ForbiddenValidatorDirective } from "./shared/forbidden-name.directive";
+import { MatInputModule } from "@angular/material/input";
+import { MatFormFieldModule } from "@angular/material/form-field";
+import { FlexModule } from "@angular/flex-layout/flex";
+import { FormsModule } from "@angular/forms";
+import { ExtendedModule } from "@angular/flex-layout/extended";
 
 @Component({
-  selector: 'project-dialog',
-  templateUrl: './project.dialog.html'
+    selector: 'project-dialog',
+    templateUrl: './project.dialog.html',
+    standalone: true,
+    imports: [MatDialogModule, ExtendedModule, FormsModule, FlexModule, MatFormFieldModule, MatInputModule, ForbiddenValidatorDirective, NgIf, MatSelectModule, NgFor, MatOptionModule, MatChipsModule, MatIconModule, MatButtonModule]
 })
 export class ProjectDialog {
   constructor(
