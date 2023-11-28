@@ -18,7 +18,7 @@ import { ProjectDetailComponent } from './project-detail.component';
 import { PrivacyPolicy } from './privacy-policy';
 import { NotfoundComponent } from './notfound.component';
 
-const routes: Routes = [
+export const routes: Routes = [
   {
     path: '', component: HomeComponent,
     canActivate: [HasNick]
@@ -89,9 +89,3 @@ const routes: Routes = [
     path: '**', component: NotfoundComponent
   }
 ];
-
-@NgModule({
-  imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule]
-})
-export class AppRoutingModule { }

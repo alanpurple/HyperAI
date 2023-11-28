@@ -100,7 +100,7 @@ const schema = new Schema<Project>({
             }
         },
         required: function () {
-            return this.projectType == 'vision';
+            return this.category == 'vision';
         }
     },
     textTasks: {
@@ -111,7 +111,7 @@ const schema = new Schema<Project>({
             }
         },
         required: function () {
-            return this.projectType == 'text';
+            return this.category == 'text';
         }
     },
     structuralTasks: {
@@ -122,7 +122,7 @@ const schema = new Schema<Project>({
             }
         },
         required: function () {
-            return this.projectType == 'structural';
+            return this.category == 'structural';
         }
     }
 }, { timestamps:true });
