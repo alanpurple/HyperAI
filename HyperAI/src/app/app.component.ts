@@ -90,12 +90,12 @@ export class AppComponent implements OnInit {
     }
   }
 
-  user: UserData | null = null;
-  isAdmin: boolean = false;
+  user?: UserData;
+  isAdmin = false;
 
   title = 'HyperAI';
 
-  isOpened: boolean = true;
+  isOpened = true;
   sidenavMode: 'side' | 'over' | 'push' = 'side';
   msgs: string[] = [];
 
