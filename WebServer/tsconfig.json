@@ -3,11 +3,12 @@
   "compilerOptions": {
     "baseUrl": "./",
     "outDir": "./",
-    "module": "commonjs",
-    "moduleResolution": "node",
-    "target": "es2020",
-    "lib": [ "es2020", "dom" ],
+    "module": "Preserve",
+    "moduleResolution": "Bundler",
+    "target": "ES2022",
+    "lib": [ "ES2022" ],
     "resolveJsonModule": true,
+    "esModuleInterop": true,
     "sourceMap": true
   },
   "exclude": [

@@ -1,12 +1,12 @@
 import { Router, Request, Response, NextFunction } from 'express';
-import { QueryTypes } from 'sequelize';
+import { QueryTypes } from '@sequelize/core';
 import { sequelize, sequelizeOpen } from '../connect-rdb';
 
 const PROTO_PATH = __dirname + '/../../MLServer/eda.proto';
 import { loadPackageDefinition, credentials } from '@grpc/grpc-js';
 import { loadSync } from '@grpc/proto-loader';
 import { User, UserModel } from '../models/user';
-import * as URI from '../uri.json';
+import {default as URI} from '../uri.json';
 
 const pkgdef = loadSync(PROTO_PATH, {
     keepCase: true, longs: String, enums: String, defaults: true, oneofs: true

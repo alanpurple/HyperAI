@@ -1,16 +1,16 @@
-import * as express from 'express';
+import express from 'express';
 import { Server } from 'socket.io';
 import { createServer } from 'http';
 import { mkdir, access } from 'fs/promises';
 import { AddressInfo } from "net";
-import * as path from 'path';
+import path from 'path';
 import { connectDdb } from './connect-ddb';
 import favicon = require('serve-favicon');
-import * as bodyParser from 'body-parser';
-import * as logger from 'morgan';
+import bodyParser from 'body-parser';
+import logger from 'morgan';
 import { UserModel } from './models/user';
-const MongoStore = require('connect-mongo');
-import * as session from 'express-session';
+import MongoStore from 'connect-mongo';
+import session from 'express-session';
 import DataRoute from './routes/data';
 import EdaRoute from './routes/eda';
 import EdaTextRoute from './routes/eda-text';
@@ -24,7 +24,7 @@ import AdminRoute from './routes/admin';
 //import * as swaggerJSDoc from 'swagger-jsdoc';
 //import { swaggerOptions } from "./openapi/swagger";
 
-import * as URI from "./uri.json";
+import { default as URI } from "./uri.json";
 
 
 const debug = require('debug')('my express app');

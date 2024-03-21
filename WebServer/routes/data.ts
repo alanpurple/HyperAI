@@ -1,10 +1,10 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { User,UserModel } from '../models/user';
 import { sequelize, sequelizeOpen } from '../connect-rdb';
-import { QueryTypes } from 'sequelize';
+import { QueryTypes } from '@sequelize/core';
 import { rm } from 'fs/promises';
 import multer = require('multer');
-import * as URI from '../uri.json';
+import {default as URI} from '../uri.json';
 
 const UPLOAD_TEMP_PATH = '../upload-temp';
 
